@@ -4,6 +4,7 @@ using TMPro;
 using System;
 using Melanchall.DryWetMidi.Core;
 using Melanchall.DryWetMidi.Multimedia;
+using Melanchall.DryWetMidi.Interaction;
 using System.Text;
 using System.Linq;
 
@@ -19,14 +20,27 @@ public class MidiOutput : MonoBehaviour
     void Start()
     {
         MidiFile testMidi = MidiFile.Read("Assets/MIDIs/ShortSong1.mid");
-        outputDevice = OutputDevice.GetByName("Microsoft GS Wavetable Synth");
+        outputDevice = OutputDevice.GetByIndex(0);
         playback = testMidi.GetPlayback(outputDevice);
+
         playback.NotesPlaybackStarted += OnNotesPlaybackStarted;
-        playback.NotesPlaybackFinished += OnNotesPlaybackFinished;
+
+        var allOutputs = OutputDevice.GetAll();
+        foreach (var device in allOutputs) {
+            Debug.Log("Output Device Found: " + device.Name);
+        }
+
+        // prints out timing with all notes 
+        IEnumerable<Note> allNotes = testMidi.GetNotes();
+
+        foreach (Note note in allNotes) {
+            Debug.Log(note.Time + " " + note.NoteName + " " + note.Octave);
+        }
     }
 
     void OnApplicationQuit() {
         if (playback != null) {
+            playback.NotesPlaybackStarted -= OnNotesPlaybackStarted;
             playback.Dispose();
         }
 
@@ -38,7 +52,7 @@ public class MidiOutput : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
-        if (Time.time > timestamp + 0.15f) {
+        if (Time.time > timestamp + 0.50f) {
             if (Input.GetKey(KeyCode.Space)) {
                 timestamp = Time.time;
 
@@ -54,20 +68,9 @@ public class MidiOutput : MonoBehaviour
 
     private void OnNotesPlaybackStarted(object sender, NotesEventArgs e)
     {
-        LogNotes("Note played: ", e);
-    }
-
-    private void OnNotesPlaybackFinished(object sender, NotesEventArgs e)
-    {
-        LogNotes("Notes finished:", e);
-    }
-
-    private void LogNotes(string title, NotesEventArgs e)
-    {
-        var message = new StringBuilder()
-            .AppendLine(title)
-            .AppendLine(string.Join(Environment.NewLine, e.Notes.Select(n => $"  {n}")))
-            .ToString();
-        Debug.Log(message.Trim());
+        var notesList = e.Notes;
+        foreach (Note item in notesList) {
+            Debug.Log(item + " TIME: " + item.Time);
+        }
     }
 }
