@@ -10,7 +10,8 @@ using System.Linq;
 
 public class MidiOutput : MonoBehaviour
 {
-    public TMP_Text textElement;
+    private Dictionary<long, List<Note>> noteMap;
+    private long lastTimeParsed = -1;
 
     private float timestamp = 0f;
 
@@ -30,11 +31,21 @@ public class MidiOutput : MonoBehaviour
             Debug.Log("Output Device Found: " + device.Name);
         }
 
-        // prints out timing with all notes 
+        // populates the note map
+        noteMap = new Dictionary<long, List<Note>>();
         IEnumerable<Note> allNotes = testMidi.GetNotes();
 
         foreach (Note note in allNotes) {
-            Debug.Log(note.Time + " " + note.NoteName + " " + note.Octave);
+            long time = note.Time;
+
+            List<Note> value;
+            if (!noteMap.TryGetValue(time, out value)) {
+                value = new List<Note>();
+                noteMap.Add(time, value);
+            }
+
+            value.Add(note);
+            //Debug.Log("Adding " + note.NoteName + note.Octave + " to time " + time);
         }
     }
 
@@ -68,9 +79,29 @@ public class MidiOutput : MonoBehaviour
 
     private void OnNotesPlaybackStarted(object sender, NotesEventArgs e)
     {
-        var notesList = e.Notes;
-        foreach (Note item in notesList) {
-            Debug.Log(item + " TIME: " + item.Time);
+        if (e.Notes.ElementAt(0) != null) {
+            long time = e.Notes.ElementAt(0).Time;
+
+            if (time != lastTimeParsed) {
+                lastTimeParsed = time;
+
+                string notesPlaying = "";
+
+                List<Note> currentNotes;
+                if (noteMap.TryGetValue(time, out currentNotes)) {
+                    foreach (Note current in currentNotes) {
+                        notesPlaying = notesPlaying + current.NoteName + current.Octave + " ";
+                    }
+                } else {
+                    Debug.Log("time missing - this shouldnt happen");
+                }
+
+                notesPlaying = notesPlaying.Trim().Replace("Sharp", "#");
+
+                Debug.Log("Time " + time + " (" + notesPlaying + ")");
+            }
+        } else {
+            Debug.Log("how do we have a playback event without any notes???");
         }
     }
 }
