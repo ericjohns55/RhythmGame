@@ -63,7 +63,7 @@ public class SpriteCreator : MonoBehaviour
         }
     }
 
-    private void generateObject(float xPosition, int colorIndex) {
+    public void generateObject(float xPosition, int colorIndex) {
         xPosition -= 5f; // acount for camera starting at -5 and going to +5
 
         GameObject newNote = Instantiate(notePrefab, new Vector2(xPosition, 4), Quaternion.identity);
@@ -73,5 +73,10 @@ public class SpriteCreator : MonoBehaviour
         newNote.GetComponent<Rigidbody2D>().AddForce(new Vector2(0, -downwardsForce));
 
         lastRender = Time.time;
+    }
+
+    public void generateNote(int index) {
+        float xPosition = (spacerSize * (index + 1) + index + 0.5f);
+        generateObject(xPosition, index);
     }
 }

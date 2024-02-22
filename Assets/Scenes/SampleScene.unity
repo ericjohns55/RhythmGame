@@ -549,7 +549,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 917a95a892de52f44acc3ad5c98e6021, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  textElement: {fileID: 287364987}
+  noteLogger: {fileID: 287364987}
 --- !u!1 &791562270
 GameObject:
   m_ObjectHideFlags: 0
