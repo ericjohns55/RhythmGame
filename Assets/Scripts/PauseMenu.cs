@@ -12,7 +12,7 @@ public class PauseMenu : MonoBehaviour
     void Start()
     {
         pauseMenu.SetActive(false);
-        
+        Debug.Log("Hola");
     }
 
     // Update is called once per frame
@@ -20,6 +20,7 @@ public class PauseMenu : MonoBehaviour
     {
         if(Input.GetKeyDown(KeyCode.Escape))
         {
+            Debug.Log("Escape");
             if(isPaused)
             {
                 ResumeGame();
