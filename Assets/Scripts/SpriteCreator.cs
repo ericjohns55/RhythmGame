@@ -27,29 +27,10 @@ public class SpriteCreator : MonoBehaviour
     private float timestamp = 0f;
     private float lastRender = 0f;
 
-    private OutputDevice outputDevice;
-    private Playback playback;
-
     // Start is called before the first frame update
     void Start()
     {
         spacerSize = (Camera.main.orthographicSize * 2 - 8) / 9f;
-
-        MidiFile testMidi = MidiFile.Read("Assets/MIDIs/BasicRhythms.mid");
-        outputDevice = OutputDevice.GetByName("Microsoft GS Wavetable Synth");
-        playback = testMidi.GetPlayback(outputDevice);
-        playback.NotesPlaybackStarted += OnNotesPlaybackStarted;
-        playback.NotesPlaybackFinished += OnNotesPlaybackFinished;
-    }
-
-    void OnApplicationQuit() {
-        if (playback != null) {
-            playback.Dispose();
-        }
-
-        if (outputDevice != null) {
-            outputDevice.Dispose();
-        }
     }
 
     // Update is called once per frame
@@ -72,17 +53,6 @@ public class SpriteCreator : MonoBehaviour
                 }
             }
 
-            if (Input.GetKey(KeyCode.Space)) {
-                timestamp = Time.time;
-
-                if (playback.IsRunning) {
-                    playback.Stop();
-                } else {
-                    playback.MoveToStart();
-                    playback.Start();
-                }
-            }
-
             if (keysPressed.Length != 0) {
                 textElement.text = "Keys Pressed: " + keysPressed.Replace("Semicolon", ";").Trim();
             } else {
@@ -93,7 +63,7 @@ public class SpriteCreator : MonoBehaviour
         }
     }
 
-    private void generateObject(float xPosition, int colorIndex) {
+    public void generateObject(float xPosition, int colorIndex) {
         xPosition -= 5f; // acount for camera starting at -5 and going to +5
 
         GameObject newNote = Instantiate(notePrefab, new Vector2(xPosition, 4), Quaternion.identity);
@@ -105,22 +75,8 @@ public class SpriteCreator : MonoBehaviour
         lastRender = Time.time;
     }
 
-    private void OnNotesPlaybackStarted(object sender, NotesEventArgs e)
-    {
-        LogNotes("Note played: ", e);
-    }
-
-    private void OnNotesPlaybackFinished(object sender, NotesEventArgs e)
-    {
-        LogNotes("Notes finished:", e);
-    }
-
-    private void LogNotes(string title, NotesEventArgs e)
-    {
-        var message = new StringBuilder()
-            .AppendLine(title)
-            .AppendLine(string.Join(Environment.NewLine, e.Notes.Select(n => $"  {n}")))
-            .ToString();
-        Debug.Log(message.Trim());
+    public void generateNote(int index) {
+        float xPosition = (spacerSize * (index + 1) + index + 0.5f);
+        generateObject(xPosition, index);
     }
 }
