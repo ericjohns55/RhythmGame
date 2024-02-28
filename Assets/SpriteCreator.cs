@@ -16,6 +16,8 @@ public class SpriteCreator : MonoBehaviour
 
     private float spacerSize;
 
+    private float unitWidth;
+
     private Color[] colors = {Color.red, Color.yellow, Color.green, Color.blue,
                               Color.magenta, Color.white, Color.gray, Color.black};
 
@@ -33,7 +35,7 @@ public class SpriteCreator : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        spacerSize = (Camera.main.orthographicSize * 2 - 8) / 9f;
+        setScreenUnits();
 
         MidiFile testMidi = MidiFile.Read("Assets/MIDIs/BasicRhythms.mid");
         outputDevice = OutputDevice.GetByName("Microsoft GS Wavetable Synth");
@@ -63,6 +65,8 @@ public class SpriteCreator : MonoBehaviour
                     Debug.Log(key.ToString() + ": " + keys.IndexOf(key).ToString());
 
                     int noteIndex = keys.IndexOf(key);
+                    
+                    setScreenUnits();
                     float xPosition = (spacerSize * (noteIndex + 1)) + noteIndex + 0.5f;
                     generateObject(xPosition, noteIndex);
 
@@ -94,7 +98,9 @@ public class SpriteCreator : MonoBehaviour
     }
 
     private void generateObject(float xPosition, int colorIndex) {
-        xPosition -= 5f; // acount for camera starting at -5 and going to +5
+        
+        setScreenUnits();
+        xPosition -= unitWidth; 
 
         GameObject newNote = Instantiate(notePrefab, new Vector2(xPosition, 4), Quaternion.identity);
         newNote.tag = "Note";
@@ -103,6 +109,12 @@ public class SpriteCreator : MonoBehaviour
         newNote.GetComponent<Rigidbody2D>().AddForce(new Vector2(0, -downwardsForce));
 
         lastRender = Time.time;
+    }
+
+    // finds units width of screen and sets spacerSize
+    private void setScreenUnits() {        
+        unitWidth = (float)Math.Round((Camera.main.orthographicSize * Camera.main.aspect),0);
+        spacerSize = (unitWidth * 2 - 8) / 9f;
     }
 
     private void OnNotesPlaybackStarted(object sender, NotesEventArgs e)
