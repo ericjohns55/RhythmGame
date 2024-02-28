@@ -35,9 +35,28 @@ public class MidiOutput : MonoBehaviour
  
     void Start()
     {
-        MidiFile testMidi = MidiFile.Read("Assets/MIDIs/ShortSong1.mid");
+        MidiFile testMidi = MidiFile.Read("Assets/MIDIs/TimeSignatures.mid");
         outputDevice = OutputDevice.GetByIndex(0);
         playback = testMidi.GetPlayback(outputDevice);
+
+        TimeDivision division = testMidi.TimeDivision;
+        if (division.GetType() == typeof(TicksPerQuarterNoteTimeDivision)) {
+            short ticks = ((TicksPerQuarterNoteTimeDivision) division).TicksPerQuarterNote;
+            Debug.Log("Time division: " + ticks);
+
+            TimedEvent[] timeChanges = testMidi.GetTimedEvents().Where(e => e.Event.EventType == MidiEventType.TimeSignature).ToArray();
+            
+            foreach (TimedEvent timedEvent in timeChanges) {
+                long timeOfEvent = timedEvent.Time;
+
+                TempoMap map = testMidi.GetTempoMap();
+                TimeSignature timeSig = map.GetTimeSignatureAtTime(new MetricTimeSpan(timeOfEvent * 1000));
+
+                Debug.Log("Time signature change found at: " + timeOfEvent + ": " + timeSig);
+            }
+        } else {
+            Debug.Log("fail");
+        }
 
         spriteCreator = Camera.main.GetComponent<SpriteCreator>();
 
@@ -51,18 +70,18 @@ public class MidiOutput : MonoBehaviour
         //Tracks note names/types and assigns an ID value.
         noteLookupTable = new Dictionary<Melanchall.DryWetMidi.MusicTheory.NoteName, int>()
         {
-            {Melanchall.DryWetMidi.MusicTheory.NoteName.C, 0},
-            {Melanchall.DryWetMidi.MusicTheory.NoteName.CSharp, 0},
-            {Melanchall.DryWetMidi.MusicTheory.NoteName.D, 1},
-            {Melanchall.DryWetMidi.MusicTheory.NoteName.DSharp, 1},
-            {Melanchall.DryWetMidi.MusicTheory.NoteName.E, 2},
-            {Melanchall.DryWetMidi.MusicTheory.NoteName.F, 3},
-            {Melanchall.DryWetMidi.MusicTheory.NoteName.FSharp, 3},
-            {Melanchall.DryWetMidi.MusicTheory.NoteName.G, 4},
-            {Melanchall.DryWetMidi.MusicTheory.NoteName.GSharp, 4},
-            {Melanchall.DryWetMidi.MusicTheory.NoteName.A, 5},
-            {Melanchall.DryWetMidi.MusicTheory.NoteName.ASharp, 5},
-            {Melanchall.DryWetMidi.MusicTheory.NoteName.B, 6},
+            { Melanchall.DryWetMidi.MusicTheory.NoteName.C, 0 },
+            { Melanchall.DryWetMidi.MusicTheory.NoteName.CSharp, 0 },
+            { Melanchall.DryWetMidi.MusicTheory.NoteName.D, 1 },
+            { Melanchall.DryWetMidi.MusicTheory.NoteName.DSharp, 1 },
+            { Melanchall.DryWetMidi.MusicTheory.NoteName.E, 2 },
+            { Melanchall.DryWetMidi.MusicTheory.NoteName.F, 3 },
+            { Melanchall.DryWetMidi.MusicTheory.NoteName.FSharp, 3 },
+            { Melanchall.DryWetMidi.MusicTheory.NoteName.G, 4 },
+            { Melanchall.DryWetMidi.MusicTheory.NoteName.GSharp, 4 },
+            { Melanchall.DryWetMidi.MusicTheory.NoteName.A, 5 },
+            { Melanchall.DryWetMidi.MusicTheory.NoteName.ASharp, 5 },
+            { Melanchall.DryWetMidi.MusicTheory.NoteName.B, 6 },
         };
 
         // populates the note map
@@ -114,6 +133,8 @@ public class MidiOutput : MonoBehaviour
             foreach (int value in notesToPlayOnUpdate) {
                 spriteCreator.generateNote(value);
             }
+
+            Debug.Log("Time stamp: " + lastTimeParsed);
 
             notesToPlayOnUpdate.Clear();
         }
