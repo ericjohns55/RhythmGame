@@ -129,7 +129,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 1.2, y: 1.2}
+  m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
 --- !u!114 &5844171145097424852
 MonoBehaviour:
@@ -146,6 +146,7 @@ MonoBehaviour:
   activationKey: 108
   pressedColor: {r: 0.2509804, g: 0.2509804, b: 0.2509804, a: 1}
   collisionActive: 0
+  buttonLifetime: 0.1
 --- !u!1 &1260956321120256577
 GameObject:
   m_ObjectHideFlags: 0
@@ -275,7 +276,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 1.2, y: 1.2}
+  m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
 --- !u!114 &8841558084514711104
 MonoBehaviour:
@@ -292,6 +293,7 @@ MonoBehaviour:
   activationKey: 106
   pressedColor: {r: 0.48235294, g: 0, b: 0.48235294, a: 1}
   collisionActive: 0
+  buttonLifetime: 0.1
 --- !u!1 &1313943527350901710
 GameObject:
   m_ObjectHideFlags: 0
@@ -421,7 +423,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 1.2, y: 1.2}
+  m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
 --- !u!114 &2792430987126632927
 MonoBehaviour:
@@ -438,6 +440,7 @@ MonoBehaviour:
   activationKey: 100
   pressedColor: {r: 0, g: 0.48235294, b: 0, a: 1}
   collisionActive: 0
+  buttonLifetime: 0.1
 --- !u!1 &2216009861628375639
 GameObject:
   m_ObjectHideFlags: 0
@@ -567,7 +570,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 1.2, y: 1.2}
+  m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
 --- !u!114 &4898081142606762127
 MonoBehaviour:
@@ -584,6 +587,7 @@ MonoBehaviour:
   activationKey: 115
   pressedColor: {r: 0.4811321, g: 0.4811321, b: 0, a: 1}
   collisionActive: 0
+  buttonLifetime: 0.1
 --- !u!1 &2556785194095573024
 GameObject:
   m_ObjectHideFlags: 0
@@ -752,7 +756,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 1.2, y: 1.2}
+  m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
 --- !u!114 &8014663027034274533
 MonoBehaviour:
@@ -769,6 +773,7 @@ MonoBehaviour:
   activationKey: 107
   pressedColor: {r: 0.32156864, g: 0.32156864, b: 0.32156864, a: 1}
   collisionActive: 0
+  buttonLifetime: 0.1
 --- !u!1 &3798610291096130463
 GameObject:
   m_ObjectHideFlags: 0
@@ -898,7 +903,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 1.2, y: 1.2}
+  m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
 --- !u!114 &3020666689863094780
 MonoBehaviour:
@@ -915,6 +920,7 @@ MonoBehaviour:
   activationKey: 102
   pressedColor: {r: 0, g: 0, b: 0.48235294, a: 1}
   collisionActive: 0
+  buttonLifetime: 0.1
 --- !u!1 &7777725953614332417
 GameObject:
   m_ObjectHideFlags: 0
@@ -1044,7 +1050,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 1.2, y: 1.2}
+  m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
 --- !u!114 &8566161267795231249
 MonoBehaviour:
@@ -1061,6 +1067,7 @@ MonoBehaviour:
   activationKey: 59
   pressedColor: {r: 1, g: 1, b: 1, a: 0.23921569}
   collisionActive: 0
+  buttonLifetime: 0.1
 --- !u!1 &8039939148354631076
 GameObject:
   m_ObjectHideFlags: 0
@@ -1190,7 +1197,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 1.2, y: 1.2}
+  m_Size: {x: 1, y: 0.5}
   m_EdgeRadius: 0
 --- !u!114 &936562765905544056
 MonoBehaviour:
@@ -1207,3 +1214,4 @@ MonoBehaviour:
   activationKey: 97
   pressedColor: {r: 0.48235294, g: 0, b: 0, a: 1}
   collisionActive: 0
+  buttonLifetime: 0.25
