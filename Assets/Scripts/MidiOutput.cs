@@ -46,16 +46,18 @@ public class MidiOutput : MonoBehaviour
 
             TimedEvent[] timeChanges = testMidi.GetTimedEvents().Where(e => e.Event.EventType == MidiEventType.TimeSignature).ToArray();
             
-            foreach (TimedEvent timedEvent in timeChanges) {
-                long timeOfEvent = timedEvent.Time;
+            Debug.Log("Count of time changes: " + timeChanges.Length);
 
-                TempoMap map = testMidi.GetTempoMap();
-                TimeSignature timeSig = map.GetTimeSignatureAtTime(new MetricTimeSpan(timeOfEvent * 1000));
+            TempoMap map = testMidi.GetTempoMap();
 
-                Debug.Log("Time signature change found at: " + timeOfEvent + ": " + timeSig);
+            TimeSignature originalTimeSig = map.GetTimeSignatureAtTime(new MetricTimeSpan(0));
+            Debug.Log("ORIGINAL TIME SIG: " + originalTimeSig);
+            
+            foreach (ValueChange<TimeSignature> timeEvent in map.GetTimeSignatureChanges()) {
+                Debug.Log("TIME: " + timeEvent.Time + "     TIME SIG: " + timeEvent.Value);
             }
         } else {
-            Debug.Log("fail");
+            Debug.Log("Failed to parse");
         }
 
         spriteCreator = Camera.main.GetComponent<SpriteCreator>();
