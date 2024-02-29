@@ -26,21 +26,25 @@ namespace MapGeneration {
         // Timestamp of this moment of time in the MIDI
         private long timestamp;
 
-        // Time signature of this moment of time in the MIDI
-        private TimeSignature timeSignature;
+        // Beat number of the note in the midi
+        private double beatNumber;
 
         // Notes that exist in this moment of time in the midi
         List<Note> notes = new List<Note>();
 
         // Constructor
-        public MapEvent(long timestamp, TimeSignature timeSignature) {
+        public MapEvent(long timestamp, double beatNumber) {
             this.timestamp = timestamp;
-            this.timeSignature = timeSignature;
+            this.beatNumber = beatNumber;
         }
 
         // Returns timestamp 
         public long GetTimestamp() {
             return timestamp;
+        }
+
+        public double GetBeatNumber() {
+            return beatNumber;
         }
 
         // Returns the number of notes being played in the midi at this time

@@ -75,7 +75,18 @@ namespace MapGeneration {
 
             // Parsing binned notes into MapEvents
             foreach (long timestamp in noteMap.Keys) {
-                MapEvent mapEvent = new MapEvent(timestamp, GetTimeSignatureAtTime(timestamp)); // create a new MapEvent for this timestamp
+                Tuple<TimeSignature, long> timeSignatureEvent = GetTimeSignatureAtTime(timestamp);
+
+                // calculating beats
+                long ticksSinceTimeSigChange = timestamp - timeSignatureEvent.Item2;
+                double ticksPerBeat = timeDivision * (4.0 / timeSignatureEvent.Item1.Denominator); // will halve the tick per beat with 8th note denominators
+                double measureLength = ticksPerBeat * timeSignatureEvent.Item1.Numerator;
+                double tickOfEvent = ticksSinceTimeSigChange % measureLength; // get just the ticks in the current measure
+                double beatNumber = Math.Round((tickOfEvent / ticksPerBeat) + 1, 2);
+
+                MapEvent mapEvent = new MapEvent(timestamp, beatNumber); // create a new MapEvent for this timestamp
+
+                Debug.LogFormat("Parsed timestamp {0} at beat {1} [time signature: {2}]", timestamp, beatNumber, timeSignatureEvent.Item1);
 
                 List<Note> notes; 
                 if (noteMap.TryGetValue(timestamp, out notes)) {
@@ -116,14 +127,14 @@ namespace MapGeneration {
             }
         }
 
-        private TimeSignature GetTimeSignatureAtTime(long timestamp) {
+        private Tuple<TimeSignature, long> GetTimeSignatureAtTime(long timestamp) {
             for (int i = 0; i < timeChanges.Count; i++) {
                 if (i + 1 != timeChanges.Count) {
                     if (timestamp >= timeChanges.ElementAt(i).Key && timestamp < timeChanges.ElementAt(i + 1).Key) {
-                        return timeChanges.ElementAt(i).Value;
+                        return Tuple.Create(timeChanges.ElementAt(i).Value, timeChanges.ElementAt(i).Key);
                     }
                 } else {
-                    return timeChanges.ElementAt(i).Value;
+                    return Tuple.Create(timeChanges.ElementAt(i).Value, timeChanges.ElementAt(i).Key);
                 }
             }
 
