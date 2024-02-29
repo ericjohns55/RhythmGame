@@ -20,18 +20,22 @@ namespace MapGeneration {
             { Melanchall.DryWetMidi.MusicTheory.NoteName.GSharp, 4 },
             { Melanchall.DryWetMidi.MusicTheory.NoteName.A, 5 },
             { Melanchall.DryWetMidi.MusicTheory.NoteName.ASharp, 5 },
-            { Melanchall.DryWetMidi.MusicTheory.NoteName.B, 6 },
+            { Melanchall.DryWetMidi.MusicTheory.NoteName.B, 6 }
         };
 
         // Timestamp of this moment of time in the MIDI
         private long timestamp;
 
+        // Time signature of this moment of time in the MIDI
+        private TimeSignature timeSignature;
+
         // Notes that exist in this moment of time in the midi
         List<Note> notes = new List<Note>();
 
         // Constructor
-        public MapEvent(long timestamp) {
+        public MapEvent(long timestamp, TimeSignature timeSignature) {
             this.timestamp = timestamp;
+            this.timeSignature = timeSignature;
         }
 
         // Returns timestamp 

@@ -34,7 +34,7 @@ public class MidiOutput : MonoBehaviour
         spriteCreator = Camera.main.GetComponent<SpriteCreator>();
 
         // load the test midi file and setup output devices and playback
-        MidiFile testMidi = MidiFile.Read("Assets/MIDIs/ShortSong1.mid");
+        MidiFile testMidi = MidiFile.Read("Assets/MIDIs/TimeSignatures.mid");
         outputDevice = OutputDevice.GetByIndex(0);
         playback = testMidi.GetPlayback(outputDevice);
 

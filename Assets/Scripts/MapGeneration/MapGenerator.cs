@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Melanchall.DryWetMidi.Core;
 using Melanchall.DryWetMidi.Interaction;
 using UnityEngine;
@@ -15,7 +16,7 @@ namespace MapGeneration {
         private double secondsPerQuarterNote = 0;
 
         // Dictionary holding all of our time changes with timestamps
-        private Dictionary<long, TimeSignature> timeChanges = new Dictionary<long, TimeSignature>();
+        private SortedDictionary<long, TimeSignature> timeChanges = new SortedDictionary<long, TimeSignature>();
 
         // List of map events; inputted in order of timestamp so the first element will be the first note and the last element will be the last note
         private LinkedList<MapEvent> mapEvents = new LinkedList<MapEvent>();
@@ -74,7 +75,7 @@ namespace MapGeneration {
 
             // Parsing binned notes into MapEvents
             foreach (long timestamp in noteMap.Keys) {
-                MapEvent mapEvent = new MapEvent(timestamp); // create a new MapEvent for this timestamp
+                MapEvent mapEvent = new MapEvent(timestamp, GetTimeSignatureAtTime(timestamp)); // create a new MapEvent for this timestamp
 
                 List<Note> notes; 
                 if (noteMap.TryGetValue(timestamp, out notes)) {
@@ -113,6 +114,20 @@ namespace MapGeneration {
                     Debug.LogFormat("Time change {0} found at timestamp {1}", timeSig, timeValue);
                 }
             }
+        }
+
+        private TimeSignature GetTimeSignatureAtTime(long timestamp) {
+            for (int i = 0; i < timeChanges.Count; i++) {
+                if (i + 1 != timeChanges.Count) {
+                    if (timestamp >= timeChanges.ElementAt(i).Key && timestamp < timeChanges.ElementAt(i + 1).Key) {
+                        return timeChanges.ElementAt(i).Value;
+                    }
+                } else {
+                    return timeChanges.ElementAt(i).Value;
+                }
+            }
+
+            return null;
         }
 
         // Debugs the LinkedList and shows current timestamp, next timestamp, and number of notes to be played
