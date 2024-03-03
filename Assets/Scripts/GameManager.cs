@@ -9,53 +9,58 @@ public class GameManager : MonoBehaviour
     public GameObject pauseMenu;
     public static bool isPaused;
 
+    Scene scene;
+
     // Start is called before the first frame update
-    void Start()
-    {
+    void Start() {
         pauseMenu.SetActive(false);
         Debug.Log("Hola");
+        scene = SceneManager.GetActiveScene();
     }
 
     // Update is called once per frame
-    void Update()
-    {
-        if(Input.GetKeyDown(KeyCode.Escape))
-        {
-            Debug.Log("Escape");
-            if(isPaused)
-            {
-                ResumeGame();
-            }
-            else 
-            {
-                PauseGame();
+    void Update() {
+        if(Input.GetKeyDown(KeyCode.Escape)) {
+            if (scene.name == "GameScene") {
+                Debug.Log("Escape");
+                if(isPaused){
+                    ResumeGame();
+                }
+                else  {
+                    PauseGame();
+                }
             }
         }
-        
     }
 
-    public void PauseGame()
-    {
+    #region PauseFunctions
+
+    public void PauseGame() {
         pauseMenu.SetActive(true);
         Time.timeScale = 0f;
         isPaused = true;
     }
 
-    public void ResumeGame()
-    {
+    public void ResumeGame() {
         pauseMenu.SetActive(false);
         Time.timeScale = 1f;
         isPaused = false;
     }
 
-    public void GoToMainMenu()
-    {
+    public void GoToMainMenu() {
         Time.timeScale = 1f;
         SceneManager.LoadScene("MainMenu");
     }
     
-    public void QuitGame()
-    {
+    #endregion
+    
+    public void GoToGameScene() {
+        Time.timeScale = 1f;
+        SceneManager.LoadScene("GameScene");
+    }
+
+    public void QuitGame() {
+        Debug.Log("Quitting Game");
         Application.Quit();
     }
 }
