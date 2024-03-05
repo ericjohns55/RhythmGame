@@ -1,12 +1,20 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Melanchall.DryWetMidi.Core;
 using Melanchall.DryWetMidi.Interaction;
 using UnityEngine;
 
-
 namespace MapGeneration {
+    // Enum to hold what difficulty of the map to generate
+    public enum MapDifficulty {
+        Easy,
+        Medium,
+        Hard,
+        FullMidi
+    }
+
     public class MapGenerator
     {
         // Number of ticks in a quarter note based off the library (480 is library default)
@@ -14,6 +22,9 @@ namespace MapGeneration {
 
         // Number of seconds in a quarter note based off the tempo
         private double secondsPerQuarterNote = 0;
+
+        // BPM of the MidiFile
+        private int bpm = -1;
 
         // Dictionary holding all of our time changes with timestamps
         private SortedDictionary<long, TimeSignature> timeChanges = new SortedDictionary<long, TimeSignature>();
@@ -51,7 +62,7 @@ namespace MapGeneration {
 
             // calculate the BPM based off our secondsPerQuarterNote
             // the library provides a function for this, but this way we ensure our calculations are correct when debugging
-            int bpm = (int) Math.Round(60.0 / secondsPerQuarterNote, 0);
+            bpm = (int) Math.Round(60.0 / secondsPerQuarterNote, 0);
 
             Debug.LogFormat("Found tempo {0} ({1} seconds per quarter note)", bpm, secondsPerQuarterNote);
         
@@ -76,17 +87,18 @@ namespace MapGeneration {
             // Parsing binned notes into MapEvents
             foreach (long timestamp in noteMap.Keys) {
                 Tuple<TimeSignature, long> timeSignatureEvent = GetTimeSignatureAtTime(timestamp);
+                TimeSignature timeSignature = timeSignatureEvent.Item1;
 
                 // calculating beats
                 long ticksSinceTimeSigChange = timestamp - timeSignatureEvent.Item2;
-                double ticksPerBeat = timeDivision * (4.0 / timeSignatureEvent.Item1.Denominator); // will halve the tick per beat with 8th note denominators
-                double measureLength = ticksPerBeat * timeSignatureEvent.Item1.Numerator;
+                double ticksPerBeat = timeDivision * (4.0 / timeSignature.Denominator); // will halve the tick per beat with 8th note denominators
+                double measureLength = ticksPerBeat * timeSignature.Numerator;
                 double tickOfEvent = ticksSinceTimeSigChange % measureLength; // get just the ticks in the current measure
                 double beatNumber = Math.Round((tickOfEvent / ticksPerBeat) + 1, 2);
 
-                MapEvent mapEvent = new MapEvent(timestamp, beatNumber); // create a new MapEvent for this timestamp
+                MapEvent mapEvent = new MapEvent(timestamp, beatNumber, timeSignature); // create a new MapEvent for this timestamp
 
-                Debug.LogFormat("Parsed timestamp {0} at beat {1} [time signature: {2}]", timestamp, beatNumber, timeSignatureEvent.Item1);
+                // Debug.LogFormat("Parsed timestamp {0} at beat {1} [time signature: {2}]", timestamp, beatNumber, timeSignatureEvent.Item1);
 
                 List<Note> notes; 
                 if (noteMap.TryGetValue(timestamp, out notes)) {
@@ -100,8 +112,74 @@ namespace MapGeneration {
         }
 
         // Returns the LinkedList of MapEvents for parsing in the main game
-        public LinkedList<MapEvent> GetMapEvents() {
-            return mapEvents;
+        public LinkedList<MapEvent> GenerateMap(MapDifficulty difficulty) {
+            if (difficulty == MapDifficulty.FullMidi) {
+                return mapEvents;
+            }
+
+            LinkedList<MapEvent> generatedMap = new LinkedList<MapEvent>();
+            foreach (MapEvent mapEvent in mapEvents) {
+                // if (CompareBeats(mapEvent.GetBeatNumber(), 1) || CompareBeats(mapEvent.GetBeatNumber(), 3)) {
+                //     generatedMap.AddLast(mapEvent);
+                // }
+                
+                TimeSignature timeSignature = mapEvent.GetTimeSignature();
+
+                if (timeSignature.Denominator > 4) {
+                    if (timeSignature.Numerator % 3 == 0) {
+                        // consider beats only divisible by 3
+                    } else {
+                        // consider only odd beats
+                    }
+                } else {
+
+                }
+
+                // if time sig denom is 8 and numerator % 3 is 0 (3/8, 6/8, 9/8, 12/8)
+                // else we want just the odd numbers
+
+                if (difficulty == MapDifficulty.Easy) { // consider X/8 time signatures 
+                    if (timeSignature.Denominator <= 4) {
+                        // Allow only major beats
+                        // Allow quarter note triplets
+
+                        if (bpm >= 132) {
+                            // Allow an upbeat iff there is not a note on the downbeat
+                        }
+                    } else {
+                        if (timeSignature.Numerator % 3 == 0) {
+                            // consider beats only divisible by 3
+                        } else {
+                            // consider only odd beats
+                        }
+                    }                    
+                } else if (difficulty == MapDifficulty.Medium) {
+                    if (timeSignature.Denominator <= 4) {
+                        // Allow all downbeats and upbeats
+                        // Allow quarter note triplets
+
+                        if (bpm < 132) {
+                            // Allow eighth note triplets
+                        }
+                    } else {
+                        // Allow all downbeats
+                        // Allow 8th note triplets
+                    } 
+                } else if (difficulty == MapDifficulty.Hard) {
+                    // Allow all 16th notes
+
+                    if (bpm <= 96) {
+                        // Allow all sixteenth note triplets
+
+                        if (bpm <= 72) {
+                            // Allow all 32nd notes
+                        }
+                    }
+                        
+                }
+            }
+
+            return generatedMap;
         }
 
         // Returns how many seconds into the program you are based off the midi timestamp
@@ -149,6 +227,12 @@ namespace MapGeneration {
 
                 Debug.LogFormat("Map event found at timestamp {0} (next: {1}) [{2} NOTES]", timestamp, nextTimestamp, node.Value.GetNoteCount());
             }
+        }
+
+        // Compares doubles with a tolerance
+        // TODO: determine if this is really needed
+        private bool CompareBeats(double beatNumber, double equivalency) {
+            return Math.Abs(beatNumber - equivalency) < 0.0001;
         }
     }
 }

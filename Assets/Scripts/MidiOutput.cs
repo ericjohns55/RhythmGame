@@ -27,6 +27,7 @@ public class MidiOutput : MonoBehaviour
 
     private MapGenerator generator;
     private LinkedListNode<MapEvent> currentNode = null;
+    private MapDifficulty difficulty;
  
     void Start()
     {
@@ -40,6 +41,7 @@ public class MidiOutput : MonoBehaviour
 
         // generate the map for our test level
         generator = new MapGenerator(testMidi);
+        difficulty = MapDifficulty.FullMidi;
     }
 
     /**
@@ -82,7 +84,7 @@ public class MidiOutput : MonoBehaviour
                     currentNode = null; // setting this to null will end the coroutine
                 } else {
                     // the linked list was generated based off of a SortedDictionary, so the first note is guaranteed the first node
-                    currentNode = generator.GetMapEvents().First;
+                    currentNode = generator.GenerateMap(difficulty).First;
 
                     StartCoroutine(SpawnNotes());
                 }
