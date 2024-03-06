@@ -15,6 +15,18 @@ namespace MapGeneration {
         FullMidi
     }
 
+    // Enum to check a rhythm type
+    public enum ValidRhythm {
+        Downbeat,
+        Upbeat,
+        Sixteenth,
+        Thirty_Second,
+        Quarter_Triplet,
+        Eighth_Triplet,
+        Sixteenth_Triplet
+
+    }
+
     public class MapGenerator
     {
         // Number of ticks in a quarter note based off the library (480 is library default)
@@ -94,11 +106,11 @@ namespace MapGeneration {
                 double ticksPerBeat = timeDivision * (4.0 / timeSignature.Denominator); // will halve the tick per beat with 8th note denominators
                 double measureLength = ticksPerBeat * timeSignature.Numerator;
                 double tickOfEvent = ticksSinceTimeSigChange % measureLength; // get just the ticks in the current measure
-                double beatNumber = Math.Round((tickOfEvent / ticksPerBeat) + 1, 2);
+                double beatNumber = (tickOfEvent / ticksPerBeat) + 1;
 
                 MapEvent mapEvent = new MapEvent(timestamp, beatNumber, timeSignature); // create a new MapEvent for this timestamp
 
-                // Debug.LogFormat("Parsed timestamp {0} at beat {1} [time signature: {2}]", timestamp, beatNumber, timeSignatureEvent.Item1);
+                Debug.LogFormat("Parsed timestamp {0} at beat {1} [time signature: {2}]", timestamp, Math.Round(beatNumber, 5), timeSignatureEvent.Item1);
 
                 List<Note> notes; 
                 if (noteMap.TryGetValue(timestamp, out notes)) {
@@ -118,38 +130,45 @@ namespace MapGeneration {
             }
 
             LinkedList<MapEvent> generatedMap = new LinkedList<MapEvent>();
-            foreach (MapEvent mapEvent in mapEvents) {
-                // if (CompareBeats(mapEvent.GetBeatNumber(), 1) || CompareBeats(mapEvent.GetBeatNumber(), 3)) {
-                //     generatedMap.AddLast(mapEvent);
-                // }
-                
+
+            LinkedListNode<MapEvent> currentNode = mapEvents.First;
+            while (currentNode != null) { 
+                MapEvent mapEvent = currentNode.Value;               
                 TimeSignature timeSignature = mapEvent.GetTimeSignature();
-
-                if (timeSignature.Denominator > 4) {
-                    if (timeSignature.Numerator % 3 == 0) {
-                        // consider beats only divisible by 3
-                    } else {
-                        // consider only odd beats
-                    }
-                } else {
-
-                }
+                double beat = mapEvent.GetBeatNumber();
 
                 // if time sig denom is 8 and numerator % 3 is 0 (3/8, 6/8, 9/8, 12/8)
                 // else we want just the odd numbers
 
                 if (difficulty == MapDifficulty.Easy) { // consider X/8 time signatures 
                     if (timeSignature.Denominator <= 4) {
-                        // Allow only major beats
-                        // Allow quarter note triplets
+                        // allowing major beats and quarter note triplets
+                        if (CompareBeat(beat, ValidRhythm.Downbeat) || CompareBeat(beat, ValidRhythm.Quarter_Triplet)) {
+                            generatedMap.AddLast(mapEvent);
+                            continue;
+                        }
 
-                        if (bpm >= 132) {
-                            // Allow an upbeat iff there is not a note on the downbeat
+                        // allow upbeats iff there is not a note on the downbeat
+                        if (CompareBeat(beat, ValidRhythm.Upbeat)) {
+                            if (currentNode.Previous != null) {
+                                double beatToCheck = beat - 0.5;
+
+                                if (!CompareDoubles(beatToCheck, currentNode.Previous.Value.GetBeatNumber())) {
+                                    generatedMap.AddLast(mapEvent);
+                                    continue;
+                                }
+                            }
                         }
                     } else {
                         if (timeSignature.Numerator % 3 == 0) {
                             // consider beats only divisible by 3
-                        } else {
+                        } else { // 5/8 7/8 11/8
+                            if (timeSignature.Numerator % 2 == 0) {
+                                // consider only odd beats (1/3/5/etc)
+                            } else {
+                                // use beat 1 always
+                                // use even beats from [4, end) 
+                            }
                             // consider only odd beats
                         }
                     }                    
@@ -177,6 +196,8 @@ namespace MapGeneration {
                     }
                         
                 }
+
+                currentNode = currentNode.Next;
             }
 
             return generatedMap;
@@ -194,17 +215,6 @@ namespace MapGeneration {
             return (float) (quarterNoteCount * secondsPerQuarterNote);
         }
 
-        // Debugs the time changes detected in the program
-        private void PrintTimeChanges() {
-            foreach (long timeValue in timeChanges.Keys) {
-                TimeSignature timeSig;
-
-                if (timeChanges.TryGetValue(timeValue, out timeSig)) {
-                    Debug.LogFormat("Time change {0} found at timestamp {1}", timeSig, timeValue);
-                }
-            }
-        }
-
         private Tuple<TimeSignature, long> GetTimeSignatureAtTime(long timestamp) {
             for (int i = 0; i < timeChanges.Count; i++) {
                 if (i + 1 != timeChanges.Count) {
@@ -219,6 +229,43 @@ namespace MapGeneration {
             return null;
         }
 
+        private bool CompareBeat(double beat, ValidRhythm rhythm) {
+            switch (rhythm) {
+                case ValidRhythm.Downbeat:
+                    return CompareDoubles(beat % 1.0, 0);
+                case ValidRhythm.Upbeat:
+                    return CompareDoubles(beat % 0.5, 0);
+                case ValidRhythm.Sixteenth:
+                    return CompareDoubles(beat % 0.25, 0);
+                case ValidRhythm.Thirty_Second:
+                    return CompareDoubles(beat % 0.125, 0);
+                case ValidRhythm.Quarter_Triplet:
+                    double value = (Math.Floor(beat) % 2) + (beat - Math.Floor(beat)) - 1;
+                    if (value < 0) {
+                        value = Math.Abs(value) * 2;
+                    }
+
+                    return CompareDoubles(value % (2.0/3.0), 0) || CompareDoubles(value % (2.0/3.0), 2.0/3.0);
+                case ValidRhythm.Eighth_Triplet:
+                    return CompareDoubles(beat % (1.0/3.0), 0);
+                case ValidRhythm.Sixteenth_Triplet:
+                    return CompareDoubles(beat % (1.0/6.0), 0);
+                default:
+                    return false;
+            }
+        }
+
+        // Debugs the time changes detected in the program
+        private void PrintTimeChanges() {
+            foreach (long timeValue in timeChanges.Keys) {
+                TimeSignature timeSig;
+
+                if (timeChanges.TryGetValue(timeValue, out timeSig)) {
+                    Debug.LogFormat("Time change {0} found at timestamp {1}", timeSig, timeValue);
+                }
+            }
+        }
+
         // Debugs the LinkedList and shows current timestamp, next timestamp, and number of notes to be played
         private void DebugLinkedList() {
             for (LinkedListNode<MapEvent> node = mapEvents.First; node != null; node = node.Next) {
@@ -231,8 +278,8 @@ namespace MapGeneration {
 
         // Compares doubles with a tolerance
         // TODO: determine if this is really needed
-        private bool CompareBeats(double beatNumber, double equivalency) {
-            return Math.Abs(beatNumber - equivalency) < 0.0001;
+        private bool CompareDoubles(double double1, double double2) {
+            return Math.Abs(double1 - double2) < 0.0001;
         }
     }
 }
