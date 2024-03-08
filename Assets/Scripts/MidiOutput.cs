@@ -35,13 +35,13 @@ public class MidiOutput : MonoBehaviour
         spriteCreator = Camera.main.GetComponent<SpriteCreator>();
 
         // load the test midi file and setup output devices and playback
-        MidiFile testMidi = MidiFile.Read("Assets/MIDIs/NoteChartingFast.mid");
+        MidiFile testMidi = MidiFile.Read("Assets/MIDIs/NoteChartingSlow.mid");
         outputDevice = OutputDevice.GetByIndex(0);
         playback = testMidi.GetPlayback(outputDevice);
 
         // generate the map for our test level
         generator = new MapGenerator(testMidi);
-        difficulty = MapDifficulty.Easy;
+        difficulty = MapDifficulty.Medium;
     }
 
     /**
