@@ -102,7 +102,7 @@ public class GameManager : MonoBehaviour
     public void GoToMainMenu() {
         Time.timeScale = 1f;
         playback.ReleaseOutputDevice();
-        SceneManager.LoadScene("MainMenu");
+        SceneManager.LoadScene("HomeScreen");
     }
     
     public void GoToGameScene() {
