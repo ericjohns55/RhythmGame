@@ -1,10 +1,12 @@
 using System.Collections.Generic;
+using System.Collections;
 using UnityEngine;
 using TMPro;
 using Melanchall.DryWetMidi.Core;
 using Melanchall.DryWetMidi.Multimedia;
 using Melanchall.DryWetMidi.Interaction;
 using System.Linq;
+using MapGeneration;
 
 /**
 * This class currently governs midi map creation, map tracking, output device, and note creation.
@@ -14,10 +16,6 @@ using System.Linq;
 public class MidiOutput : MonoBehaviour
 {
     private SpriteCreator spriteCreator;
-    private Dictionary<long, List<Note>> noteMap;
-    private long lastTimeParsed = -1;
-
-    List<int> notesToPlayOnUpdate = new List<int>();
 
     private string notesPlaying = "";
     private string lastPlayed = "";
@@ -29,56 +27,24 @@ public class MidiOutput : MonoBehaviour
 
     public TMP_Text noteLogger;
 
-    private Dictionary<Melanchall.DryWetMidi.MusicTheory.NoteName, int> noteLookupTable;
+    private MapGenerator generator;
+    private LinkedListNode<MapEvent> currentNode = null;
+    private MapDifficulty difficulty;
  
     void Start()
     {
-        MidiFile testMidi = MidiFile.Read("Assets/MIDIs/latency.mid");
-        outputDevice = OutputDevice.GetByIndex(0);
-        playback = testMidi.GetPlayback(outputDevice);
+        // grab instance of SpriteCreator for note creation
 
         spriteCreator = Camera.main.GetComponent<SpriteCreator>();
 
-        playback.NotesPlaybackStarted += OnNotesPlaybackStarted;
+        // load the test midi file and setup output devices and playback
+        MidiFile testMidi = MidiFile.Read("Assets/MIDIs/NoteChartingFast.mid");
+        outputDevice = OutputDevice.GetByIndex(0);
+        playback = testMidi.GetPlayback(outputDevice);
 
-        var allOutputs = OutputDevice.GetAll();
-        foreach (var device in allOutputs) {
-            Debug.Log("Output Device Found: " + device.Name);
-        }
-
-        //Tracks note names/types and assigns an ID value.
-        noteLookupTable = new Dictionary<Melanchall.DryWetMidi.MusicTheory.NoteName, int>()
-        {
-            {Melanchall.DryWetMidi.MusicTheory.NoteName.C, 0},
-            {Melanchall.DryWetMidi.MusicTheory.NoteName.CSharp, 0},
-            {Melanchall.DryWetMidi.MusicTheory.NoteName.D, 1},
-            {Melanchall.DryWetMidi.MusicTheory.NoteName.DSharp, 1},
-            {Melanchall.DryWetMidi.MusicTheory.NoteName.E, 2},
-            {Melanchall.DryWetMidi.MusicTheory.NoteName.F, 3},
-            {Melanchall.DryWetMidi.MusicTheory.NoteName.FSharp, 3},
-            {Melanchall.DryWetMidi.MusicTheory.NoteName.G, 4},
-            {Melanchall.DryWetMidi.MusicTheory.NoteName.GSharp, 4},
-            {Melanchall.DryWetMidi.MusicTheory.NoteName.A, 5},
-            {Melanchall.DryWetMidi.MusicTheory.NoteName.ASharp, 5},
-            {Melanchall.DryWetMidi.MusicTheory.NoteName.B, 6},
-        };
-
-        // populates the note map
-        noteMap = new Dictionary<long, List<Note>>();
-        IEnumerable<Note> allNotes = testMidi.GetNotes();
-
-        foreach (Note note in allNotes) {
-            long time = note.Time;
-
-            List<Note> value;
-            if (!noteMap.TryGetValue(time, out value)) {
-                value = new List<Note>();
-                noteMap.Add(time, value);
-            }
-
-            value.Add(note);
-            //Debug.Log("Adding " + note.NoteName + note.Octave + " to time " + time);
-        }
+        // generate the map for our test level
+        generator = new MapGenerator(testMidi);
+        difficulty = MapDifficulty.FullMidi;
     }
 
     /**
@@ -98,18 +64,6 @@ public class MidiOutput : MonoBehaviour
         }
 
         /*
-        * Each update any notes in the notesToPlayOnUpdate List will be generated onto the screen
-        * with an assigned note prefab object.
-        */
-        if (notesToPlayOnUpdate.Count != 0) {
-            foreach (int value in notesToPlayOnUpdate) {
-                spriteCreator.generateNote(value);
-            }
-
-            notesToPlayOnUpdate.Clear();
-        }
-
-        /*
         * The following logical chain starts, stops, and resets midi playback using
         * the spacebar
         */
@@ -124,59 +78,42 @@ public class MidiOutput : MonoBehaviour
 
                 if (playback.IsRunning) {
                     playback.Stop();
+                    currentNode = null; // setting this to null will end the coroutine
                 } else {
-                    playback.MoveToStart();
-                    playback.Start();
+                    // the linked list was generated based off of a SortedDictionary, so the first note is guaranteed the first node
+                    currentNode = generator.GenerateMap(difficulty).First;
+
+                    StartCoroutine(SpawnNotes());
                 }
             }
         }
     }
 
-    /**
-    * The following function governs the setup of midi playback in the system.
-    * It sets the track timing, note TMP, and the List containing note order and details.
-    */
-    private void OnNotesPlaybackStarted(object sender, NotesEventArgs e)
-    {
-        if (e.Notes.ElementAt(0) != null) {
-            //Gets the midi timestamp of the first note
-            long time = e.Notes.ElementAt(0).Time;
+    private IEnumerator SpawnNotes() {
+        if (currentNode == null) yield break; // signifies either a break or the end of the song
 
-            if (time != lastTimeParsed) {
-                lastTimeParsed = time;
+        // start the playback in the midifile to account for any possible desync
+        if (!playback.IsRunning) {
+            playback.MoveToStart();
+            playback.Start();
+        }
 
-                notesPlaying = "";
+        MapEvent currentEvent = currentNode.Value;
+        foreach (int noteID in currentEvent.GetTilesToGenerate()) { // generates notes from the current map event
+            spriteCreator.generateNote(noteID);
+        }
 
-                List<Note> currentNotes;
-                if (noteMap.TryGetValue(time, out currentNotes)) {
-                    List<Melanchall.DryWetMidi.MusicTheory.NoteName> playedNotes = new List<Melanchall.DryWetMidi.MusicTheory.NoteName>(); 
+        notesPlaying = currentEvent.GetNoteList(); // debug text for current notes (will remove later)
 
-                    foreach (Note current in currentNotes) {
-                        notesPlaying = notesPlaying + current.NoteName + current.Octave + " ";
+        long currentTimestamp = currentEvent.GetTimestamp(); // grabs current timestamp for next calculation
+        currentNode = currentNode.Next;
 
-                        int noteID;
+        if (currentNode != null) { // make sure there is a next null, otherwise we do not need to wait anymore (end of song)
+            float waitAmount = generator.CalculateNextTimeStamp(currentTimestamp, currentNode.Value.GetTimestamp());
+            // Debug.LogFormat("Waiting {0}s for next event (TIMESTAMP {1}).", waitAmount, currentTimestamp);
 
-                        /*
-                        * Checks whether the current note exists within the lookup table and if it is not currently
-                        * in the List for notes to play, it is added by ID.
-                        */
-                        if (noteLookupTable.TryGetValue(current.NoteName, out noteID)) {
-                            if (!notesToPlayOnUpdate.Contains(noteID)) {
-                                notesToPlayOnUpdate.Add(noteID);
-                            }
-                        }
-                    }
-                } else {
-                    Debug.Log("time missing - this shouldnt happen");
-                }
-
-                //This removes whitespace and note accidentals from the current note string for the TMP.
-                notesPlaying = notesPlaying.Trim().Replace("Sharp", "#");
-
-                //Debug.Log("Time " + time + " (" + notesPlaying + ")");
-            }
-        } else {
-            Debug.Log("how do we have a playback event without any notes???");
+            yield return new WaitForSeconds(waitAmount);
+            StartCoroutine(SpawnNotes()); // recursively call subroutine for next note
         }
     }
 
@@ -203,7 +140,6 @@ public class MidiOutput : MonoBehaviour
 
     public void ReleaseOutputDevice() {
         if (playback != null) {
-            playback.NotesPlaybackStarted -= OnNotesPlaybackStarted;
             playback.Dispose();
         }
 
