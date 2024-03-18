@@ -460,6 +460,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   pauseMenu: {fileID: 7979911872429103615, guid: f46fe5a5bf2b6b6409869b73aaeb5b91, type: 3}
+  settingsMenu: {fileID: 7979911872429103615, guid: a4bae8a6728e3db43be638c3f2472427, type: 3}
 --- !u!4 &892560336
 Transform:
   m_ObjectHideFlags: 0
