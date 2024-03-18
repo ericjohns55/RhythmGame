@@ -99,18 +99,8 @@ namespace MapGeneration {
             // Parsing binned notes into MapEvents
             foreach (long timestamp in noteMap.Keys) {
                 Tuple<TimeSignature, long> timeSignatureEvent = GetTimeSignatureAtTime(timestamp);
-                TimeSignature timeSignature = timeSignatureEvent.Item1;
 
-                // calculating beats
-                long ticksSinceTimeSigChange = timestamp - timeSignatureEvent.Item2;
-                double ticksPerBeat = timeDivision * (4.0 / timeSignature.Denominator); // will halve the tick per beat with 8th note denominators
-                double measureLength = ticksPerBeat * timeSignature.Numerator;
-                double tickOfEvent = ticksSinceTimeSigChange % measureLength; // get just the ticks in the current measure
-                double beatNumber = (tickOfEvent / ticksPerBeat) + 1;
-
-                MapEvent mapEvent = new MapEvent(timestamp, beatNumber, timeSignature); // create a new MapEvent for this timestamp
-
-                // Debug.LogFormat("Parsed timestamp {0} at beat {1} [time signature: {2}]", timestamp, Math.Round(beatNumber, 5), timeSignatureEvent.Item1);
+                MapEvent mapEvent = new MapEvent(timestamp, timeDivision, timeSignatureEvent);
 
                 List<Note> notes; 
                 if (noteMap.TryGetValue(timestamp, out notes)) {
@@ -135,7 +125,7 @@ namespace MapGeneration {
             while (currentNode != null) { 
                 MapEvent mapEvent = currentNode.Value;               
                 TimeSignature timeSignature = mapEvent.GetTimeSignature();
-                double beat = mapEvent.GetBeatNumber();
+                double measureTick = mapEvent.GetMeasureTick();
 
                 bool beatParsed = false; // once we start looking at lots of patterns, it is possible there will be overlap. this will prevent that
 
@@ -145,30 +135,32 @@ namespace MapGeneration {
                 if (difficulty == MapDifficulty.Easy) { // consider X/8 time signatures 
                     if (timeSignature.Denominator <= 4) {
                         // allowing major beats and quarter note triplets
-                        if (CompareBeat(beat, ValidRhythm.Downbeat)) {
-                            Debug.LogFormat("Adding downbeat {0}", beat);
+                        if (CompareBeat(measureTick, ValidRhythm.Downbeat, timeSignature)) {
+                            Debug.LogFormat("Adding downbeat {0}", measureTick);
                             beatParsed = true;
                         }
 
-                        if (CompareBeat(beat, ValidRhythm.Quarter_Triplet)) {
+                        if (CompareBeat(measureTick, ValidRhythm.Quarter_Triplet, timeSignature)) {
                             Debug.LogFormat("TODO"); // NEXT PARSING SPRINT PROBLEM WOOHOO
+                            beatParsed = true;
                         }
 
                         // allow upbeats iff there is not a note on the downbeat
-                        if (CompareBeat(beat, ValidRhythm.Upbeat)) {
+                        if (CompareBeat(measureTick, ValidRhythm.Upbeat, timeSignature)) {
                             if (currentNode.Previous != null) {
-                                double lastBeat = currentNode.Previous.Value.GetBeatNumber();
+                                double lastTick = currentNode.Previous.Value.GetMeasureTick();
 
-                                if (Math.Abs(beat - lastBeat) >= 1.0) {
-                                    Debug.LogFormat("Adding upbeat {0}", beat);
+                                if (Math.Abs(measureTick - lastTick) >= timeDivision) {
+                                    Debug.LogFormat("Adding upbeat {0}", measureTick);
                                     beatParsed = true;
                                 }
                             } else { // First note is an upbeat, we should play the first note
-                                Debug.LogFormat("First note is an upbeat {0}", beat);
+                                Debug.LogFormat("First note is an upbeat {0}", measureTick);
                                 beatParsed = true;
                             }
                         }
                     } else {
+                        double beat = mapEvent.GetBeatNumber();
                         if (timeSignature.Numerator % 3 == 0) {
                             if (CompareDoubles((beat - 1) % 3, 0) || CompareDoubles(beat, 1)) { // consider beats only divisible by 3
                                 Debug.LogFormat("Adding beat {0} to 3/X time signature", beat);
@@ -189,59 +181,59 @@ namespace MapGeneration {
                         }
                     }                    
                 } else {
-                    if (CompareBeat(beat, ValidRhythm.Downbeat)) {
-                        Debug.LogFormat("Allowing downbeat at {0}", beat);
+                    if (CompareBeat(measureTick, ValidRhythm.Downbeat, timeSignature)) {
+                        Debug.LogFormat("Allowing downbeat at {0}", measureTick);
                         beatParsed = true;
                     }
 
                     if (timeSignature.Denominator <= 4) {
-                        if (CompareBeat(beat, ValidRhythm.Upbeat)) {
-                            Debug.LogFormat("Allowing upbeat at {0}", beat);
+                        if (CompareBeat(measureTick, ValidRhythm.Upbeat, timeSignature)) {
+                            Debug.LogFormat("Allowing upbeat at {0}", measureTick);
                             beatParsed = true;
                         }
 
-                        if (CompareBeat(beat, ValidRhythm.Sixteenth)) {
+                        if (CompareBeat(measureTick, ValidRhythm.Sixteenth, timeSignature)) {
                             if (difficulty == MapDifficulty.Medium) {
                                 if (currentNode.Previous != null) { // only allow sixteenth beats for dotted eighth - dotted eighth - eighth
-                                    double lastBeat = currentNode.Previous.Value.GetBeatNumber();
+                                    double lastTick = currentNode.Previous.Value.GetMeasureTick();
 
-                                    if (Math.Abs(beat - lastBeat) >= 0.5) {
-                                        Debug.LogFormat("Adding sixteenth {0}", beat);
+                                    if (Math.Abs(measureTick - lastTick) >= (timeDivision / 2)) {
+                                        Debug.LogFormat("Adding sixteenth {0}", measureTick);
                                         beatParsed = true;
                                     }
                                 }
                             } else { // hard mode 
-                                Debug.LogFormat("Adding sixteenth {0}", beat); // allow all 16th notes in hard mode
+                                Debug.LogFormat("Adding sixteenth {0}", measureTick); // allow all 16th notes in hard mode
                                 beatParsed = true;
                             }
                         }
 
-                        if (CompareBeat(beat, ValidRhythm.Eighth_Triplet)) {
-                            Debug.LogFormat("Allowing eighth note triplet at {0}", beat);
+                        if (CompareBeat(measureTick, ValidRhythm.Eighth_Triplet, timeSignature)) {
+                            Debug.LogFormat("Allowing eighth note triplet at {0}", measureTick);
                             beatParsed = true;
                         }
                     }
 
                     if (difficulty == MapDifficulty.Hard) {
-                        if (CompareBeat(beat, ValidRhythm.Sixteenth)) {
-                            Debug.LogFormat("Allowing sixteenth notes in non X/4 time signatures {0}", beat);
+                        if (CompareBeat(measureTick, ValidRhythm.Sixteenth, timeSignature)) {
+                            Debug.LogFormat("Allowing sixteenth notes in non X/4 time signatures {0}", measureTick);
                             beatParsed = true;
                         }
 
-                        if (CompareBeat(beat, ValidRhythm.Eighth_Triplet)) {
-                            Debug.LogFormat("Allowing eighth note triplets in non X/4 time signatures {0}", beat);
+                        if (CompareBeat(measureTick, ValidRhythm.Eighth_Triplet, timeSignature)) {
+                            Debug.LogFormat("Allowing eighth note triplets in non X/4 time signatures {0}", measureTick);
                             beatParsed = true;
                         }
 
                         if (bpm <= 96) {
-                            if (CompareBeat(beat, ValidRhythm.Sixteenth_Triplet)) { // allow 16th triplets on lower tempos
-                                Debug.LogFormat("Allowing sixteenth triplet at {0}", beat);
+                            if (CompareBeat(measureTick, ValidRhythm.Sixteenth_Triplet, timeSignature)) { // allow 16th triplets on lower tempos
+                                Debug.LogFormat("Allowing sixteenth triplet at {0}", measureTick);
                                 beatParsed = true;
                             }
 
                             if (bpm <= 72) { // allow 32nds on slow scores
-                                if (CompareBeat(beat, ValidRhythm.Thirty_Second)) {
-                                    Debug.LogFormat("Allowing thirty-second at {0}", beat);
+                                if (CompareBeat(measureTick, ValidRhythm.Thirty_Second, timeSignature)) {
+                                    Debug.LogFormat("Allowing thirty-second at {0}", measureTick);
                                     beatParsed = true;
                                 }
                             }
@@ -285,27 +277,28 @@ namespace MapGeneration {
             return null;
         }
 
-        private bool CompareBeat(double beat, ValidRhythm rhythm) {
+        private bool CompareBeat(double beat, ValidRhythm rhythm, TimeSignature signature) {
+            double tempDivision = timeDivision;
+
+            if (signature.Denominator > 4) {
+                tempDivision = timeDivision * (4.0 / signature.Denominator);
+            }
+
             switch (rhythm) {
                 case ValidRhythm.Downbeat:
-                    return CompareDoubles(beat % 1.0, 0);
+                    return CompareDoubles(beat % tempDivision, 0);
                 case ValidRhythm.Upbeat:
-                    return CompareDoubles(beat % 0.5, 0) || CompareDoubles(beat % 0.5, 0.5);
+                    return CompareDoubles(beat % (tempDivision / 2), 0);
                 case ValidRhythm.Sixteenth:
-                    return CompareDoubles(beat % 0.25, 0) || CompareDoubles(beat % 0.25, 0.25);
+                    return CompareDoubles(beat % (tempDivision / 4), 0);
                 case ValidRhythm.Thirty_Second:
-                    return CompareDoubles(beat % 0.125, 0) || CompareDoubles(beat % 0.125, 0.125);
+                    return CompareDoubles(beat % (tempDivision / 8), 0);
                 case ValidRhythm.Quarter_Triplet:
-                    double value = (Math.Floor(beat) % 2) + (beat - Math.Floor(beat)) - 1;
-                    if (value < 0) {
-                        value = Math.Abs(value) * 2;
-                    }
-
-                    return CompareDoubles(value % (2.0/3.0), 0) || CompareDoubles(value % (2.0/3.0), 2.0/3.0);
+                    return CompareDoubles(beat % (tempDivision / 1.5), 0);
                 case ValidRhythm.Eighth_Triplet:
-                    return CompareDoubles(beat % (1.0/3.0), 0) || CompareDoubles(beat % (1.0/3.0), 1.0/3.0);
+                    return CompareDoubles(beat % (tempDivision / 3), 0);
                 case ValidRhythm.Sixteenth_Triplet:
-                    return CompareDoubles(beat % (1.0/6.0), 0) || CompareDoubles(beat % (1.0/6.0), 1.0/6.0);
+                    return CompareDoubles(beat % (tempDivision / 6), 0);
                 default:
                     return false;
             }

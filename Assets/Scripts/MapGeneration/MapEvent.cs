@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Text;
 using Melanchall.DryWetMidi.Interaction;
@@ -26,7 +27,10 @@ namespace MapGeneration {
         // Timestamp of this moment of time in the MIDI
         private long timestamp;
 
-        // Beat number of the note in the midi
+        // Timestamp of the measure
+        private double measureTick;
+
+        // Current beat of the map event
         private double beatNumber;
 
         // Time signature of the current Map Event
@@ -36,15 +40,27 @@ namespace MapGeneration {
         List<Note> notes = new List<Note>();
 
         // Constructor
-        public MapEvent(long timestamp, double beatNumber, TimeSignature timeSignature) {
+        public MapEvent(long timestamp, short timeDivision, Tuple<TimeSignature, long> timeSignatureEvent) {
             this.timestamp = timestamp;
-            this.beatNumber = beatNumber;
-            this.timeSignature = timeSignature;
+
+            timeSignature = timeSignatureEvent.Item1;
+
+            long ticksSinceTimeSigChange = timestamp - timeSignatureEvent.Item2;
+            double ticksPerBeat = timeDivision * (4.0 / timeSignature.Denominator); // will halve the tick per beat with 8th note denominators
+            double measureLength = ticksPerBeat * timeSignature.Numerator;
+            measureTick = ticksSinceTimeSigChange % measureLength; // get just the ticks in the current measure
+            beatNumber = (measureTick / ticksPerBeat) + 1;
+
+            // UnityEngine.Debug.LogFormat("Parsed timestamp {0} at measure tick {1} [{2}] [time signature: {3}]", timestamp, measureTick, beatNumber, timeSignatureEvent.Item1);
         }
 
         // Returns timestamp 
         public long GetTimestamp() {
             return timestamp;
+        }
+
+        public double GetMeasureTick() {
+            return measureTick;
         }
 
         public double GetBeatNumber() {
