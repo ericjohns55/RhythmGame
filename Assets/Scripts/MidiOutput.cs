@@ -1,11 +1,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
-using System;
 using Melanchall.DryWetMidi.Core;
 using Melanchall.DryWetMidi.Multimedia;
 using Melanchall.DryWetMidi.Interaction;
-using System.Text;
 using System.Linq;
 
 /**
@@ -35,7 +33,7 @@ public class MidiOutput : MonoBehaviour
  
     void Start()
     {
-        MidiFile testMidi = MidiFile.Read("Assets/MIDIs/ShortSong1.mid");
+        MidiFile testMidi = MidiFile.Read("Assets/MIDIs/latency.mid");
         outputDevice = OutputDevice.GetByIndex(0);
         playback = testMidi.GetPlayback(outputDevice);
 
@@ -116,7 +114,7 @@ public class MidiOutput : MonoBehaviour
         * the spacebar
         */
         if (Time.time > timestamp + 0.50f) {
-            if (Input.GetKey(KeyCode.Space)) {
+            if (Input.GetKey(KeyCode.A)) {
                 timestamp = Time.time;
 
                 //These assignments clear the note display TMPs
