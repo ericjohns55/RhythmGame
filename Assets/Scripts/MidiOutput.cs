@@ -1,9 +1,11 @@
 using System.Collections.Generic;
+using System.Collections;
 using UnityEngine;
 using TMPro;
-using System.Collections;
 using Melanchall.DryWetMidi.Core;
 using Melanchall.DryWetMidi.Multimedia;
+using Melanchall.DryWetMidi.Interaction;
+using System.Linq;
 using MapGeneration;
 
 /**
@@ -32,6 +34,7 @@ public class MidiOutput : MonoBehaviour
     void Start()
     {
         // grab instance of SpriteCreator for note creation
+
         spriteCreator = Camera.main.GetComponent<SpriteCreator>();
 
         // load the test midi file and setup output devices and playback
@@ -48,13 +51,7 @@ public class MidiOutput : MonoBehaviour
     * The following function clears and releases the midi player upon closing the application.
     */
     void OnApplicationQuit() {
-        if (playback != null) {
-            playback.Dispose();
-        }
-
-        if (outputDevice != null) {
-            outputDevice.Dispose();
-        }
+        ReleaseOutputDevice();
     }
 
     // Update is called once per frame
@@ -71,7 +68,7 @@ public class MidiOutput : MonoBehaviour
         * the spacebar
         */
         if (Time.time > timestamp + 0.50f) {
-            if (Input.GetKey(KeyCode.Space)) {
+            if (Input.GetKey(KeyCode.A)) {
                 timestamp = Time.time;
 
                 //These assignments clear the note display TMPs
@@ -117,6 +114,37 @@ public class MidiOutput : MonoBehaviour
 
             yield return new WaitForSeconds(waitAmount);
             StartCoroutine(SpawnNotes()); // recursively call subroutine for next note
+        }
+    }
+
+    public void StopPlayback()
+    {
+        if (playback != null) {
+            playback.Stop();
+        }
+    }
+
+    public void StartPlayback()
+    {
+        if (playback != null) {
+            playback.Start();
+        }
+    }
+
+    public bool GetPlaybackState() {
+        if (playback != null) {
+            return playback.IsRunning;
+        }
+        return false;
+    }
+
+    public void ReleaseOutputDevice() {
+        if (playback != null) {
+            playback.Dispose();
+        }
+
+        if (outputDevice != null) {
+            outputDevice.Dispose();
         }
     }
 }
