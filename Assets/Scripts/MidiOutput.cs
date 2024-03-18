@@ -87,14 +87,7 @@ public class MidiOutput : MonoBehaviour
     * The following function clears and releases the midi player upon closing the application.
     */
     void OnApplicationQuit() {
-        if (playback != null) {
-            playback.NotesPlaybackStarted -= OnNotesPlaybackStarted;
-            playback.Dispose();
-        }
-
-        if (outputDevice != null) {
-            outputDevice.Dispose();
-        }
+        ReleaseOutputDevice();
     }
 
     // Update is called once per frame
@@ -186,6 +179,38 @@ public class MidiOutput : MonoBehaviour
             }
         } else {
             Debug.Log("how do we have a playback event without any notes???");
+        }
+    }
+
+    public void StopPlayback()
+    {
+        if (playback != null) {
+            playback.Stop();
+        }
+    }
+
+    public void StartPlayback()
+    {
+        if (playback != null) {
+            playback.Start();
+        }
+    }
+
+    public bool GetPlaybackState() {
+        if (playback != null) {
+            return playback.IsRunning;
+        }
+        return false;
+    }
+
+    public void ReleaseOutputDevice() {
+        if (playback != null) {
+            playback.NotesPlaybackStarted -= OnNotesPlaybackStarted;
+            playback.Dispose();
+        }
+
+        if (outputDevice != null) {
+            outputDevice.Dispose();
         }
     }
 }
