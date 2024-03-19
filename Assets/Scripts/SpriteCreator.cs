@@ -81,7 +81,7 @@ public class SpriteCreator : MonoBehaviour
     }
 
     // finds units width of screen and sets spacerSize
-    private void setScreenUnits() {        
+    public void setScreenUnits() {        
         unitWidth = (float)Math.Round((Camera.main.orthographicSize * Camera.main.aspect),0);
         spacerSize = (unitWidth * 2 - 8) / 9f;
     }
@@ -89,5 +89,20 @@ public class SpriteCreator : MonoBehaviour
     public void generateNote(int index) {
         float xPosition = (spacerSize * (index + 1) + index + 0.5f);
         generateObject(xPosition, index);
+    }
+
+    public float GetSpacerSize()
+    {
+        return spacerSize;
+    }
+
+    public float GetUnitWidth()
+    {
+        return unitWidth;
+    }
+
+    public List<KeyCode> Keys
+    {
+        get { return keys; }
     }
 }
