@@ -38,7 +38,8 @@ public class MidiOutput : MonoBehaviour
         spriteCreator = Camera.main.GetComponent<SpriteCreator>();
 
         // load the test midi file and setup output devices and playback
-        MidiFile testMidi = MidiFile.Read("Assets/MIDIs/NoteChartingFast.mid");
+        //MidiFile testMidi = MidiFile.Read("Assets/MIDIs/NoteChartingFast.mid");
+        MidiFile testMidi = MidiFile.Read("Assets/MIDIs/delayTest.mid");
         outputDevice = OutputDevice.GetByIndex(0);
         playback = testMidi.GetPlayback(outputDevice);
 
@@ -94,12 +95,14 @@ public class MidiOutput : MonoBehaviour
 
         // start the playback in the midifile to account for any possible desync
         if (!playback.IsRunning) {
+            yield return new WaitForSeconds(2f);
             playback.MoveToStart();
             playback.Start();
         }
 
         MapEvent currentEvent = currentNode.Value;
         foreach (int noteID in currentEvent.GetTilesToGenerate()) { // generates notes from the current map event
+    
             spriteCreator.generateNote(noteID);
         }
 
@@ -112,7 +115,7 @@ public class MidiOutput : MonoBehaviour
             float waitAmount = generator.CalculateNextTimeStamp(currentTimestamp, currentNode.Value.GetTimestamp());
             // Debug.LogFormat("Waiting {0}s for next event (TIMESTAMP {1}).", waitAmount, currentTimestamp);
 
-            yield return new WaitForSeconds(waitAmount);
+            yield return new WaitForSeconds(waitAmount); //WARNING: Plan to replace hardcoded 3. Testing lining up of notes falling and sounds
             StartCoroutine(SpawnNotes()); // recursively call subroutine for next note
         }
     }
