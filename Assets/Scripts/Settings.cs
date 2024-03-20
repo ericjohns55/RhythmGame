@@ -7,22 +7,22 @@ public class Settings : MonoBehaviour
 {
     public GameObject midiFiles;
     public GameObject goBack;
-    public GameObject settingsMenu;
+    //public GameObject settingsMenu;
 
     // Start is called before the first frame update
     void Start() {
-        settingsMenu.SetActive(true);
+        //settingsMenu.SetActive(true);
     }
 
     public void GoToMidiFolder() {
-        settingsMenu.setActive(false);
-        midiFiles.setActive(true);
+        goBack.SetActive(false);
+        midiFiles.SetActive(true);
         SceneManager.LoadScene("MidiHandler");
     }
 
     public void GoBack() {
-        settingsMenu.setActive(true);
-        midiFiles.setActive(false);
+        goBack.SetActive(true);
+        midiFiles.SetActive(false);
         SceneManager.LoadScene("Pause");
     }
 

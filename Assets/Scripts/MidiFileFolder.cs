@@ -5,33 +5,33 @@ using TMPro;
 
 public class SearchMidiFile : MonoBehaviour
 {
-    public GameObject ContentHolder;
-    public GameObject SearchBar;
-    public GameObject[] Element;
+    public GameObject contentHolder;
+    public GameObject searchBar;
+    public GameObject[] element;
 
     public int totalElements;
 
     // Start is called before the first frame update
     void Start()
     {
-        totalElements = ContentHolder.transform.childCount;
+        totalElements = contentHolder.transform.childCount;
 
-        Element = new GameObject[totalElements];
+        element = new GameObject[totalElements];
 
         for (int i = 0; i < totalElements; i++)
         {
-            Element[i] = ContentHolder.transform.GetChild(i).gameObject;
+            element[i] = contentHolder.transform.GetChild(i).gameObject;
         }
         
     }
 
     public void Search() 
     {
-        string SearchText = SearchBar.GetComponent<TMP_InputField>().text.ToLower();
+        string searchText = searchBar.GetComponent<TMP_InputField>().text.ToLower();
         
-        foreach(GameObject element in Elements)
+        foreach(GameObject element in Element)
         {
-           string elementText = element.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text.ToLower();
+            string elementText = element.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text.ToLower();
             bool containsSearchText = elementText.Contains(searchText);
             element.SetActive(containsSearchText);
         }
