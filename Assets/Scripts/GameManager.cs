@@ -92,6 +92,7 @@ public class GameManager : MonoBehaviour
     public void PauseToSettings() {
         settingsMenu.SetActive(true);
         pauseMenu.SetActive(false);
+        SceneManager.LoadScene("SettingsScreen");
     }
 
     public void SettingsToPause() {
