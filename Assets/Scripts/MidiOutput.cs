@@ -26,6 +26,7 @@ public class MidiOutput : MonoBehaviour
     private Playback playback;
 
     public TMP_Text noteLogger;
+    public GameObject GameManager;
 
     private MapGenerator generator;
     private LinkedListNode<MapEvent> currentNode = null;
@@ -104,12 +105,18 @@ public class MidiOutput : MonoBehaviour
         foreach (int noteID in currentEvent.GetTilesToGenerate()) { // generates notes from the current map event
     
             spriteCreator.generateNote(noteID);
+            // Gives ScoreCheck the ID of the current note being played
+            GameManager.GetComponent<ScoreCheck>().SetNoteID(noteID);
         }
 
         notesPlaying = currentEvent.GetNoteList(); // debug text for current notes (will remove later)
 
         long currentTimestamp = currentEvent.GetTimestamp(); // grabs current timestamp for next calculation
         currentNode = currentNode.Next;
+
+        // Gives ScoreCheck the timestamp during which the current note is being played
+        GameManager.GetComponent<ScoreCheck>().SetNoteTime((float) currentTimestamp);
+        
 
         if (currentNode != null) { // make sure there is a next null, otherwise we do not need to wait anymore (end of song)
             float waitAmount = generator.CalculateNextTimeStamp(currentTimestamp, currentNode.Value.GetTimestamp());
