@@ -635,6 +635,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   noteLogger: {fileID: 287364987}
+  GameManager: {fileID: 6953780207907947781}
 --- !u!1 &583929013 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 7979911872429103615, guid: a4bae8a6728e3db43be638c3f2472427, type: 3}
@@ -813,7 +814,7 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 3743896578159488266, guid: 0d28cbdcf8dbadb459946a9815b48431, type: 3}
   m_PrefabInstance: {fileID: 6953780207907947780}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+  m_GameObject: {fileID: 6953780207907947781}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9651ed02186d1704fa1265690fcc7269, type: 3}
@@ -1566,7 +1567,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3172566515798575561, guid: a4bae8a6728e3db43be638c3f2472427, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0.000030517578
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3172566515798575561, guid: a4bae8a6728e3db43be638c3f2472427, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -2673,8 +2674,28 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 5786604003156587779, guid: 0d28cbdcf8dbadb459946a9815b48431, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 6953780207907947782}
   m_SourcePrefab: {fileID: 100100000, guid: 0d28cbdcf8dbadb459946a9815b48431, type: 3}
+--- !u!1 &6953780207907947781 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5786604003156587779, guid: 0d28cbdcf8dbadb459946a9815b48431, type: 3}
+  m_PrefabInstance: {fileID: 6953780207907947780}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &6953780207907947782
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6953780207907947781}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3e0309ba71a8e3e489cb4f50b8507dd5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!224 &7286099760915899349
 RectTransform:
   m_ObjectHideFlags: 0
