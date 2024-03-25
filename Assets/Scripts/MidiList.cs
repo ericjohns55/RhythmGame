@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.IO;
 using System.IO;
+using Melanchall.DryWetMidi.Core;
 
 public class MidiList : MonoBehaviour
 {
