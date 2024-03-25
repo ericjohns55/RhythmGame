@@ -114,7 +114,7 @@ public class MidiOutput : MonoBehaviour
         * the spacebar
         */
         if (Time.time > timestamp + 0.50f) {
-            if (Input.GetKey(KeyCode.A)) {
+            if (Input.GetKey(KeyCode.P)) {
                 timestamp = Time.time;
 
                 //These assignments clear the note display TMPs
