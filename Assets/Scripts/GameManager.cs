@@ -89,15 +89,10 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public void PauseToSettings() {
+    public void GoToSettings() {
         settingsMenu.SetActive(true);
         pauseMenu.SetActive(false);
         SceneManager.LoadScene("SettingsScreen");
-    }
-
-    public void SettingsToPause() {
-        settingsMenu.SetActive(false);
-        pauseMenu.SetActive(true);
     }
 
     public void GoToMainMenu() {
