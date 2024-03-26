@@ -122,13 +122,15 @@ namespace MapGeneration {
             LinkedList<MapEvent> generatedMap = new LinkedList<MapEvent>();
 
             LinkedListNode<MapEvent> currentNode = mapEvents.First;
+            
+            bool lastBeatDown = false;
             while (currentNode != null) { 
                 MapEvent mapEvent = currentNode.Value;               
                 TimeSignature timeSignature = mapEvent.GetTimeSignature();
                 double measureTick = mapEvent.GetMeasureTick();
 
                 bool beatParsed = false; // once we start looking at lots of patterns, it is possible there will be overlap. this will prevent that
-
+                
                 // if time sig denom is 8 and numerator % 3 is 0 (3/8, 6/8, 9/8, 12/8)
                 // else we want just the odd numbers
 
@@ -138,15 +140,20 @@ namespace MapGeneration {
                         if (CompareBeat(measureTick, ValidRhythm.Downbeat, timeSignature)) {
                             Debug.LogFormat("Adding downbeat {0}", measureTick);
                             beatParsed = true;
-                        }
 
-                        if (CompareBeat(measureTick, ValidRhythm.Quarter_Triplet, timeSignature)) {
-                            Debug.LogFormat("TODO"); // NEXT PARSING SPRINT PROBLEM WOOHOO
+                            if(measureTick != 0){
+                                lastBeatDown = true;
+                            } else {
+                                lastBeatDown = false;
+                            }
+
+                        } else if (!lastBeatDown && CompareBeat(measureTick, ValidRhythm.Quarter_Triplet, timeSignature)) {                                                    
+                            Debug.LogFormat("Adding QTrip {0}", measureTick); // NEXT PARSING SPRINT PROBLEM WOOHOO
                             beatParsed = true;
-                        }
-
-                        // allow upbeats iff there is not a note on the downbeat
-                        if (CompareBeat(measureTick, ValidRhythm.Upbeat, timeSignature)) {
+                            lastBeatDown = false;   
+                        
+                                                                                
+                        }else if (CompareBeat(measureTick, ValidRhythm.Upbeat, timeSignature)) { // allow upbeats iff there is not a note on the downbeat
                             if (currentNode.Previous != null) {
                                 double lastTick = currentNode.Previous.Value.GetMeasureTick();
 
@@ -179,7 +186,9 @@ namespace MapGeneration {
                                 }
                             }
                         }
-                    }                    
+                    }   
+
+                                  
                 } else {
                     if (CompareBeat(measureTick, ValidRhythm.Downbeat, timeSignature)) {
                         Debug.LogFormat("Allowing downbeat at {0}", measureTick);

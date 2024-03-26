@@ -51,7 +51,7 @@ namespace MapGeneration {
             measureTick = ticksSinceTimeSigChange % measureLength; // get just the ticks in the current measure
             beatNumber = (measureTick / ticksPerBeat) + 1;
 
-            // UnityEngine.Debug.LogFormat("Parsed timestamp {0} at measure tick {1} [{2}] [time signature: {3}]", timestamp, measureTick, beatNumber, timeSignatureEvent.Item1);
+            UnityEngine.Debug.LogFormat("Parsed timestamp {0} at measure tick {1} [{2}] [time signature: {3}]", timestamp, measureTick, beatNumber, timeSignatureEvent.Item1);
         }
 
         // Returns timestamp 
