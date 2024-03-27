@@ -26,6 +26,8 @@ public class MidiOutput : MonoBehaviour
 
     private OutputDevice outputDevice;
     private Playback playback;
+    private ProgressBar progressBar;
+    public GameManager gameManager;
 
     public TMP_Text noteLogger;
 
@@ -36,6 +38,7 @@ public class MidiOutput : MonoBehaviour
         MidiFile testMidi = MidiFile.Read("Assets/MIDIs/latency.mid");
         outputDevice = OutputDevice.GetByIndex(0);
         playback = testMidi.GetPlayback(outputDevice);
+        progressBar = (ProgressBar) gameManager.GetComponent("ProgressBar");
 
         spriteCreator = Camera.main.GetComponent<SpriteCreator>();
 
@@ -127,6 +130,8 @@ public class MidiOutput : MonoBehaviour
                 } else {
                     playback.MoveToStart();
                     playback.Start();
+
+                    progressBar.ResetBar();
                 }
             }
         }

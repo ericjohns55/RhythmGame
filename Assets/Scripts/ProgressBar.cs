@@ -44,4 +44,12 @@ public class ProgressBar : MonoBehaviour
     public void UnpauseBar() {
         isPaused = false;
     }
+
+    public void ResetBar() {
+        currentValue = 0f;
+    }
+
+    public void SetMaxValue(int newMax) {
+        maxValue = newMax;
+    }
 }
