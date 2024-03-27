@@ -72,10 +72,12 @@ public class SpriteCreator : MonoBehaviour
         xPosition -= unitWidth; 
 
         GameObject newNote = Instantiate(notePrefab, new Vector2(xPosition, 4), Quaternion.identity);
+        Debug.Log("Block spawned at " + Time.time);
         newNote.tag = "Note";
 
         newNote.GetComponent<Renderer>().material.SetColor("_Color", colors[colorIndex]);
-        newNote.GetComponent<Rigidbody2D>().AddForce(new Vector2(0, -downwardsForce));
+        //newNote.GetComponent<Rigidbody2D>().AddForce(new Vector2(0, -downwardsForce));
+        newNote.GetComponent<Rigidbody2D>().velocity = new Vector2(0, -10);
 
         lastRender = Time.time;
     }

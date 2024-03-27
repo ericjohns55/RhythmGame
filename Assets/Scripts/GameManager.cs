@@ -26,7 +26,6 @@ public class GameManager : MonoBehaviour
     void Start() {
         settingsMenu.SetActive(false);
         pauseMenu.SetActive(false);
-        Debug.Log("Hola");
         scene = SceneManager.GetActiveScene();
         if (scene.name == "GameScene") {
             playback = (MidiOutput) playbackObject.GetComponent("MidiOutput");

@@ -15,8 +15,8 @@ public class ScoreCheck : MonoBehaviour
     float latency;
 
     Dictionary<KeyCode, int> keys = new Dictionary<KeyCode, int>(){
-        {KeyCode.A, 1}, {KeyCode.S, 2}, {KeyCode.D, 3}, {KeyCode.F, 4}, {KeyCode.J, 5},
-        {KeyCode.K, 6}, {KeyCode.L, 7}, {KeyCode.Semicolon, 8}
+        {KeyCode.A, 0}, {KeyCode.S, 1}, {KeyCode.D, 2}, {KeyCode.F, 3}, {KeyCode.J, 4},
+        {KeyCode.K, 5}, {KeyCode.L, 6}, {KeyCode.Semicolon, 7}
     };
 
 
@@ -33,21 +33,24 @@ public class ScoreCheck : MonoBehaviour
         // up calculation logic of scoring range. Note offset in game must be tweaked
         foreach(KeyValuePair<KeyCode, int> key in keys)
         {
-            if(Input.anyKey)
+            if(Input.anyKeyDown)
             {
-                 foreach (KeyCode keyCode in System.Enum.GetValues(typeof(KeyCode)))
-                {  
-                    if(keys.ContainsKey(keyCode))
+                 //foreach (KeyCode keyCode in System.Enum.GetValues(typeof(KeyCode))) //THIS NEEDS TO BE REPLACED
+                //{  
+                   // if(keys.ContainsKey(Input.GetKey(key)))
+                    if(Input.GetKey(key.Key))
                     {
-                        keys.TryGetValue(keyCode, out noteRetrieve);
+                        //Debug.Log("Mouse click should not get here");
+                        keys.TryGetValue(key.Key, out noteRetrieve);
 
                         if(noteRetrieve == noteID)
                         {
+                            Debug.Log("Hit : " + noteID + " at: " + Time.time);
                             pressTime = Time.time;
                             ScoreRegister(pressTime);
                         }
                     }
-                }   
+                //}   
             }
         }
     }
@@ -77,7 +80,7 @@ public class ScoreCheck : MonoBehaviour
         }
         else if(absRange < 0.7) //bad
         {
-
+            Debug.Log("Hit");
         }
         else //miss
         {
