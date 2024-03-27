@@ -6,7 +6,7 @@ using TMPro;
 
 public class MidiList : MonoBehaviour
 {
-    public GameObject buttonPrefab;
+    public GameObject button;
     public Transform contentPanel;
 
     private int yPosition = 0;
@@ -40,7 +40,7 @@ public class MidiList : MonoBehaviour
         
         button.GetComponentInChildren<TMP_Text>().text = fileName;
 
-button.transform.SetParent(contentPanel,false);
+        button.transform.SetParent(contentPanel,false);
         button.transform.SetPositionAndRotation(new Vector3(0.0f, yPosition, 0.0f), new Quaternion(0.0f, 0.0f, 0.0f,0.0f));
         
 
