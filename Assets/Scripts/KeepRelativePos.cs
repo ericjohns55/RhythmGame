@@ -1,36 +1,29 @@
 using UnityEngine;
-
+///<summary>
+/// Keeps the relative position of the parent object on the scene
+///</summary>
 public class KeepRelativePos : MonoBehaviour
 {
-    private Vector3 initialOffset;
-    private Vector2 initialResolution;
+    private Camera mainCamera;
+    private Vector2 screenBounds;
+    private float objectWidth;
+    private float objectHeight;
 
-    // Start is called before the first frame update
+    public Vector2 objectSize = new Vector2(1f, 1f); // Default object size
+
     void Start()
     {
-        Vector3 cameraPos = Camera.main.transform.position;
-        initialOffset = transform.position - cameraPos;
-        initialResolution = new Vector2(Screen.width, Screen.height);
+        mainCamera = Camera.main;
+        screenBounds = mainCamera.ScreenToWorldPoint(new Vector3(Screen.width, Screen.height, mainCamera.transform.position.z));
+        objectWidth = objectSize.x / 2f;
+        objectHeight = objectSize.y / 2f;
     }
 
-    // Update is called once per frame
-    void Update()
+    void LateUpdate()
     {
-        // Calculate the update position based on the camera position
-        Vector3 cameraPos = Camera.main.transform.position;
-        
-        // Calculate the aspect ratio of the screen relative to the initial resolution
-        float screenAspect = (float)Screen.width / Screen.height;
-        float referenceAspect = initialResolution.x / initialResolution.y;
-        float aspectRatioMultiplier = referenceAspect / screenAspect;
-
-        // Apply the aspect ratio multiplier to the initial offset
-        Vector3 scaledOffset = initialOffset * aspectRatioMultiplier;
-
-        // Calculate the new position based on the scaled offset
-        Vector3 newPos = cameraPos + scaledOffset;
-
-        // Update the position
-        transform.position = newPos;
+        Vector3 viewPos = transform.position;
+        viewPos.x = Mathf.Clamp(viewPos.x, screenBounds.x * -1 + objectWidth, screenBounds.x - objectWidth);
+        viewPos.y = Mathf.Clamp(viewPos.y, screenBounds.y * -1 + objectHeight, screenBounds.y - objectHeight);
+        transform.position = viewPos;
     }
 }

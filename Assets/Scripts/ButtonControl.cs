@@ -4,24 +4,32 @@ using UnityEngine;
 
 /// <summary>
 /// Controls the behavior of the buttons in the gamebar. Buttons can be activated with their
-/// given activation key to enable collision on note objects.
+/// given activation key to enable collision on note objects. Points are awarded to the player
+/// based on how close to the center of the collision box a note is when the button is activated.
 /// </summary>
+
 public class ButtonControl : MonoBehaviour
 {
-    [SerializeField] private KeyCode activationKey;         // Key press that activates button
-    [SerializeField] private float yOffset;                 // yOffset to the bottom of the screen for the buttons
-    [SerializeField] private float buttonLifetime = 0.1f;   // Time between button presses
-    public Color pressedColor;                             
-    public bool collisionActive = false;                   
-    private Color defaultColor;                             
-    private bool isPressed = false;                         
-    private float timer;                                    // Timer to track when the button is initially pressed
-    private Vector3 notePosition;                           // Position of the corresponding note
+    [SerializeField] private KeyCode activationKey;
+    [SerializeField] private float yOffset;
+    [SerializeField] private float buttonLifetime = 0.1f;
+    [SerializeField] private Color pressedColor;
+    [SerializeField] private Color defaultColor;
+
+    private bool isPressed = false;
+    private bool collisionActive = false;
+    private float pressStartTime;
+
+    private Vector3 notePosition;
     private SpriteCreator spriteCreator;
     private float xPosition;
+
     private ScoreManager scoreManager;
 
-    List<KeyCode> keys = new List<KeyCode>() {
+    private static float comboStreak = 0;
+    private static float comboMultiplier = 1;
+
+    private List<KeyCode> activationKeys = new List<KeyCode>() {
         KeyCode.A, KeyCode.S, KeyCode.D, KeyCode.F,
         KeyCode.J, KeyCode.K, KeyCode.L, KeyCode.Semicolon
     };
@@ -29,31 +37,13 @@ public class ButtonControl : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        scoreManager = FindObjectOfType<ScoreManager>();
-        defaultColor = GetComponent<SpriteRenderer>().color;
-        spriteCreator = FindObjectOfType<SpriteCreator>();
-        transform.position = notePosition;
+        InitializeComponents();
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(activationKey))
-        {
-            isPressed = true;
-            timer = Time.time;
-            GetComponent<SpriteRenderer>().color = pressedColor;
-
-            collisionActive = true;
-        }
-
-        // Check if the activation key is released or the button lifetime expires
-        if (Input.GetKeyUp(activationKey) || (isPressed && Time.time - timer >= buttonLifetime))
-        {
-            isPressed = false;
-            GetComponent<SpriteRenderer>().color = defaultColor;
-            collisionActive = false;
-        }
+        CheckButtonPress();
     }
 
     // FixedUpdate is called a fixed number of times per second
@@ -62,12 +52,64 @@ public class ButtonControl : MonoBehaviour
         FindNotePosition();
     }
 
+    private void InitializeComponents()
+    {
+        scoreManager = FindObjectOfType<ScoreManager>();
+        defaultColor = GetComponent<SpriteRenderer>().color;
+        spriteCreator = FindObjectOfType<SpriteCreator>();
+        transform.position = notePosition;
+    }
+
+    private void CheckButtonPress()
+    {
+        if (Input.GetKeyDown(activationKey))
+        {
+            isPressed = true;
+            pressStartTime = Time.time;
+            GetComponent<SpriteRenderer>().color = pressedColor;
+            collisionActive = true;
+        }
+
+        if (Input.GetKeyUp(activationKey) || (isPressed && Time.time - pressStartTime >= buttonLifetime))
+        {
+            isPressed = false;
+            GetComponent<SpriteRenderer>().color = defaultColor;
+            collisionActive = false;
+        }
+    }
+
+    private float CalculateDistance(Vector3 targetPosition)
+    {
+        return Vector2.Distance(transform.position, targetPosition);
+    }
+
+    private void IncrementComboAndScore(int points)
+    {
+        comboStreak++;
+        scoreManager.AddPoints(points * comboMultiplier);
+        UpdateComboMultiplier();
+    }
+
+    private void UpdateComboMultiplier()
+    {
+        if (comboStreak % 5 == 0)
+        {
+            comboMultiplier += 0.5f;
+        }
+    }
+
+    private void ResetCombo()
+    {
+        comboStreak = 0;
+        comboMultiplier = 1;
+    }
+
     // Finds the position of the corresponding note based on the activation key
     private void FindNotePosition()
     {
         spriteCreator.setScreenUnits();
         float spacerSize = spriteCreator.GetSpacerSize();
-        int index = keys.IndexOf(activationKey);
+        int index = activationKeys.IndexOf(activationKey);
         if (index != -1)
         {
             xPosition = (spacerSize * (index + 1) + index + 0.5f);
@@ -84,27 +126,29 @@ public class ButtonControl : MonoBehaviour
         transform.position = newPosition;
     }
 
+    /**
+    * Detects collision between the buttons/keys a player is activating and the falling notes.
+    * The distance between them determines the points awarded when a note is destroyed.
+    */
     void OnTriggerStay2D(Collider2D other)
     {
         if (collisionActive && other.gameObject.CompareTag("Note"))
         {
-            float distance = Vector2.Distance(transform.position, other.transform.position);
+            float distance = CalculateDistance(other.transform.position);
 
             switch (distance)
             {
-                case float d when d > 1.5f:
+                case float d when d > 1.5f: // Miss
+                    ResetCombo();
                     break;
-                case float d when d > 1.0f:
-                    // Awful
-                    scoreManager.AddPoints(10);
+                case float d when d > 1.0f: // Awful
+                    IncrementComboAndScore(10);
                     break;
-                case float d when d > 0.5f:
-                    // Good
-                    scoreManager.AddPoints(20);
+                case float d when d > 0.5f: // Good
+                    IncrementComboAndScore(20);
                     break;
-                default:
-                    // Excellent
-                    scoreManager.AddPoints(30);
+                default: // Excellent
+                    IncrementComboAndScore(30);
                     break;
             }
 

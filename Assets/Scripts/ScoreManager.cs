@@ -1,41 +1,62 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
-/// <summary>
-/// Keeps track of the player's score and displays combo count and
-/// multiplier.
-/// </summary>
-
+///<summary>
+/// Keeps track of the points scored by the player and displays these points
+/// as text on the screen.
+///<summary>
 public class ScoreManager : MonoBehaviour
 {
-    private int score = 0;
-    public int Score => score;
+    private float score = 0;
+    public float Score => score;
+    private TextMeshProUGUI scoreText;
 
-    public void AddPoints(int points)
+    public void AddPoints(float points)
     {
         score += points;
-        Debug.Log("Points added: " + points);
+        UpdateScoreText();
     }
 
     public void ResetScore()
     {
         score = 0;
-        Debug.Log("Points reset.");
+        UpdateScoreText();
     }
 
-    // Start is called before the first frame update
     void Start()
     {
-        
+        scoreText = GetComponent<TextMeshProUGUI>();
+        if (scoreText == null)
+        {
+            Debug.LogError("No TextMeshProUGUI component found attached to the GameObject.");
+        }
+        else
+        {
+            UpdateScoreText();
+        }
     }
 
-    // Update is called once per frame
-    void Update()
+    private void UpdateScoreText()
     {
-        if (score > 0)
+        if (scoreText != null)
         {
-            Debug.Log("Score: " + score);
+            scoreText.text = "Score: " + score.ToString();
+        }
+    }
+
+    public void ShowText()
+    {
+        if (scoreText != null)
+        {
+            scoreText.enabled = true;
+        }
+    }
+
+    public void HideText()
+    {
+        if(scoreText != null)
+        {
+            scoreText.enabled = false;
         }
     }
 }

@@ -12,6 +12,7 @@ public class GameManager : MonoBehaviour
 
     public GameObject pauseMenu;
     public GameObject settingsMenu;
+    public GameObject ScoreText;
     public static bool isPaused = false;
     private static string state = "game";
     public GameObject playbackObject;
@@ -56,6 +57,7 @@ public class GameManager : MonoBehaviour
 
     public void PauseGame() {
         settingsMenu.SetActive(false);
+        ScoreText.SetActive(false);
         pauseMenu.SetActive(true);
         Time.timeScale = 0f;
         isPaused = true;
@@ -87,6 +89,7 @@ public class GameManager : MonoBehaviour
         if (resumePlayback) {
             playback.StartPlayback();
         }
+        ScoreText.SetActive(true);
     }
 
     public void PauseToSettings() {
