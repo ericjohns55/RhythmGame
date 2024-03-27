@@ -95,6 +95,14 @@ public class GameManager : MonoBehaviour
         SceneManager.LoadScene("SettingsScreen");
     }
 
+    public void GoToMidiList() {
+        SceneManager.LoadScene("MidiList");
+    }
+
+    public void MidiListToSettings() {
+        SceneManager.LoadScene("SettingsScreen");
+    }
+
     public void GoToMainMenu() {
         Time.timeScale = 1f;
         playback.ReleaseOutputDevice();

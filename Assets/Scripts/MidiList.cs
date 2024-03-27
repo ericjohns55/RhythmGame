@@ -1,40 +1,45 @@
-// using System.Collections;
-// using System.Collections.Generic;
-// using UnityEngine;
-// using UnityEngine.IO;
-// using UnityEngine.UI;
-// using System.IO;
-// using Melanchall.DryWetMidi.Core;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
+using System.IO;
 
-// public class MidiList : MonoBehaviour
-// {
-//     public string midiFolderPath = "Assets/MIDIs";
-//     public GameObject buttonPrefab;
-//     public Transform contentPanel;
+public class MidiList : MonoBehaviour
+{
+    public GameObject buttonPrefab;
+    public Transform contentPanel;
 
-//     // Start is called before the first frame update
-//     void Start()
-//     {
-//         LoadMidiFiles();
-//     }
+    // Start is called before the first frame update
+    void Start()
+    {
+        string midiFolderPath = "Assets/MIDIs"; 
+        string[] midiFiles = Directory.GetFiles(Application.dataPath + "/" + midiFolderPath, "*.mid");
 
-//     void LoadMidiFiles()
-//     {
-//         string[] midiFiles = Directory.GetFiles(Application.dataPath + "/" + midiFolderPath, "*.mid");
+        // Load MIDI files from folder
+        foreach (string midiFile in midiFiles)
+        {
+            CreateMidiButton(midiFile);
+        }
 
-//         foreach (string midiFile in midiFiles) {
-//             string fileName = Path.GetFileNameWithoutExtension(midiFile);
-//             GameObject button = Instantiate(buttonPrefab, contentPanel);
-//             button.GetComponentInChildren<Text>().text = fileName;
+        // Retrieve MIDI file path from PlayerPrefs
+        string midiFilePath = PlayerPrefs.GetString("MidiFilePath");
+        if (!string.IsNullOrEmpty(midiFilePath))
+        {
+            CreateMidiButton(midiFilePath);
+        }
+    }
 
-//             button.GetComponent<Button>().onClick.AddListener(() => LoadMidiFile(midiFile));
-//         }
-//     }
+    void CreateMidiButton(string midiFilePath)
+    {
+        string fileName = Path.GetFileNameWithoutExtension(midiFilePath);
+        GameObject button = Instantiate(buttonPrefab, contentPanel);
+        button.GetComponentInChildren<Text>().text = fileName;
 
-//     void LoadMidiFile(string filePath)
-//     {
-//         // Load the MIDI file
-//         MidiFile midiFile = MidiFile.Read(filePath);
+        button.GetComponent<Button>().onClick.AddListener(() => LoadMapGenerationScene(midiFilePath));
+    }
 
-//     }
-// }
+    void LoadMapGenerationScene(string midiFilePath)
+    {
+        PlayerPrefs.SetString("SelectedMidiFilePath", midiFilePath); // Save the selected MIDI file path
+        SceneManager.LoadScene("MapGenerationScene");
+    }
+}

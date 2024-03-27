@@ -270,6 +270,7 @@ GameObject:
   - component: {fileID: 381346216}
   - component: {fileID: 381346215}
   - component: {fileID: 381346218}
+  - component: {fileID: 381346219}
   m_Layer: 5
   m_Name: Back Button
   m_TagString: Untagged
@@ -341,7 +342,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 11500000, guid: f4a19bd65d3a143e09279f30de8e46be, type: 3}
+      - m_Target: {fileID: 11500000, guid: 9651ed02186d1704fa1265690fcc7269, type: 3}
         m_TargetAssemblyTypeName: UnityEngine.Object, UnityEngine
         m_MethodName: set_name
         m_Mode: 5
@@ -350,7 +351,7 @@ MonoBehaviour:
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
-          m_StringArgument: Settings.GoBack()
+          m_StringArgument: GameManager.MidiListToSettings
           m_BoolArgument: 0
         m_CallState: 2
 --- !u!114 &381346216
@@ -403,8 +404,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f4a19bd65d3a143e09279f30de8e46be, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  midiFiles: {fileID: 0}
-  goBack: {fileID: 0}
+  pathInputField: {fileID: 0}
+  playbackObject: {fileID: 0}
+--- !u!114 &381346219
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 381346213}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9651ed02186d1704fa1265690fcc7269, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pauseMenu: {fileID: 0}
+  settingsMenu: {fileID: 0}
+  playbackObject: {fileID: 0}
+  countdown: {fileID: 0}
 --- !u!1 &411057035
 GameObject:
   m_ObjectHideFlags: 0
@@ -641,7 +658,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7979911872429103615, guid: a4bae8a6728e3db43be638c3f2472427, type: 3}
       propertyPath: m_Name
-      value: settingsScreen
+      value: MidiHandler
       objectReference: {fileID: 0}
     - target: {fileID: 7979911872429103615, guid: a4bae8a6728e3db43be638c3f2472427, type: 3}
       propertyPath: m_IsActive
@@ -1239,7 +1256,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 553509839}
   m_Direction: 0
   m_Value: 0
-  m_Size: 0.99999464
+  m_Size: 0.9999937
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -1350,7 +1367,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0.0000026553093, y: 0}
+  m_AnchoredPosition: {x: 0.00002830115, y: 0}
   m_SizeDelta: {x: -8.2344, y: 189.18}
   m_Pivot: {x: 0, y: 1}
 --- !u!1 &1269665805
@@ -1442,7 +1459,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   midiFolderPath: Assets/MIDIs
-  buttonPrefab: {fileID: 0}
   contentPanel: {fileID: 0}
 --- !u!1 &1277783908
 GameObject:

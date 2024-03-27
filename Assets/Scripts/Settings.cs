@@ -1,20 +1,13 @@
 using UnityEngine;
 using UnityEngine.UI;
-using System.IO;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 using UnityEngine.SceneManagement;
-using TMPro;
-using Melanchall.DryWetMidi.Core;
-using Melanchall.DryWetMidi.Multimedia;
-using Melanchall.DryWetMidi.Interaction;
+using UnityEngine.IO;
 
 public class Settings : MonoBehaviour
 {
     public InputField pathInputField;
-    public GameObject playbackObject;
-    private MidiOutput playback;
+    public InputField midiFilePathInput;
+
 
     public void LoadMidiFile()
     {
@@ -29,10 +22,10 @@ public class Settings : MonoBehaviour
 
         if (File.Exists(path))
         {
-            // Read MIDI file
-            byte[] midiData = File.ReadAllBytes(path);
-            SceneManager.LoadScene("GameScene");
-            playback = (MidiOutput) playbackObject.GetComponent("MidiOutput");
+            string midiFilePath = midiFilePathInput.text;
+            // Saves the MIDI file path to PlayerPrefs
+            PlayerPrefs.SetString("MidiFilePath", midiFilePath);
+            SceneManager.LoadScene("MidiListScene");
         }
         else
         {
