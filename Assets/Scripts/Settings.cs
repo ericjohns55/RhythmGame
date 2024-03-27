@@ -20,7 +20,7 @@ public class Settings : MonoBehaviour
             return;
         }
 
-        if (File.Exists(path))
+        if (System.IO.File.Exists(path))
         {
             string midiFilePath = midiFilePathInput.text;
             // Saves the MIDI file path to PlayerPrefs

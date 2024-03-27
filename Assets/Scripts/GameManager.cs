@@ -24,12 +24,15 @@ public class GameManager : MonoBehaviour
 
     // Start is called before the first frame update
     void Start() {
-        settingsMenu.SetActive(false);
-        pauseMenu.SetActive(false);
+        
         Debug.Log("Hola");
         scene = SceneManager.GetActiveScene();
         if (scene.name == "GameScene") {
             playback = (MidiOutput) playbackObject.GetComponent("MidiOutput");
+            settingsMenu.SetActive(false);
+            pauseMenu.SetActive(false);
+        } else {
+            playback = null;
         }
     }
 
@@ -96,7 +99,7 @@ public class GameManager : MonoBehaviour
     }
 
     public void GoToMidiList() {
-        SceneManager.LoadScene("MidiList");
+        SceneManager.LoadScene("MidiHandler");
     }
 
     public void MidiListToSettings() {
@@ -105,7 +108,9 @@ public class GameManager : MonoBehaviour
 
     public void GoToMainMenu() {
         Time.timeScale = 1f;
-        playback.ReleaseOutputDevice();
+        if (scene.name == "GameScene") {
+            playback.ReleaseOutputDevice();
+        }
         SceneManager.LoadScene("HomeScreen");
     }
     
