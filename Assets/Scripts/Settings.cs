@@ -13,23 +13,10 @@ public class Settings : MonoBehaviour
     {
         string path = pathInputField.text;
 
-
-        if (string.IsNullOrEmpty(path))
-        {
-            Debug.LogError("Path is empty!");
-            return;
-        }
-
-        if (File.Exists(path))
-        {
-            string midiFilePath = midiFilePathInput.text;
-            // Saves the MIDI file path to PlayerPrefs
-            PlayerPrefs.SetString("MidiFilePath", midiFilePath);
-            SceneManager.LoadScene("MidiListScene");
-        }
-        else
-        {
-            Debug.LogError("File not found at path: " + path);
-        }
+        string midiFilePath = midiFilePathInput.text;
+        // Saves the MIDI file path
+        PlayerPrefs.SetString("MidiFilePath", midiFilePath);
+        SceneManager.LoadScene("MidiListScene");
+        
     }
 }

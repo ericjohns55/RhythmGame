@@ -5,7 +5,7 @@ using System.IO;
 
 public class MidiList : MonoBehaviour
 {
-    public GameObject buttonPrefab;
+    public GameObject button;
     public Transform contentPanel;
 
     // Start is called before the first frame update
@@ -31,7 +31,7 @@ public class MidiList : MonoBehaviour
     void CreateMidiButton(string midiFilePath)
     {
         string fileName = Path.GetFileNameWithoutExtension(midiFilePath);
-        GameObject button = Instantiate(buttonPrefab, contentPanel);
+        GameObject button = Instantiate(button, contentPanel);
         button.GetComponentInChildren<Text>().text = fileName;
 
         button.GetComponent<Button>().onClick.AddListener(() => LoadMapGenerationScene(midiFilePath));
