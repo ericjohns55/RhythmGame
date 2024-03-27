@@ -123,7 +123,7 @@ namespace MapGeneration {
 
             LinkedListNode<MapEvent> currentNode = mapEvents.First;
             
-            bool lastBeatDown = false;
+            bool lastDownbeat = false;
             while (currentNode != null) { 
                 MapEvent mapEvent = currentNode.Value;               
                 TimeSignature timeSignature = mapEvent.GetTimeSignature();
@@ -141,19 +141,24 @@ namespace MapGeneration {
                             Debug.LogFormat("Adding downbeat {0}", measureTick);
                             beatParsed = true;
 
-                            if(measureTick != 0){
-                                lastBeatDown = true;
+                            // updates flag if there was a downbeat
+                            if((measureTick == 0) || (measureTick % 320 == 0)){
+                                lastDownbeat = false;
                             } else {
-                                lastBeatDown = false;
+                                lastDownbeat = true;
                             }
 
-                        } else if (!lastBeatDown && CompareBeat(measureTick, ValidRhythm.Quarter_Triplet, timeSignature)) {                                                    
-                            Debug.LogFormat("Adding QTrip {0}", measureTick); // NEXT PARSING SPRINT PROBLEM WOOHOO
-                            beatParsed = true;
-                            lastBeatDown = false;   
-                        
+                        } else if (!lastDownbeat && CompareBeat(measureTick, ValidRhythm.Quarter_Triplet, timeSignature)) {  
+                            MapEvent nextEvent = currentNode.Next.Value;
+
+                            // check if the next note is a downbeat
+                            if((nextEvent != null) && (nextEvent.GetMeasureTick() % 320 == 0)) {                                                                         
+                                Debug.LogFormat("Adding QTrip {0} nextTick {1}", measureTick,nextEvent.GetMeasureTick()); // NEXT PARSING SPRINT PROBLEM WOOHOO // HAHA fixed it
+                                beatParsed = true;
+                                lastDownbeat = false;   
+                            }
                                                                                 
-                        }else if (CompareBeat(measureTick, ValidRhythm.Upbeat, timeSignature)) { // allow upbeats iff there is not a note on the downbeat
+                        } else if (CompareBeat(measureTick, ValidRhythm.Upbeat, timeSignature)) { // allow upbeats iff there is not a note on the downbeat
                             if (currentNode.Previous != null) {
                                 double lastTick = currentNode.Previous.Value.GetMeasureTick();
 
