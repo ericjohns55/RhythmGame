@@ -6,7 +6,7 @@ using TMPro;
 
 public class MidiList : MonoBehaviour
 {
-    public GameObject button;
+    public GameObject buttonPrefab;
     public Transform contentPanel;
 
     private int yPosition = 0;
