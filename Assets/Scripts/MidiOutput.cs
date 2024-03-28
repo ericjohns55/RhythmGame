@@ -36,6 +36,9 @@ public class MidiOutput : MonoBehaviour
     private MapDifficulty difficulty;
  
     private bool testFlag = false;
+    private float executionTime = 0f;
+
+    private float waitAmount = 0.0f;
 
     private MidiFile testMidi;
     void Start()
@@ -95,30 +98,26 @@ public class MidiOutput : MonoBehaviour
 
                     // testFlag = true;
                     StartCoroutine(BeginMidiPlayback());
-                    StartCoroutine(SpawnNotes());
 
+                    executionTime = Time.time;
+                    StartCoroutine(SpawnNotes());
                 }
             }
         }
     }
 
     private IEnumerator BeginMidiPlayback() {
-        yield return new WaitForSeconds(0.2f);
+        yield return new WaitForSeconds(0.2f); // in theory this is delay
         playback.MoveToStart();
         playback.Start();
     }
 
     private IEnumerator SpawnNotes() {
         if (currentNode == null) yield break; // signifies either a break or the end of the song
-        
-        // // start the playback in the midifile to account for any possible desync
-        // if (!playback.IsRunning) 
-        // {
-        //     //yield return new WaitForSeconds(delay);
-        //     playback.MoveToStart();
-        //     playback.Start(); 
-        // }
-        
+
+        // frame times arent perfect, this accounts for that  that
+        float offset = Time.time - executionTime - waitAmount;
+                
         MapEvent currentEvent = currentNode.Value;
         foreach (int noteID in currentEvent.GetTilesToGenerate()) { // generates notes from the current map event
            
@@ -141,12 +140,14 @@ public class MidiOutput : MonoBehaviour
         
 
         if (currentNode != null) { // make sure there is a next null, otherwise we do not need to wait anymore (end of song)
-            float waitAmount = generator.CalculateNextTimeStamp(currentTimestamp, currentNode.Value.GetTimestamp());
+            waitAmount = generator.CalculateNextTimeStamp(currentTimestamp, currentNode.Value.GetTimestamp());
             // Debug.LogFormat("Waiting {0}s for next event (TIMESTAMP {1}).", waitAmount, currentTimestamp);
             
             // Debug.Log("Delay should be: " + (Time.time - timecheck));
-            yield return new WaitForSeconds(waitAmount);
+            
+            yield return new WaitForSeconds(waitAmount - offset); 
             StartCoroutine(SpawnNotes()); // recursively call subroutine for next note
+            executionTime = Time.time;
         }
     }
 
