@@ -2,6 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// Generates clouds in the background of the scene for decoration. Cloud spawn interval
+/// can be changed within the editor
+/// </summary>
 public class CloudGen : MonoBehaviour
 {
     [SerializeField] GameObject cloudPrefab;
