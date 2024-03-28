@@ -636,7 +636,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   noteLogger: {fileID: 287364987}
   GameManager: {fileID: 6953780207907947781}
-  delay: 5
+  delay: 0.752
 --- !u!1 &583929013 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 7979911872429103615, guid: a4bae8a6728e3db43be638c3f2472427, type: 3}

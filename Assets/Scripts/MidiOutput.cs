@@ -36,9 +36,6 @@ public class MidiOutput : MonoBehaviour
     private MapDifficulty difficulty;
  
     private bool testFlag = false;
-    private float startPlayTime;
-    private float stopPlayTime;
-
 
     private MidiFile testMidi;
     void Start()
@@ -55,13 +52,7 @@ public class MidiOutput : MonoBehaviour
 
         // generate the map for our test level
         generator = new MapGenerator(testMidi);
-        difficulty = MapDifficulty.FullMidi;
-
-        // playback.NotesPlaybackFinished += OnNotesPlaybackStarted;
-        // Debug.Log("Chicanery");
-        // startPlayTime = Time.time;
-        // playback.Start();
-        
+        difficulty = MapDifficulty.FullMidi;        
     }
 
     /**
@@ -74,11 +65,6 @@ public class MidiOutput : MonoBehaviour
     // Update is called once per frame
     void Update() //FixedUpdate()
     {
-        // if (testFlag) {
-        //     Debug.Log("TIME: " + (Time.time - startPlayTime));
-        //     testFlag = false;
-        // }
-
         //Sets the TMP element on screen to display the names of the notes being played.
         if (!notesPlaying.Equals(lastPlayed)) {
             noteLogger.text = notesPlaying;
@@ -107,24 +93,32 @@ public class MidiOutput : MonoBehaviour
                     // the linked list was generated based off of a SortedDictionary, so the first note is guaranteed the first node
                     currentNode = generator.GenerateMap(difficulty).First;
 
+                    // testFlag = true;
+                    StartCoroutine(BeginMidiPlayback());
                     StartCoroutine(SpawnNotes());
+
                 }
             }
         }
     }
 
+    private IEnumerator BeginMidiPlayback() {
+        yield return new WaitForSeconds(0.2f);
+        playback.MoveToStart();
+        playback.Start();
+    }
+
     private IEnumerator SpawnNotes() {
         if (currentNode == null) yield break; // signifies either a break or the end of the song
         
-        // start the playback in the midifile to account for any possible desync
-        if (!playback.IsRunning) 
-        {
-            yield return new WaitForSeconds(delay);
-            playback.MoveToStart();
-            playback.Start(); 
-            
-        }
-         
+        // // start the playback in the midifile to account for any possible desync
+        // if (!playback.IsRunning) 
+        // {
+        //     //yield return new WaitForSeconds(delay);
+        //     playback.MoveToStart();
+        //     playback.Start(); 
+        // }
+        
         MapEvent currentEvent = currentNode.Value;
         foreach (int noteID in currentEvent.GetTilesToGenerate()) { // generates notes from the current map event
            
@@ -150,7 +144,7 @@ public class MidiOutput : MonoBehaviour
             float waitAmount = generator.CalculateNextTimeStamp(currentTimestamp, currentNode.Value.GetTimestamp());
             // Debug.LogFormat("Waiting {0}s for next event (TIMESTAMP {1}).", waitAmount, currentTimestamp);
             
-            Debug.Log("Delay should be: " + (Time.time - timecheck));
+            // Debug.Log("Delay should be: " + (Time.time - timecheck));
             yield return new WaitForSeconds(waitAmount);
             StartCoroutine(SpawnNotes()); // recursively call subroutine for next note
         }
@@ -185,15 +179,5 @@ public class MidiOutput : MonoBehaviour
         if (outputDevice != null) {
             outputDevice.Dispose();
         }
-    }
-
-    private void OnNotesPlaybackStarted(object sender, NotesEventArgs e)
-    {   
-        Debug.Log("Pray time1:" );
-        testFlag = true;
-        playback.Stop();
-        playback.MoveToStart();
-    
-        playback.NotesPlaybackStarted -= OnNotesPlaybackStarted;
     }
 }
