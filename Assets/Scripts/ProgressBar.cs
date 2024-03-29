@@ -18,13 +18,12 @@ public class ProgressBar : MonoBehaviour
         barTransform = progressBar.rectTransform;
     }
 
-    // Temporary to demonstrate functionality
+    // Constantly update progress bar to new value set externally
     void Update() {
         if (!isPaused) {
             UpdateProgressBar(currentValue);
-            currentValue += Time.deltaTime * 10; // Example: increment by 10 per second
             currentValue = Mathf.Clamp(currentValue, 0f, maxValue);
-        }
+        } 
     }
 
     public void UpdateProgressBar(float newValue) {
@@ -51,5 +50,9 @@ public class ProgressBar : MonoBehaviour
 
     public void SetMaxValue(int newMax) {
         maxValue = newMax;
+    }
+
+    public void Increment() {
+        currentValue += 1f;
     }
 }

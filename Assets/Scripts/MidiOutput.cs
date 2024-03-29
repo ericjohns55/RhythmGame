@@ -31,11 +31,13 @@ public class MidiOutput : MonoBehaviour
 
     public TMP_Text noteLogger;
 
+    private int noteCount = 0;
+
     private Dictionary<Melanchall.DryWetMidi.MusicTheory.NoteName, int> noteLookupTable;
  
     void Start()
     {
-        MidiFile testMidi = MidiFile.Read("Assets/MIDIs/latency.mid");
+        MidiFile testMidi = MidiFile.Read("Assets/MIDIs/ShortSong1.mid");
         outputDevice = OutputDevice.GetByIndex(0);
         playback = testMidi.GetPlayback(outputDevice);
         progressBar = (ProgressBar) gameManager.GetComponent("ProgressBar");
@@ -82,6 +84,8 @@ public class MidiOutput : MonoBehaviour
             value.Add(note);
             //Debug.Log("Adding " + note.NoteName + note.Octave + " to time " + time);
         }
+
+        noteCount = allNotes.Count();
     }
 
     /**
@@ -117,7 +121,7 @@ public class MidiOutput : MonoBehaviour
         * the spacebar
         */
         if (Time.time > timestamp + 0.50f) {
-            if (Input.GetKey(KeyCode.P)) {
+            if (Input.GetKey(KeyCode.Space)) {
                 timestamp = Time.time;
 
                 //These assignments clear the note display TMPs
@@ -125,13 +129,14 @@ public class MidiOutput : MonoBehaviour
                 lastPlayed = "";
                 noteLogger.text = "";
 
+                progressBar.ResetBar();
+                
                 if (playback.IsRunning) {
                     playback.Stop();
                 } else {
                     playback.MoveToStart();
                     playback.Start();
-
-                    progressBar.ResetBar();
+                    progressBar.SetMaxValue(noteCount);
                 }
             }
         }
@@ -183,6 +188,8 @@ public class MidiOutput : MonoBehaviour
         } else {
             Debug.Log("how do we have a playback event without any notes???");
         }
+
+        progressBar.Increment();
     }
 
     public void StopPlayback()
