@@ -16,40 +16,42 @@ public class MidiList : MonoBehaviour
     public GameObject buttonPrefab;
     public Transform contentPanel;
     public ScrollRect scrollRect;
+    private float contentHeight;
 
-    // Height of each midi button
-    private float buttonHeight = 50f;
-    // Spacing between midi buttons
+    
+    //spacing between midi buttons
     private float spacing = 5f;
 
+    //height of each midi button
+    private float buttonHeight = 30f;
 
-    private int yPosition = 0;
-
-    // Start is called before the first frame update
+    //start is called before the first frame update
     void Start()
     {
         string midiFolderPath = "MIDIs"; 
         string[] midiFiles = Directory.GetFiles(Application.dataPath + "/" + midiFolderPath, "*.mid");
 
-        // Calculates height of content panel
+        //calculates height of content panel
         float panelHeight = midiFiles.Length * (buttonHeight + spacing);
+        contentHeight = Mathf.Max(panelHeight, scrollRect.viewport.rect.height);
 
-        // Sets content panel height
+
+        //sets content panel height
         RectTransform panelRectTransform = contentPanel.GetComponent<RectTransform>();
-        panelRectTransform.sizeDelta = new Vector2(panelRectTransform.sizeDelta.x, panelHeight);
+        panelRectTransform.sizeDelta = new Vector2(panelRectTransform.sizeDelta.x, contentHeight);
 
-        // Loads MIDI files from folder
+        //loads MIDI files from folder
         for (int i = 0; i < midiFiles.Length; i++)
         {
             Debug.Log(midiFiles[i]);
             CreateMidiButton(midiFiles[i], i);
         }
 
-        // Retrieves MIDI file path from PlayerPrefs
+        //retrieves MIDI file path from PlayerPrefs
         string midiFilePath = PlayerPrefs.GetString("MidiFilePath");
         if (!string.IsNullOrEmpty(midiFilePath))
         {
-            // Find the index of the loaded MIDI file in the midiFiles array
+            //find the index of the loaded MIDI file in the midiFiles array
             int index = Array.IndexOf(midiFiles, midiFilePath);
             CreateMidiButton(midiFilePath, index);
         }
@@ -60,11 +62,20 @@ public class MidiList : MonoBehaviour
         string fileName = Path.GetFileNameWithoutExtension(midiFilePath);
         GameObject button = Instantiate(buttonPrefab, contentPanel);
         
-        button.GetComponentInChildren<TMP_Text>().text = fileName;
+         //adjust the font size of the text component
+        TMP_Text buttonText = button.GetComponentInChildren<TMP_Text>();
+        buttonText.text = fileName;
+        buttonText.fontSize = 14; 
 
         RectTransform buttonRectTransform = button.GetComponent<RectTransform>();
-        float yPos = -index * (buttonHeight + spacing);
+        float scrollHeight = scrollRect.viewport.rect.height;
+        float scrollPosition = (contentHeight - scrollHeight) / 2;
+        float yPos = -index * (buttonHeight + spacing) - scrollPosition;
+
         buttonRectTransform.anchoredPosition = new Vector2(buttonRectTransform.anchoredPosition.x, yPos);
+
+        //adjusts the width and height of the button
+        buttonRectTransform.sizeDelta = new Vector2(160, buttonHeight);
 
         button.GetComponent<Button>().onClick.AddListener(() => StartGameWithMidi(midiFilePath));
     }
@@ -73,7 +84,7 @@ public class MidiList : MonoBehaviour
     {
         if (!string.IsNullOrEmpty(midiFilePath))
         {
-            // Saves selected Midi file path 
+            //saves selected Midi file path 
             PlayerPrefs.SetString("SelectedMidiFilePath", midiFilePath);
             SceneManager.LoadScene("GameScene");
         }
