@@ -22,10 +22,16 @@ public class ProgressBarOutline : MonoBehaviour
         GenerateOutlineTexture();
     }
 
+    /**
+     * Updates the outline every frame.
+     */
     void Update() {
         GenerateOutlineTexture();
     }
 
+    /**
+     * Generates the outline texture and applies it to the ProgressBarOutline.
+     */
     void GenerateOutlineTexture() {
         int width = (int)(ProgressBarScript.barWidth + outlineSize * 2);
         int height = (int)(barTransform.sizeDelta.y + outlineSize * 2);
@@ -36,6 +42,7 @@ public class ProgressBarOutline : MonoBehaviour
         outlineTransform.sizeDelta = new Vector2(width, height);
         outlineTexture = new Texture2D(width, height);
 
+        // Create new texture pixel by pixel
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
                 if (x < outlineSize || x >= width - outlineSize || y < outlineSize || y >= height - outlineSize)
@@ -45,10 +52,9 @@ public class ProgressBarOutline : MonoBehaviour
             }
         }
 
+        // Apply the new texture
         outlineTexture.Apply();
-
         outlineImage.texture = outlineTexture;
-
         outlineTransform.sizeDelta = new Vector2(width, height);
 
         // Calculate the position of the outline based on the progress bar's position

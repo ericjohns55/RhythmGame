@@ -3,7 +3,6 @@ using UnityEngine.UI;
 
 public class ProgressBar : MonoBehaviour
 {
-    // Remove SerializeField when done
     [SerializeField] private Image progressBar;
     [SerializeField] private float currentValue = 0f;
     [SerializeField] private float maxValue = 100f;
@@ -18,7 +17,9 @@ public class ProgressBar : MonoBehaviour
         barTransform = progressBar.rectTransform;
     }
 
-    // Constantly update progress bar to new value set externally
+    /**
+     * Constantly updates progress bar to the new value.
+     */
     void Update() {
         if (!isPaused) {
             UpdateProgressBar(currentValue);
@@ -26,6 +27,9 @@ public class ProgressBar : MonoBehaviour
         } 
     }
 
+    /**
+     * Sets the progress bar to the new value with correct scaling.
+     */
     public void UpdateProgressBar(float newValue) {
         // Adjusting the width of the progress bar
         float fillAmount = newValue / maxValue;
@@ -48,6 +52,10 @@ public class ProgressBar : MonoBehaviour
         currentValue = 0f;
     }
 
+    /**
+     * Sets the max number value of the progress bar.
+     * Does not change the size of the progress bar.
+     */
     public void SetMaxValue(int newMax) {
         maxValue = newMax;
     }
