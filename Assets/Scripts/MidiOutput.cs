@@ -107,7 +107,7 @@ public class MidiOutput : MonoBehaviour
     }
 
     private IEnumerator BeginMidiPlayback() {
-        yield return new WaitForSeconds(0.2f); // in theory this is delay
+        yield return new WaitForSeconds(0.0f); // in theory this is delay
         playback.MoveToStart();
         playback.Start();
     }
