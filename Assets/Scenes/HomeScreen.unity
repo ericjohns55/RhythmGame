@@ -248,7 +248,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Midi
+  m_text: Settings
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 7decf241d675c6a43b01cfa13d719e42, type: 2}
   m_sharedMaterial: {fileID: 2428147530260336301, guid: 7decf241d675c6a43b01cfa13d719e42, type: 2}
@@ -275,8 +275,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 35
-  m_fontSizeBase: 35
+  m_fontSize: 32
+  m_fontSizeBase: 32
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -311,7 +311,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_margin: {x: 1.643898, y: 0, z: 0, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -502,7 +502,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1281582723}
         m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
-        m_MethodName: GoToGameScene
+        m_MethodName: GoToMidiList
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1181,6 +1181,7 @@ GameObject:
   - component: {fileID: 1644163091}
   - component: {fileID: 1644163090}
   - component: {fileID: 1644163089}
+  - component: {fileID: 1644163092}
   m_Layer: 5
   m_Name: Midi
   m_TagString: Untagged
@@ -1251,7 +1252,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1644163090}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 3743896578159488266, guid: 0d28cbdcf8dbadb459946a9815b48431, type: 3}
+        m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
+        m_MethodName: GoToSettings
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: GameManager.GoToSettings
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1644163090
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1290,6 +1303,22 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1644163087}
   m_CullTransparentMesh: 1
+--- !u!114 &1644163092
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1644163087}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9651ed02186d1704fa1265690fcc7269, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pauseMenu: {fileID: 0}
+  settingsMenu: {fileID: 0}
+  playbackObject: {fileID: 0}
+  countdown: {fileID: 0}
 --- !u!1 &1883080489
 GameObject:
   m_ObjectHideFlags: 0

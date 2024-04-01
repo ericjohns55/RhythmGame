@@ -460,11 +460,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3172566515798575561, guid: f46fe5a5bf2b6b6409869b73aaeb5b91, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: -59.200012
+      value: -51.119995
       objectReference: {fileID: 0}
     - target: {fileID: 3172566515798575561, guid: f46fe5a5bf2b6b6409869b73aaeb5b91, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 1.800003
+      value: 6.649994
       objectReference: {fileID: 0}
     - target: {fileID: 3172566515798575561, guid: f46fe5a5bf2b6b6409869b73aaeb5b91, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -481,6 +481,10 @@ PrefabInstance:
     - target: {fileID: 7979911872429103615, guid: f46fe5a5bf2b6b6409869b73aaeb5b91, type: 3}
       propertyPath: m_Name
       value: pauseScreen
+      objectReference: {fileID: 0}
+    - target: {fileID: 7979911872429103615, guid: f46fe5a5bf2b6b6409869b73aaeb5b91, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

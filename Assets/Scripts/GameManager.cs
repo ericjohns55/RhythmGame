@@ -12,6 +12,7 @@ public class GameManager : MonoBehaviour
 
     public GameObject pauseMenu;
     public GameObject settingsMenu;
+    public GameObject ScoreText;
     public static bool isPaused = false;
     private static string state = "game";
     public GameObject playbackObject;
@@ -24,12 +25,13 @@ public class GameManager : MonoBehaviour
 
     // Start is called before the first frame update
     void Start() {
-        settingsMenu.SetActive(false);
-        pauseMenu.SetActive(false);
-        Debug.Log("Hola");
         scene = SceneManager.GetActiveScene();
         if (scene.name == "GameScene") {
             playback = (MidiOutput) playbackObject.GetComponent("MidiOutput");
+            settingsMenu.SetActive(false);
+            pauseMenu.SetActive(false);
+        } else {
+            playback = null;
         }
     }
 
@@ -56,6 +58,7 @@ public class GameManager : MonoBehaviour
 
     public void PauseGame() {
         settingsMenu.SetActive(false);
+        // ScoreText.SetActive(false);
         pauseMenu.SetActive(true);
         Time.timeScale = 0f;
         isPaused = true;
@@ -87,21 +90,28 @@ public class GameManager : MonoBehaviour
         if (resumePlayback) {
             playback.StartPlayback();
         }
+        // ScoreText.SetActive(true);
     }
 
-    public void PauseToSettings() {
+    public void GoToSettings() {
         settingsMenu.SetActive(true);
         pauseMenu.SetActive(false);
+        SceneManager.LoadScene("SettingsScreen");
     }
 
-    public void SettingsToPause() {
-        settingsMenu.SetActive(false);
-        pauseMenu.SetActive(true);
+    public void GoToMidiList() {
+        SceneManager.LoadScene("MidiHandler");
+    }
+
+    public void MidiListToSettings() {
+        SceneManager.LoadScene("SettingsScreen");
     }
 
     public void GoToMainMenu() {
         Time.timeScale = 1f;
-        playback.ReleaseOutputDevice();
+        if (scene.name == "GameScene") {
+            playback.ReleaseOutputDevice();
+        }
         SceneManager.LoadScene("HomeScreen");
     }
     
