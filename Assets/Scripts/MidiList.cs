@@ -70,7 +70,7 @@ public class MidiList : MonoBehaviour
         RectTransform buttonRectTransform = button.GetComponent<RectTransform>();
         float scrollHeight = scrollRect.viewport.rect.height;
         float scrollPosition = (contentHeight - scrollHeight) / 2;
-        float yPos = -index * (buttonHeight + spacing) - scrollPosition;
+        float yPos = -index * (buttonHeight + spacing);// - scrollPosition;
 
         buttonRectTransform.anchoredPosition = new Vector2(buttonRectTransform.anchoredPosition.x, yPos);
 
