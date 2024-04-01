@@ -12,6 +12,7 @@ public class GameManager : MonoBehaviour
 
     public GameObject pauseMenu;
     public GameObject settingsMenu;
+    public GameObject ScoreText;
     public static bool isPaused = false;
     private static string state = "game";
     public GameObject playbackObject;
@@ -24,8 +25,6 @@ public class GameManager : MonoBehaviour
 
     // Start is called before the first frame update
     void Start() {
-        
-        Debug.Log("Hola");
         scene = SceneManager.GetActiveScene();
         if (scene.name == "GameScene") {
             playback = (MidiOutput) playbackObject.GetComponent("MidiOutput");
@@ -59,6 +58,7 @@ public class GameManager : MonoBehaviour
 
     public void PauseGame() {
         settingsMenu.SetActive(false);
+        // ScoreText.SetActive(false);
         pauseMenu.SetActive(true);
         Time.timeScale = 0f;
         isPaused = true;
@@ -90,6 +90,7 @@ public class GameManager : MonoBehaviour
         if (resumePlayback) {
             playback.StartPlayback();
         }
+        // ScoreText.SetActive(true);
     }
 
     public void GoToSettings() {

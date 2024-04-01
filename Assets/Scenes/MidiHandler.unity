@@ -420,6 +420,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   pauseMenu: {fileID: 0}
   settingsMenu: {fileID: 0}
+  ScoreText: {fileID: 0}
   playbackObject: {fileID: 0}
   countdown: {fileID: 0}
 --- !u!1 &411057035
@@ -504,8 +505,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1835796152}
   m_HandleRect: {fileID: 1835796151}
   m_Direction: 2
-  m_Value: -0.18007663
-  m_Size: 0.99997896
+  m_Value: 0
+  m_Size: 0.9999788
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -1135,7 +1136,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -10.000009, y: 10}
+  m_AnchoredPosition: {x: -10.000015, y: 10}
   m_SizeDelta: {x: -20, y: -20}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &586372829
@@ -1260,9 +1261,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 11500000, guid: e8cf904a181e9490996d56bdca290657, type: 3}
+      - m_Target: {fileID: 1269665805}
         m_TargetAssemblyTypeName: UnityEngine.Object, UnityEngine
-        m_MethodName: set_name
+        m_MethodName: 
         m_Mode: 5
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1317,7 +1318,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 737976120}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e8cf904a181e9490996d56bdca290657, type: 3}
   m_Name: 
@@ -1519,7 +1520,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0.000031191827, y: 0.004709918}
+  m_AnchoredPosition: {x: 0.000011130983, y: 0.0040082233}
   m_SizeDelta: {x: -8.2344, y: 189.18}
   m_Pivot: {x: 0, y: 1}
 --- !u!1 &903591016
@@ -1746,7 +1747,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   buttonPrefab: {fileID: 3125259166397418572, guid: 3b3c539ac9be2a84b90adf540b15c30e, type: 3}
   contentPanel: {fileID: 1269665806}
-  scrollRect: {fileID: 0}
+  scrollRect: {fileID: 523420505}
 --- !u!1 &1277783908
 GameObject:
   m_ObjectHideFlags: 0

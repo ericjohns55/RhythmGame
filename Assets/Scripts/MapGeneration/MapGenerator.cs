@@ -43,6 +43,9 @@ namespace MapGeneration {
 
         // List of map events; inputted in order of timestamp so the first element will be the first note and the last element will be the last note
         private LinkedList<MapEvent> mapEvents = new LinkedList<MapEvent>();
+        
+        // Needed for progressbar
+        public int noteCount = 0;
 
         // Constructor, requires the midi file to parse
         public MapGenerator(MidiFile midiFile) {
@@ -111,6 +114,8 @@ namespace MapGeneration {
 
                 mapEvents.AddLast(mapEvent); // add to the end of the list to preserve ordering
             }
+
+            noteCount = noteMap.Count();
         }
 
         // Returns the LinkedList of MapEvents for parsing in the main game

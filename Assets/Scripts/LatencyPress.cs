@@ -128,6 +128,7 @@ public class LatencyPress : MonoBehaviour
 
             float inputLatency = lsum / 5;
             PlayerPrefs.SetFloat("Input_Latency", inputLatency);
+            PlayerPrefs.SetFloat("Total_Latency", timeAdjust + inputLatency);
 
             playback.Stop();
             playback.Dispose();
