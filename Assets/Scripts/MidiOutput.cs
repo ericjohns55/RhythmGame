@@ -28,12 +28,17 @@ public class MidiOutput : MonoBehaviour
     private Playback playback;
 
     public TMP_Text noteLogger;
-    public GameObject GameManager;
+    // public GameObject scoreManager;
     public float delay;
 
     private MapGenerator generator;
     private LinkedListNode<MapEvent> currentNode = null;
     private MapDifficulty difficulty;
+
+    // Needed for progressbar
+    private ProgressBar progressBar;
+    public GameManager gameManager;
+    private int noteCount = 0;
  
     private bool testFlag = false;
     private float executionTime = 0f;
@@ -47,15 +52,18 @@ public class MidiOutput : MonoBehaviour
 
         spriteCreator = Camera.main.GetComponent<SpriteCreator>();
 
+        progressBar = (ProgressBar) gameManager.GetComponent("ProgressBar");
+
         // load the test midi file and setup output devices and playback
-        //MidiFile testMidi = MidiFile.Read("Assets/MIDIs/NoteChartingFast.mid");
-        testMidi = MidiFile.Read("Assets/MIDIs/BasicRhythms.mid"); //cha
+        testMidi = MidiFile.Read("Assets/MIDIs/NoteChartingFast.mid");
         outputDevice = OutputDevice.GetByIndex(0);
         playback = testMidi.GetPlayback(outputDevice);
 
         // generate the map for our test level
         generator = new MapGenerator(testMidi);
-        difficulty = MapDifficulty.FullMidi;        
+        difficulty = MapDifficulty.FullMidi;
+
+        noteCount = generator.noteCount;
     }
 
     /**
@@ -78,10 +86,8 @@ public class MidiOutput : MonoBehaviour
         * The following logical chain starts, stops, and resets midi playback using
         * the spacebar
         */
-        if (Time.time > timestamp + 0.50f) 
-        {
-            if(Input.GetKey(KeyCode.P)) 
-            {
+        if (Time.time > timestamp + 0.50f) {
+            if (Input.GetKey(KeyCode.P)) {
                 timestamp = Time.time;
                 timecheck = timestamp;
                 //These assignments clear the note display TMPs
@@ -89,12 +95,16 @@ public class MidiOutput : MonoBehaviour
                 lastPlayed = "";
                 noteLogger.text = "";
 
+                progressBar.ResetBar();
+
                 if (playback.IsRunning) {
                     playback.Stop();
                     currentNode = null; // setting this to null will end the coroutine
                 } else {
                     // the linked list was generated based off of a SortedDictionary, so the first note is guaranteed the first node
                     currentNode = generator.GenerateMap(difficulty).First;
+
+                    progressBar.SetMaxValue(noteCount);
 
                     // testFlag = true;
                     StartCoroutine(BeginMidiPlayback());
@@ -123,7 +133,7 @@ public class MidiOutput : MonoBehaviour
            
             spriteCreator.generateNote(noteID);
             // Gives ScoreCheck the ID of the current note being played
-            GameManager.GetComponent<ScoreCheck>().SetNoteID(noteID);
+            // scoreManager.GetComponent<ScoreCheck>().SetNoteID(noteID);
             //Debug.Log(noteID + " time: " + Time.time);
         }
 
@@ -136,7 +146,7 @@ public class MidiOutput : MonoBehaviour
         currentNode = currentNode.Next;
 
         // Gives ScoreCheck the timestamp during which the current note is being played
-        GameManager.GetComponent<ScoreCheck>().SetNoteTime((float) currentTimestamp);
+        // scoreManager.GetComponent<ScoreCheck>().SetNoteTime((float) currentTimestamp);
         
 
         if (currentNode != null) { // make sure there is a next null, otherwise we do not need to wait anymore (end of song)
@@ -149,6 +159,8 @@ public class MidiOutput : MonoBehaviour
             StartCoroutine(SpawnNotes()); // recursively call subroutine for next note
             executionTime = Time.time;
         }
+
+        progressBar.Increment();
     }
 
     public void StopPlayback()
