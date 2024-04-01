@@ -19,7 +19,7 @@ public class SpriteCreator : MonoBehaviour
     private float unitWidth;
 
     private Color[] colors = {Color.red, Color.yellow, Color.green, Color.blue,
-                              Color.magenta, Color.white, Color.gray, Color.black};
+                              Color.magenta, Color.gray, Color.black, Color.white};
 
     List<KeyCode> keys = new List<KeyCode>() {
         KeyCode.A, KeyCode.S, KeyCode.D, KeyCode.F,
