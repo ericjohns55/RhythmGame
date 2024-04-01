@@ -43,7 +43,7 @@ namespace MapGeneration {
 
         // List of map events; inputted in order of timestamp so the first element will be the first note and the last element will be the last note
         private LinkedList<MapEvent> mapEvents = new LinkedList<MapEvent>();
-
+        
         // Needed for progressbar
         public int noteCount = 0;
 

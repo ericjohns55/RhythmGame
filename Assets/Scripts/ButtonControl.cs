@@ -2,55 +2,156 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// Controls the behavior of the buttons in the gamebar. Buttons can be activated with their
+/// given activation key to enable collision on note objects. Points are awarded to the player
+/// based on how close to the center of the collision box a note is when the button is activated.
+/// </summary>
+
 public class ButtonControl : MonoBehaviour
 {
-    [SerializeField] private KeyCode activationKey;         // Key press that activates button
-    public Color pressedColor;                              // Button color on press
-    public bool collisionActive = false;                    // Flag for collision state
-    
-    private Color defaultColor;                             // Default button color
-    private bool isPressed = false;                         // Flag to track whether the button is being pressed
-    private float timer;                                    // Timer to track when the button is initially pressed
-    [SerializeField] private float buttonLifetime = 0.1f;   // Time between button presses
+    [SerializeField] private KeyCode activationKey;
+    [SerializeField] private float yOffset;
+    [SerializeField] private float buttonLifetime = 0.1f;
+    [SerializeField] private Color pressedColor;
+    [SerializeField] private Color defaultColor;
+
+    private bool isPressed = false;
+    private bool collisionActive = false;
+    private float pressStartTime;
+
+    private Vector3 notePosition;
+    private SpriteCreator spriteCreator;
+    private float xPosition;
+
+    private ScoreManager scoreManager;
+
+    private static float comboStreak = 0;
+    private static float comboMultiplier = 1;
+
+    private List<KeyCode> activationKeys = new List<KeyCode>() {
+        KeyCode.A, KeyCode.S, KeyCode.D, KeyCode.F,
+        KeyCode.J, KeyCode.K, KeyCode.L, KeyCode.Semicolon
+    };
 
     // Start is called before the first frame update
     void Start()
     {
-        defaultColor = GetComponent<SpriteRenderer>().color;
+        InitializeComponents();
     }
 
     // Update is called once per frame
     void Update()
     {
+        CheckButtonPress();
+    }
+
+    // FixedUpdate is called a fixed number of times per second
+    void FixedUpdate()
+    {
+        FindNotePosition();
+    }
+
+    private void InitializeComponents()
+    {
+        scoreManager = FindObjectOfType<ScoreManager>();
+        defaultColor = GetComponent<SpriteRenderer>().color;
+        spriteCreator = FindObjectOfType<SpriteCreator>();
+        transform.position = notePosition;
+    }
+
+    private void CheckButtonPress()
+    {
         if (Input.GetKeyDown(activationKey))
         {
             isPressed = true;
-            timer = Time.time;
-
-            // Change button color to pressedColor
+            pressStartTime = Time.time;
             GetComponent<SpriteRenderer>().color = pressedColor;
-
-            // Change collision state
             collisionActive = true;
         }
-        
-        if(Input.GetKeyUp(activationKey) || (isPressed && Time.time - timer >= buttonLifetime))
+
+        if (Input.GetKeyUp(activationKey) || (isPressed && Time.time - pressStartTime >= buttonLifetime))
         {
             isPressed = false;
-
-            // Change button color to defaultColor
             GetComponent<SpriteRenderer>().color = defaultColor;
-
-            // Change collision state
             collisionActive = false;
         }
     }
 
+    private float CalculateDistance(Vector3 targetPosition)
+    {
+        return Vector2.Distance(transform.position, targetPosition);
+    }
+
+    private void IncrementComboAndScore(int points)
+    {
+        comboStreak++;
+        scoreManager.AddPoints(points * comboMultiplier);
+        UpdateComboMultiplier();
+    }
+
+    private void UpdateComboMultiplier()
+    {
+        if (comboStreak % 5 == 0)
+        {
+            comboMultiplier += 0.5f;
+        }
+    }
+
+    private void ResetCombo()
+    {
+        comboStreak = 0;
+        comboMultiplier = 1;
+    }
+
+    // Finds the position of the corresponding note based on the activation key
+    private void FindNotePosition()
+    {
+        spriteCreator.setScreenUnits();
+        float spacerSize = spriteCreator.GetSpacerSize();
+        int index = activationKeys.IndexOf(activationKey);
+        if (index != -1)
+        {
+            xPosition = (spacerSize * (index + 1) + index + 0.5f);
+            xPosition -= spriteCreator.GetUnitWidth();
+        }
+
+        float bottomOfScreenWorldY = Camera.main.ViewportToWorldPoint(new Vector3(0, 0, 0)).y;
+        float yOffset = 2.0f;
+
+        Vector3 newPosition = transform.position;
+        newPosition.x = xPosition;
+        
+        newPosition.y = bottomOfScreenWorldY + yOffset;
+        transform.position = newPosition;
+    }
+
+    /**
+    * Detects collision between the buttons/keys a player is activating and the falling notes.
+    * The distance between them determines the points awarded when a note is destroyed.
+    */
     void OnTriggerStay2D(Collider2D other)
     {
-        // If collision is active delete collider
-        if (collisionActive && other.gameObject.tag == "Note")
+        if (collisionActive && other.gameObject.CompareTag("Note"))
         {
+            float distance = CalculateDistance(other.transform.position);
+
+            switch (distance)
+            {
+                case float d when d > 1.5f: // Miss
+                    ResetCombo();
+                    break;
+                case float d when d > 1.0f: // Awful
+                    IncrementComboAndScore(10);
+                    break;
+                case float d when d > 0.5f: // Good
+                    IncrementComboAndScore(20);
+                    break;
+                default: // Excellent
+                    IncrementComboAndScore(30);
+                    break;
+            }
+
             Destroy(other.gameObject);
         }
     }
