@@ -36,6 +36,9 @@ namespace MapGeneration {
         // Time signature of the current Map Event
         private TimeSignature timeSignature;
 
+        // Length of the measure this event sits in
+        private double measureLength;
+
         // Notes that exist in this moment of time in the midi
         List<Note> notes = new List<Note>();
 
@@ -47,11 +50,11 @@ namespace MapGeneration {
 
             long ticksSinceTimeSigChange = timestamp - timeSignatureEvent.Item2;
             double ticksPerBeat = timeDivision * (4.0 / timeSignature.Denominator); // will halve the tick per beat with 8th note denominators
-            double measureLength = ticksPerBeat * timeSignature.Numerator;
+            measureLength = ticksPerBeat * timeSignature.Numerator;
             measureTick = ticksSinceTimeSigChange % measureLength; // get just the ticks in the current measure
             beatNumber = (measureTick / ticksPerBeat) + 1;
 
-            UnityEngine.Debug.LogFormat("Parsed timestamp {0} at measure tick {1} [{2}] [time signature: {3}]", timestamp, measureTick, beatNumber, timeSignatureEvent.Item1);
+            // UnityEngine.Debug.LogFormat("Parsed timestamp {0} at measure tick {1} [{2}] [time signature: {3}]", timestamp, measureTick, beatNumber, timeSignatureEvent.Item1);
         }
 
         // Returns timestamp 
@@ -65,6 +68,10 @@ namespace MapGeneration {
 
         public double GetBeatNumber() {
             return beatNumber;
+        }
+
+        public long GetMeasureLength() {
+            return Convert.ToInt64(measureLength);
         }
 
         public TimeSignature GetTimeSignature() {

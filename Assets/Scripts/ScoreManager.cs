@@ -28,7 +28,7 @@ public class ScoreManager : MonoBehaviour
         scoreText = GetComponent<TextMeshProUGUI>();
         if (scoreText == null)
         {
-            Debug.LogError("No TextMeshProUGUI component found attached to the GameObject.");
+            Debug.Log("No TextMeshProUGUI component found attached to the GameObject.");
         }
         else
         {

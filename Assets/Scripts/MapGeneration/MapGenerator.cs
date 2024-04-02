@@ -42,10 +42,12 @@ namespace MapGeneration {
         private SortedDictionary<long, TimeSignature> timeChanges = new SortedDictionary<long, TimeSignature>();
 
         // List of map events; inputted in order of timestamp so the first element will be the first note and the last element will be the last note
-        private LinkedList<MapEvent> mapEvents = new LinkedList<MapEvent>();
+        // private LinkedList<MapEvent> mapEvents = new LinkedList<MapEvent>();
         
         // Needed for progressbar
         public int noteCount = 0;
+
+        private List<MeasureChunk> measureChunks;
 
         // Constructor, requires the midi file to parse
         public MapGenerator(MidiFile midiFile) {
@@ -99,7 +101,10 @@ namespace MapGeneration {
                 noteValues.Add(note);
             }
 
-            // Parsing binned notes into MapEvents
+            // Parsing binned notes into MapEvents and MeasureChunks
+            measureChunks = new List<MeasureChunk>();
+            MeasureChunk currentMeasure = null;
+
             foreach (long timestamp in noteMap.Keys) {
                 Tuple<TimeSignature, long> timeSignatureEvent = GetTimeSignatureAtTime(timestamp);
 
@@ -112,19 +117,65 @@ namespace MapGeneration {
                     }
                 }
 
-                mapEvents.AddLast(mapEvent); // add to the end of the list to preserve ordering
+                // get length of measure for chunking
+                long measureLength = mapEvent.GetMeasureLength();
+
+                // if the measure tick is 0, then we must be at the beginning of a measure - make a new chunk
+                if (CompareDoubles(mapEvent.GetMeasureTick(), 0)) {
+                    if (currentMeasure != null) {
+                        measureChunks.Add(currentMeasure);
+                    }
+
+                    currentMeasure = new MeasureChunk(timestamp, timestamp + measureLength);
+                } else { // otherwise, if we have a null measure or the timestamp is not in the last chunk, make a new one
+                    if (currentMeasure == null || !currentMeasure.IsValidMeasureTimestamp(timestamp)) {
+                        if (currentMeasure != null) {
+                            measureChunks.Add(currentMeasure);
+                        }
+
+                        // calculate the measure starting tick (even if absent) by offsetting the curent measure tick
+                        long startingTick = timestamp - Convert.ToInt64(mapEvent.GetMeasureTick());
+                        currentMeasure = new MeasureChunk(startingTick, startingTick + measureLength);
+                    }
+                }
+
+                currentMeasure.AddMapEvent(mapEvent);
+
+                // mapEvents.AddLast(mapEvent); // add to the end of the list to preserve ordering
             }
 
+            if (currentMeasure != null) {
+                measureChunks.Add(currentMeasure);
+            }
+
+            // TODO: parse measure chunks into map events
+
+            foreach (MeasureChunk chunk in measureChunks) {
+                chunk.Print();
+            }
+            
+
+            // TODO: fix this
             noteCount = noteMap.Count();
         }
 
         // Returns the LinkedList of MapEvents for parsing in the main game
         public LinkedList<MapEvent> GenerateMap(MapDifficulty difficulty) {
+            LinkedList<MapEvent> generatedMap = new LinkedList<MapEvent>();
+
             if (difficulty == MapDifficulty.FullMidi) {
-                return mapEvents;
+                foreach (MeasureChunk chunk in measureChunks) {
+                    chunk.AddToList(generatedMap);
+                }
+
+                return generatedMap;
             }
 
-            LinkedList<MapEvent> generatedMap = new LinkedList<MapEvent>();
+            LinkedList<MapEvent> mapEvents = new LinkedList<MapEvent>();
+            foreach (MeasureChunk chunk in measureChunks) {
+                chunk.ParseMeasure(difficulty);
+                chunk.AddToList(mapEvents);
+            }
 
             LinkedListNode<MapEvent> currentNode = mapEvents.First;
             
@@ -262,6 +313,7 @@ namespace MapGeneration {
 
                 if (beatParsed) {
                     generatedMap.AddLast(mapEvent); 
+                    noteCount++;
                 }
 
                 currentNode = currentNode.Next;
@@ -335,14 +387,14 @@ namespace MapGeneration {
         }
 
         // Debugs the LinkedList and shows current timestamp, next timestamp, and number of notes to be played
-        private void DebugLinkedList() {
-            for (LinkedListNode<MapEvent> node = mapEvents.First; node != null; node = node.Next) {
-                long timestamp = node.Value.GetTimestamp();
-                long nextTimestamp = node.Next != null ? node.Next.Value.GetTimestamp() : -1;
+        // private void DebugLinkedList() {
+        //     for (LinkedListNode<MapEvent> node = mapEvents.First; node != null; node = node.Next) {
+        //         long timestamp = node.Value.GetTimestamp();
+        //         long nextTimestamp = node.Next != null ? node.Next.Value.GetTimestamp() : -1;
 
-                Debug.LogFormat("Map event found at timestamp {0} (next: {1}) [{2} NOTES]", timestamp, nextTimestamp, node.Value.GetNoteCount());
-            }
-        }
+        //         Debug.LogFormat("Map event found at timestamp {0} (next: {1}) [{2} NOTES]", timestamp, nextTimestamp, node.Value.GetNoteCount());
+        //     }
+        // }
 
         // Compares doubles with a tolerance
         // TODO: determine if this is really needed
