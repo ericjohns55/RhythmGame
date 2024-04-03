@@ -61,7 +61,7 @@ public class MidiOutput : MonoBehaviour
 
         // generate the map for our test level
         generator = new MapGenerator(testMidi);
-        difficulty = MapDifficulty.Easy;
+        difficulty = MapDifficulty.FullMidi;
 
         noteCount = generator.noteCount;
     }
