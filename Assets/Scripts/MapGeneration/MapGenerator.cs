@@ -44,9 +44,6 @@ namespace MapGeneration {
         // List of map events; inputted in order of timestamp so the first element will be the first note and the last element will be the last note
         // private LinkedList<MapEvent> mapEvents = new LinkedList<MapEvent>();
         
-        // Needed for progressbar
-        public int noteCount = 0;
-
         private List<MeasureChunk> measureChunks;
 
         // Constructor, requires the midi file to parse
@@ -140,10 +137,9 @@ namespace MapGeneration {
                 }
 
                 currentMeasure.AddMapEvent(mapEvent);
-
-                // mapEvents.AddLast(mapEvent); // add to the end of the list to preserve ordering
             }
 
+            // add the final measure to the chunks list, this will not happen in the loop
             if (currentMeasure != null) {
                 measureChunks.Add(currentMeasure);
             }
@@ -152,17 +148,14 @@ namespace MapGeneration {
 
             foreach (MeasureChunk chunk in measureChunks) {
                 chunk.Print();
-            }
-            
-
-            // TODO: fix this
-            noteCount = noteMap.Count();
+            }            
         }
 
         // Returns the LinkedList of MapEvents for parsing in the main game
         public LinkedList<MapEvent> GenerateMap(MapDifficulty difficulty) {
             LinkedList<MapEvent> generatedMap = new LinkedList<MapEvent>();
 
+            // parse and generate map based off of all measure chunks
             foreach (MeasureChunk chunk in measureChunks) {
                 if (difficulty != MapDifficulty.FullMidi) {
                     chunk.ParseMeasure(difficulty);
@@ -172,6 +165,20 @@ namespace MapGeneration {
             }
 
             return generatedMap;
+        }
+
+        // returns number of notes in the current map
+        public int GetNoteCount(LinkedList<MapEvent> map) {
+            int noteCount = 0;
+
+            LinkedListNode<MapEvent> node = map.First;
+
+            while (node != null) {
+                noteCount++;
+                node = node.Next;
+            }
+
+            return noteCount;
         }
 
         // Returns how many seconds into the program you are based off the midi timestamp

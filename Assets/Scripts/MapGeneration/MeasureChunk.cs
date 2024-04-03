@@ -6,18 +6,31 @@ using UnityEngine;
 
 namespace MapGeneration {
     public class MeasureChunk {
+        // timestamp the measure chunk begins on in the midi
         private long startingTimestamp;
+
+        // timestamp the measure chunk ends on in the midi
         private long endingTimestamp;
+
+        // length of the measure in ticks
         private long measureLength;
+
+        // time division of the measure (480 is default)
         private short timeDivision;
+        
+        // tempo of measure
         private int bpm;
 
+        // all map events present in the measure before parsing
         private SortedDictionary<double, MapEvent> allMapEvents;
+
+        // all map events present in the measure after parsing
         private SortedDictionary<double, MapEvent> parsedEvents;
 
         // flag to say whether or not measures were parsed with a difficulty
         private bool chunkParsed = false;
 
+        // Constructor which requires the measure timestamps, time division, and tempo of the measure
         public MeasureChunk(long startingTimestamp, long endingTimestamp, short timeDivision, int bpm) {
             this.startingTimestamp = startingTimestamp;
             this.endingTimestamp = endingTimestamp;
@@ -25,22 +38,25 @@ namespace MapGeneration {
             this.bpm = bpm;
             measureLength = endingTimestamp - startingTimestamp;
 
-
             allMapEvents = new SortedDictionary<double, MapEvent>();
         }
 
+        // adds a map event to the measure based off measure tick 
         public void AddMapEvent(MapEvent mapEvent) {
             allMapEvents.Add(mapEvent.GetMeasureTick(), mapEvent);
         }
 
+        // returns true of the time stamp exists within the current measure
         public bool IsValidMeasureTimestamp(long timestamp) {
             return timestamp >= startingTimestamp && timestamp < endingTimestamp;
         }
 
+        // returns the number of notes in the measure
         public int GetNoteCount() {
             return allMapEvents.Count;
         }
 
+        // adds all map events (parsed or unparsed) to the parameterized linked list
         public void AddToList(LinkedList<MapEvent> eventList) {
             SortedDictionary<double, MapEvent>.ValueCollection values =
                  chunkParsed ? parsedEvents.Values : allMapEvents.Values;
@@ -50,24 +66,30 @@ namespace MapGeneration {
             }
         }
 
+        // debugs the measure chunk
         public void Print() {
             Debug.LogFormat("[{0} - {1}]: {2} notes", startingTimestamp, endingTimestamp, GetNoteCount());
         }
 
+        // parses all map events based off the intended difficulty
         public void ParseMeasure(MapDifficulty difficulty) {
             parsedEvents = new SortedDictionary<double, MapEvent>();
             Debug.LogFormat("PARSING CHUNK {0} to {1}", startingTimestamp, endingTimestamp);
             chunkParsed = true;
 
+            // holds whether the current note is a downbeat or not
             bool lastDownbeat = false;
 
+            // array of all measure ticks in the current measure
             double[] measureTicks = allMapEvents.Keys.ToArray();
 
+            // iterates over measure ticks as a for loop instead of foreach so we can check previous and next measures
             for (int noteIndex = 0; noteIndex < measureTicks.Length; noteIndex++) {
                 double timestamp = measureTicks[noteIndex];
 
                 MapEvent mapEvent;
 
+                // grabs map event from the current measure tick
                 if (allMapEvents.TryGetValue(timestamp, out mapEvent)) {
                     TimeSignature timeSignature = mapEvent.GetTimeSignature();
                     double measureTick = mapEvent.GetMeasureTick();
@@ -92,7 +114,7 @@ namespace MapGeneration {
                                 }
 
                             } else if (!lastDownbeat && CompareBeat(measureTick, ValidRhythm.Quarter_Triplet, timeSignature)) {  
-                                MapEvent nextEvent = getAdjacentEvent(noteIndex, true);
+                                MapEvent nextEvent = getAdjacentEvent(noteIndex, 1);
 
                                 // check if the next note is a downbeat
                                 if((nextEvent != null) && (nextEvent.GetMeasureTick() % 320 == 0)) {                                                                         
@@ -102,7 +124,7 @@ namespace MapGeneration {
                                 }
                                                                                     
                             } else if (CompareBeat(measureTick, ValidRhythm.Upbeat, timeSignature)) { // allow upbeats iff there is not a note on the downbeat
-                                MapEvent lastEvent = getAdjacentEvent(noteIndex, false);
+                                MapEvent lastEvent = getAdjacentEvent(noteIndex, -1);
                                 
                                 if (lastEvent != null) {
                                     if (Math.Abs(measureTick - lastEvent.GetMeasureTick()) >= timeDivision) {
@@ -136,8 +158,9 @@ namespace MapGeneration {
                             }
                         }   
 
-                                    
+                    // not easy difficulty, must be medium or hard                                    
                     } else {
+                        // all downbeats are allowed in higher difficulties
                         if (CompareBeat(measureTick, ValidRhythm.Downbeat, timeSignature)) {
                             Debug.LogFormat("Allowing downbeat at {0}", measureTick);
                             beatParsed = true;
@@ -151,7 +174,7 @@ namespace MapGeneration {
 
                             if (CompareBeat(measureTick, ValidRhythm.Sixteenth, timeSignature)) {
                                 if (difficulty == MapDifficulty.Medium) {
-                                    MapEvent lastEvent = getAdjacentEvent(noteIndex, false);
+                                    MapEvent lastEvent = getAdjacentEvent(noteIndex, -1);
 
                                     if (lastEvent != null) { // only allow sixteenth beats for dotted eighth - dotted eighth - eighth
                                         if (Math.Abs(measureTick - lastEvent.GetMeasureTick()) >= (timeDivision / 2)) {
@@ -171,6 +194,7 @@ namespace MapGeneration {
                             }
                         }
 
+                        // hard difficulty is the most permissive
                         if (difficulty == MapDifficulty.Hard) {
                             if (CompareBeat(measureTick, ValidRhythm.Sixteenth, timeSignature)) {
                                 Debug.LogFormat("Allowing sixteenth notes in non X/4 time signatures {0}", measureTick);
@@ -205,8 +229,9 @@ namespace MapGeneration {
             }
         }
 
-        private MapEvent getAdjacentEvent(int startingIndex, bool forwards) {
-            int newIndex = forwards ? startingIndex + 1 : startingIndex - 1;
+        // returns adjacent MapEvents to the current startingIndex
+        private MapEvent getAdjacentEvent(int startingIndex, int offset) {
+            int newIndex = startingIndex + offset;
 
             if (newIndex >= 0 && newIndex < allMapEvents.Keys.Count) {
                 MapEvent mapEvent;
@@ -219,6 +244,7 @@ namespace MapGeneration {
             return null;
         }
 
+        // compares whether the beat is a valid rhythm based off the time signature and time division
         private bool CompareBeat(double beat, ValidRhythm rhythm, TimeSignature signature) {
             double tempDivision = timeDivision;
 

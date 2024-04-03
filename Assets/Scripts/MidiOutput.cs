@@ -38,7 +38,6 @@ public class MidiOutput : MonoBehaviour
     // Needed for progressbar
     private ProgressBar progressBar;
     public GameManager gameManager;
-    private int noteCount = 0;
  
     private bool testFlag = false;
     private float executionTime = 0f;
@@ -62,8 +61,6 @@ public class MidiOutput : MonoBehaviour
         // generate the map for our test level
         generator = new MapGenerator(testMidi);
         difficulty = MapDifficulty.FullMidi;
-
-        noteCount = generator.noteCount;
     }
 
     /**
@@ -102,9 +99,11 @@ public class MidiOutput : MonoBehaviour
                     currentNode = null; // setting this to null will end the coroutine
                 } else {
                     // the linked list was generated based off of a SortedDictionary, so the first note is guaranteed the first node
-                    currentNode = generator.GenerateMap(difficulty).First;
+                    LinkedList<MapEvent> generatedMap = generator.GenerateMap(difficulty);
+                    
+                    currentNode = generatedMap.First;
 
-                    progressBar.SetMaxValue(noteCount);
+                    progressBar.SetMaxValue(generator.GetNoteCount(generatedMap));
 
                     // testFlag = true;
                     StartCoroutine(BeginMidiPlayback());
