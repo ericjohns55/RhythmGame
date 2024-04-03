@@ -7,9 +7,12 @@ using TMPro;
 ///<summary>
 public class ScoreManager : MonoBehaviour
 {
-    private float score = 0;
+    [SerializeField] private float score = 0;
     public float Score => score;
-    private TextMeshProUGUI scoreText;
+    [SerializeField] private TextMeshProUGUI scoreText;
+
+    [SerializeField] private float comboStreak = 0;
+    [SerializeField] private float comboMultiplier = 1;
 
     public void AddPoints(float points)
     {
@@ -42,6 +45,27 @@ public class ScoreManager : MonoBehaviour
         {
             scoreText.text = "Score: " + score.ToString();
         }
+    }
+
+    public void IncrementComboAndScore(int points)
+    {
+        comboStreak++;
+        AddPoints(points * comboMultiplier);
+        UpdateComboMultiplier();
+    }
+
+    private void UpdateComboMultiplier()
+    {
+        if (comboStreak % 5 == 0)
+        {
+            comboMultiplier += 0.5f;
+        }
+    }
+
+    public void ResetCombo()
+    {
+        comboStreak = 0;
+        comboMultiplier = 1;
     }
 
     public void ShowText()
