@@ -33,6 +33,7 @@ public class MidiOutput : MonoBehaviour
 
     private MapGenerator generator;
     private LinkedListNode<MapEvent> currentNode = null;
+    LinkedList<MapEvent> generatedMap = null;
     private MapDifficulty difficulty;
 
     // Needed for progressbar
@@ -60,7 +61,7 @@ public class MidiOutput : MonoBehaviour
 
         // generate the map for our test level
         generator = new MapGenerator(testMidi);
-        difficulty = MapDifficulty.FullMidi;
+        difficulty = MapDifficulty.Easy;
     }
 
     /**
@@ -96,14 +97,22 @@ public class MidiOutput : MonoBehaviour
 
                 if (playback.IsRunning) {
                     playback.Stop();
-                    currentNode = null; // setting this to null will end the coroutine
+
+                    StopAllCoroutines();
+
+                    // TODO: make it so we pause and unpause cleanly
+                    // reset previous playback
+                    currentNode = null;
+                    progressBar.ResetBar();
                 } else {
                     // the linked list was generated based off of a SortedDictionary, so the first note is guaranteed the first node
-                    LinkedList<MapEvent> generatedMap = generator.GenerateMap(difficulty);
+                    if (generatedMap == null) {
+                        generatedMap = generator.GenerateMap(difficulty);
+                        progressBar.SetMaxValue(generatedMap.Count);
+                    }
                     
-                    currentNode = generatedMap.First;
-
-                    progressBar.SetMaxValue(generator.GetNoteCount(generatedMap));
+                    currentNode = generatedMap.First;   
+                    waitAmount = 0.0f;                 
 
                     // testFlag = true;
                     StartCoroutine(BeginMidiPlayback());
@@ -116,7 +125,7 @@ public class MidiOutput : MonoBehaviour
     }
 
     private IEnumerator BeginMidiPlayback() {
-        yield return new WaitForSeconds(0.0f); // in theory this is delay
+        yield return new WaitForSeconds(0.2f); // in theory this is delay
         playback.MoveToStart();
         playback.Start();
     }

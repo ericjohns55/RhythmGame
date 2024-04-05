@@ -101,6 +101,7 @@ namespace MapGeneration {
             // Parsing binned notes into MapEvents and MeasureChunks
             measureChunks = new List<MeasureChunk>();
             MeasureChunk currentMeasure = null;
+            int chunkID = 1;
 
             foreach (long timestamp in noteMap.Keys) {
                 Tuple<TimeSignature, long> timeSignatureEvent = GetTimeSignatureAtTime(timestamp);
@@ -124,6 +125,7 @@ namespace MapGeneration {
                     }
 
                     currentMeasure = new MeasureChunk(timestamp, timestamp + measureLength, timeDivision, bpm);
+                    currentMeasure.SetChunkID(chunkID++);
                 } else { // otherwise, if we have a null measure or the timestamp is not in the last chunk, make a new one
                     if (currentMeasure == null || !currentMeasure.IsValidMeasureTimestamp(timestamp)) {
                         if (currentMeasure != null) {
@@ -133,6 +135,7 @@ namespace MapGeneration {
                         // calculate the measure starting tick (even if absent) by offsetting the curent measure tick
                         long startingTick = timestamp - Convert.ToInt64(mapEvent.GetMeasureTick());
                         currentMeasure = new MeasureChunk(startingTick, startingTick + measureLength, timeDivision, bpm);
+                        currentMeasure.SetChunkID(chunkID++);
                     }
                 }
 
@@ -143,12 +146,6 @@ namespace MapGeneration {
             if (currentMeasure != null) {
                 measureChunks.Add(currentMeasure);
             }
-
-            // TODO: parse measure chunks into map events
-
-            foreach (MeasureChunk chunk in measureChunks) {
-                chunk.Print();
-            }            
         }
 
         // Returns the LinkedList of MapEvents for parsing in the main game
