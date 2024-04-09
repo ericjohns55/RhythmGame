@@ -161,7 +161,15 @@ namespace MapGeneration {
                 chunk.AddToList(generatedMap);
             }
 
+            PrintGeneratedMap();
+
             return generatedMap;
+        }
+
+        public void PrintGeneratedMap() {
+            foreach (MeasureChunk chunk in measureChunks) {
+                chunk.PrintGeneratedMap();
+            }
         }
 
         // returns number of notes in the current map

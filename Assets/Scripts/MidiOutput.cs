@@ -40,7 +40,6 @@ public class MidiOutput : MonoBehaviour
     private ProgressBar progressBar;
     public GameManager gameManager;
  
-    private bool testFlag = false;
     private float executionTime = 0f;
 
     private float waitAmount = 0.0f;
@@ -55,13 +54,13 @@ public class MidiOutput : MonoBehaviour
         progressBar = (ProgressBar) gameManager.GetComponent("ProgressBar");
 
         // load the test midi file and setup output devices and playback
-        testMidi = MidiFile.Read("Assets/MIDIs/NoteChartingFast.mid");
+        testMidi = MidiFile.Read("Assets/MIDIs/EdgeCases.mid");
         outputDevice = OutputDevice.GetByIndex(0);
         playback = testMidi.GetPlayback(outputDevice);
 
         // generate the map for our test level
         generator = new MapGenerator(testMidi);
-        difficulty = MapDifficulty.Hard;
+        difficulty = MapDifficulty.Easy;
     }
 
     /**

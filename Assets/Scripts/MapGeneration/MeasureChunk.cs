@@ -37,7 +37,7 @@ namespace MapGeneration {
         private int chunkID = -1;
 
         // will debug the parse mode if true, will not otherwise
-        private bool DEBUG_PARSE = true;
+        private bool DEBUG_PARSE = false;
 
         // Constructor which requires the measure timestamps, time division, and tempo of the measure
         public MeasureChunk(long startingTimestamp, long endingTimestamp, short timeDivision, int bpm, TimeSignature timeSignature) {
@@ -83,9 +83,16 @@ namespace MapGeneration {
             }
         }
 
-        // debugs the measure chunk
+        // debugs the measure chunk in terms of notes
         public void Print() {
             Debug.LogFormat("[{0} - {1}]: {2} notes", startingTimestamp, endingTimestamp, GetNoteCount());
+        }
+
+        // prints out all map events in the chunk
+        public void PrintGeneratedMap() {
+            foreach (int timestamp in parsedEvents.Keys) {
+                Debug.LogFormat("Timestamp {0} [CHUNK {1}]", parsedEvents[timestamp].GetMeasureTick(), chunkID);
+            }
         }
 
         // parses all map events based off the intended difficulty
