@@ -124,7 +124,7 @@ namespace MapGeneration {
                         measureChunks.Add(currentMeasure);
                     }
 
-                    currentMeasure = new MeasureChunk(timestamp, timestamp + measureLength, timeDivision, bpm);
+                    currentMeasure = new MeasureChunk(timestamp, timestamp + measureLength, timeDivision, bpm, timeSignatureEvent.Item1);
                     currentMeasure.SetChunkID(chunkID++);
                 } else { // otherwise, if we have a null measure or the timestamp is not in the last chunk, make a new one
                     if (currentMeasure == null || !currentMeasure.IsValidMeasureTimestamp(timestamp)) {
@@ -134,7 +134,7 @@ namespace MapGeneration {
 
                         // calculate the measure starting tick (even if absent) by offsetting the curent measure tick
                         long startingTick = timestamp - Convert.ToInt64(mapEvent.GetMeasureTick());
-                        currentMeasure = new MeasureChunk(startingTick, startingTick + measureLength, timeDivision, bpm);
+                        currentMeasure = new MeasureChunk(startingTick, startingTick + measureLength, timeDivision, bpm, timeSignatureEvent.Item1);
                         currentMeasure.SetChunkID(chunkID++);
                     }
                 }
