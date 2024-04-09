@@ -252,63 +252,9 @@ namespace MapGeneration {
                                             removeEvent = true;
                                         }
                                     } else if (CompareBeat(measureTick, ValidRhythm.Eighth_Triplet)) {
-                                        // we want to allow eighth note triplets, but if an upbeat divides them we have to account for it, here we check these cases
-                                        int singleEighthTripLength = measureLength / 12; // 12 possible locations
-
-                                        // if an upbeat divides an eighth triplet, we will want to remove it 
-                                        bool checkRemoveOverlappingUpbeat = false;
-                                        int overlappingUpbeatTimestamp = -1;
-
-                                        // here we are checking if we are in the second position of an eighth note triplet
-                                        // we offset the measureTick by an eighth trip length to see if it would land on a downbeat for any measure
-                                        if ((measureTick - singleEighthTripLength) % timeDivision == 0) {
-                                            if (!allMapEvents.ContainsKey(measureTick - singleEighthTripLength) || !allMapEvents.ContainsKey(measureTick + singleEighthTripLength)) {
-                                                // we do not have a valid eighth note triplet, however it is possible we may have a valid quarter note triplet so we want to check for that too
-                                                // since we are in the second position of an eighth triplet, we want to check four positions and two positions backwards
-                                                if (!allMapEvents.ContainsKey(measureTick - (4 * singleEighthTripLength)) || !allMapEvents.ContainsKey(measureTick - (2 * singleEighthTripLength))) {
-                                                    removeEvent = true;
-                                                }
-                                            } else {
-                                                if (DEBUG_PARSE) Debug.LogFormat("Valid EighthTrip at {0} [CHUNK {1}]", measureTick, chunkID);
-
-                                                // we now know that we have a valid eighth triplet, so we want to check for a conflicting upbeat and flag for removal if so
-                                                checkRemoveOverlappingUpbeat = true;
-
-                                                // we know that we we are in the second position of an eighth note triplet, so we offset to get to the downbeat,
-                                                // then add half of the time division to calculate the upbeat location
-                                                overlappingUpbeatTimestamp = (measureTick - singleEighthTripLength) + (timeDivision / 2);
-                                            }
-                                        }
-
-                                        // the other scenario we have to check is if we are in the third position in an eighth note triplet, now we offset by singleEighthTripLength * 2 to calculate it
-                                        else if ((measureTick - (2 * singleEighthTripLength)) % timeDivision == 0) {
-                                            // once again checking if all pieces of the triplet exist and marking for removal if not
-                                            if (!allMapEvents.ContainsKey(measureTick - (2 * singleEighthTripLength)) || !allMapEvents.ContainsKey(measureTick - singleEighthTripLength)) {
-                                                // we do not have a valid eighth note triplet, but it is once again possible we have a quarter note triplet
-                                                // since we are in the third position of an eighth triplet, we want to check two positions backwards and two positions forwards
-                                                if (!allMapEvents.ContainsKey(measureTick - (2 * singleEighthTripLength)) || !allMapEvents.ContainsKey(measureTick + (2 * singleEighthTripLength))) {
-                                                    removeEvent = true;
-                                                }
-                                            } else {
-                                                if (DEBUG_PARSE) Debug.LogFormat("Valid EighthTrip at {0} [CHUNK {1}]", measureTick, chunkID);
-
-                                                // another valid eighth triplet, check for a downbeat again
-                                                checkRemoveOverlappingUpbeat = true;
-
-                                                // we know that we we are in the third position of an eighth note triplet, so we offset twice to get to the downbeat,
-                                                // then add half of the time division to calculate the upbeat location
-                                                overlappingUpbeatTimestamp = (measureTick - (2 * singleEighthTripLength)) + (timeDivision / 2);
-                                            }
-                                        }
-
-                                        // if true we have a valid eighth note triplet, so we need to see if theres an upbeat that divides it and remove if so
-                                        if (checkRemoveOverlappingUpbeat && overlappingUpbeatTimestamp != -1) {
-                                            // check if the upbeat already made it through the parse and remove if so
-                                            if (parsedEvents.ContainsKey(overlappingUpbeatTimestamp)) {
-                                                parsedEvents.Remove(overlappingUpbeatTimestamp);
-
-                                                if (DEBUG_PARSE) Debug.LogFormat("Upbeat overlapping with EighthTrip removed at {0} [CHUNK {1}]", overlappingUpbeatTimestamp, chunkID);
-                                            }
+                                        // we split the eighth note triplet check into a helper method because it will be repeated in the hard mode parsing
+                                        if (!CheckValidEighthTriplet(measureTick)) {
+                                            removeEvent = true;
                                         }
                                     } else {
                                         // we are not an upbeat, eighth triplet, or sixteenth -> remove.
@@ -320,71 +266,81 @@ namespace MapGeneration {
                                 removeEvent = true;
                             }
                         }
+                    } else { // not easy or medium difficulty, must be hard
+                        // allow downbeats and upbeats regardless of time signature
+                        if (!CompareBeat(measureTick, ValidRhythm.Downbeat) && !CompareBeat(measureTick, ValidRhythm.Upbeat)) {
+                            // hard mode parsing is essentially all about allowing complex rhythms depending on tempo
+                            // the tempos will seem arbitrarily, but i tested them with a metronome until i felt they were reasonable
+
+                            if (CompareBeat(measureTick, ValidRhythm.Sixteenth)) {
+                                // faster than 132 bpm is too fast to be reasonable on a keyboard for sixteenths
+                                if (bpm > 132) {
+                                    removeEvent = true;
+                                }
+                            }
+
+                            // only allow sixteenth note triplets in X/4 or X/2 time signatures because they are too fast regardless of tempo otherwise
+                            else if (CompareBeat(measureTick, ValidRhythm.Sixteenth_Triplet)) {
+                                // faster than 96 bpm is too fast to be reasonable
+                                if (bpm > 96) {
+                                    // sixteenth triplet check will envelope eighth note
+                                    // if we are too fast for a sixteenth, we want to see if there is a valid eighth triplet we can use instead
+                                    if (CompareBeat(measureTick, ValidRhythm.Eighth_Triplet)) {
+                                        // if we do not have a valid eighth triplet, remove; if so, the overlapping upbeat will be removed
+                                        if (!CheckValidEighthTriplet(measureTick)) { 
+                                            removeEvent = true;
+                                        } else {
+                                            // here we want to start removing sixteenth note triplets for time signatures where eighth note or faster gets the beat 
+                                            if (timeSignature.Denominator > 4) {
+                                                // to do so we grab the next map event and make sure there is more than a sixteenth note triplet length between them
+                                                MapEvent nextEvent = GetAdjacentEvent(noteIndex, 1);
+
+                                                if (nextEvent != null) {
+                                                    // there are 6 places for a sixteenth triplet to be, we want to remove this event if the time is less than or equal to a sixteenth triplet length
+                                                    if (Math.Abs(measureTick - nextEvent.GetMeasureTick()) <= timeDivision / 6) {
+                                                        removeEvent = true;
+                                                    } else {
+                                                        if (DEBUG_PARSE) Debug.LogFormat("Valid eighth note triplet in HARD at {0} [CHUNK {1}]", measureTick, chunkID);
+                                                    }
+                                                } else {
+                                                    removeEvent = true;
+                                                }
+                                            }
+                                        }
+                                    } else {
+                                        removeEvent = true;
+                                    }
+                                }
+                            }
+
+                            // we only want to allow 32nd notes in the case of a X/4 or X/2 time signature, too unreasonable otherwise
+                            else if (CompareBeat(measureTick, ValidRhythm.Thirty_Second) && timeSignature.Denominator <= 4) {
+                                // please note this is not exactly half of the 132 bpm allowed for sixteenths, 72bpm is just a more standard tempo
+                                if (bpm > 72) {
+                                    // here we check if we have a dotted sixteenth - dotted sixteenth - sixteenth rhythm, we want to allow this specific pattern
+                                    MapEvent lastEvent = GetAdjacentEvent(noteIndex, -1);
+
+                                    if (lastEvent != null) {
+                                        // if we have an upbeat, but it has been over a beat since the last note, we want to allow it
+                                        // this will manifest in a dotted quarter - dotted quarter - quarter rhythm -> this should be valid so we will remove if not
+                                        // we divide the timeDivision by two so it counts as quarter of a beat instead of four times a beat
+                                        if (Math.Abs(measureTick - lastEvent.GetMeasureTick()) < timeDivision / 4) {
+                                            removeEvent = true;
+                                        } else {
+                                            if (DEBUG_PARSE) Debug.LogFormat("Valid thirty second in HARD at {0} [CHUNK {1}]", measureTick, chunkID);
+                                        }
+                                    } else {
+                                        removeEvent = true;
+                                    }
+                                }
+                            }
+
+                            // remove any rhythm not covered by the other cases
+                            else {
+                                removeEvent = true;
+                            }
+                        }
                     }
-
-                    // // not easy difficulty, must be medium or hard                                    
-                    // } else {
-                    //     // all downbeats are allowed in higher difficulties
-                    //     if (CompareBeat(measureTick, ValidRhythm.Downbeat, timeSignature)) {
-                    //         Debug.LogFormat("Allowing downbeat at {0}", measureTick);
-                    //         removeEvent = true;
-                    //     }
-
-                    //     if (timeSignature.Denominator <= 4) {
-                    //         if (CompareBeat(measureTick, ValidRhythm.Upbeat, timeSignature)) {
-                    //             Debug.LogFormat("Allowing upbeat at {0}", measureTick);
-                    //             removeEvent = true;
-                    //         }
-
-                    //         if (CompareBeat(measureTick, ValidRhythm.Sixteenth, timeSignature)) {
-                    //             if (difficulty == MapDifficulty.Medium) {
-                    //                 MapEvent lastEvent = GetAdjacentEvent(noteIndex, -1);
-
-                    //                 if (lastEvent != null) { // only allow sixteenth beats for dotted eighth - dotted eighth - eighth
-                    //                     if (Math.Abs(measureTick - lastEvent.GetMeasureTick()) >= (timeDivision / 2)) {
-                    //                         Debug.LogFormat("Adding sixteenth {0}", measureTick);
-                    //                         removeEvent = true;
-                    //                     }
-                    //                 }
-                    //             } else { // hard mode 
-                    //                 Debug.LogFormat("Adding sixteenth {0}", measureTick); // allow all 16th notes in hard mode
-                    //                 removeEvent = true;
-                    //             }
-                    //         }
-
-                    //         if (CompareBeat(measureTick, ValidRhythm.Eighth_Triplet, timeSignature)) {
-                    //             Debug.LogFormat("Allowing eighth note triplet at {0}", measureTick);
-                    //             removeEvent = true;
-                    //         }
-                    //     }
-
-                    //     // hard difficulty is the most permissive
-                    //     if (difficulty == MapDifficulty.Hard) {
-                    //         if (CompareBeat(measureTick, ValidRhythm.Sixteenth, timeSignature)) {
-                    //             Debug.LogFormat("Allowing sixteenth notes in non X/4 time signatures {0}", measureTick);
-                    //             removeEvent = true;
-                    //         }
-
-                    //         if (CompareBeat(measureTick, ValidRhythm.Eighth_Triplet, timeSignature)) {
-                    //             Debug.LogFormat("Allowing eighth note triplets in non X/4 time signatures {0}", measureTick);
-                    //             removeEvent = true;
-                    //         }
-
-                    //         if (bpm <= 96) {
-                    //             if (CompareBeat(measureTick, ValidRhythm.Sixteenth_Triplet, timeSignature)) { // allow 16th triplets on lower tempos
-                    //                 Debug.LogFormat("Allowing sixteenth triplet at {0}", measureTick);
-                    //                 removeEvent = true;
-                    //             }
-
-                    //             if (bpm <= 72) { // allow 32nds on slow scores
-                    //                 if (CompareBeat(measureTick, ValidRhythm.Thirty_Second, timeSignature)) {
-                    //                     Debug.LogFormat("Allowing thirty-second at {0}", measureTick);
-                    //                     removeEvent = true;
-                    //                 }
-                    //             }
-                    //         }
-                    //     }
-                    // }
 
                     if (removeEvent) {
                         if (DEBUG_PARSE) Debug.LogFormat("Removing timestamp {0} [CHUNK {1}]", timestamp, chunkID);
@@ -419,24 +375,88 @@ namespace MapGeneration {
                 tempDivision = timeDivision * (4.0 / timeSignature.Denominator);
             }
 
+            // only use tempDivision for Downbeat and Upbeat, we want to check every other rhythm like normal for the rest
             switch (rhythm) {
                 case ValidRhythm.Downbeat:
                     return MapGenerator.CompareDoubles(beat % tempDivision, 0);
                 case ValidRhythm.Upbeat:
                     return MapGenerator.CompareDoubles(beat % (tempDivision / 2), 0);
                 case ValidRhythm.Sixteenth:
-                    return MapGenerator.CompareDoubles(beat % (tempDivision / 4), 0);
+                    return MapGenerator.CompareDoubles(beat % (timeDivision / 4), 0);
                 case ValidRhythm.Thirty_Second:
-                    return MapGenerator.CompareDoubles(beat % (tempDivision / 8), 0);
+                    return MapGenerator.CompareDoubles(beat % (timeDivision / 8), 0);
                 case ValidRhythm.Quarter_Triplet:
-                    return MapGenerator.CompareDoubles(beat % (tempDivision / 1.5), 0);
+                    return MapGenerator.CompareDoubles(beat % (timeDivision / 1.5), 0);
                 case ValidRhythm.Eighth_Triplet:
-                    return MapGenerator.CompareDoubles(beat % (tempDivision / 3), 0);
+                    return MapGenerator.CompareDoubles(beat % (timeDivision / 3), 0);
                 case ValidRhythm.Sixteenth_Triplet:
-                    return MapGenerator.CompareDoubles(beat % (tempDivision / 6), 0);
+                    return MapGenerator.CompareDoubles(beat % (timeDivision / 6), 0);
                 default:
                     return false;
             }
+        }
+
+        private bool CheckValidEighthTriplet(int measureTick) {
+            // we want to allow eighth note triplets, but if an upbeat divides them we have to account for it, here we check these cases
+            int singleEighthTripLength = measureLength / 12; // 12 possible locations
+
+            // if an upbeat divides an eighth triplet, we will want to remove it 
+            bool checkRemoveOverlappingUpbeat = false;
+            int overlappingUpbeatTimestamp = -1;
+
+            // here we are checking if we are in the second position of an eighth note triplet
+            // we offset the measureTick by an eighth trip length to see if it would land on a downbeat for any measure
+            if ((measureTick - singleEighthTripLength) % timeDivision == 0) {
+                if (!allMapEvents.ContainsKey(measureTick - singleEighthTripLength) || !allMapEvents.ContainsKey(measureTick + singleEighthTripLength)) {
+                    // we do not have a valid eighth note triplet, however it is possible we may have a valid quarter note triplet so we want to check for that too
+                    // since we are in the second position of an eighth triplet, we want to check four positions and two positions backwards
+                    if (!allMapEvents.ContainsKey(measureTick - (4 * singleEighthTripLength)) || !allMapEvents.ContainsKey(measureTick - (2 * singleEighthTripLength))) {
+                        return false;
+                    }
+                } else {
+                    if (DEBUG_PARSE) Debug.LogFormat("Valid EighthTrip at {0} [CHUNK {1}]", measureTick, chunkID);
+
+                    // we now know that we have a valid eighth triplet, so we want to check for a conflicting upbeat and flag for removal if so
+                    checkRemoveOverlappingUpbeat = true;
+
+                    // we know that we we are in the second position of an eighth note triplet, so we offset to get to the downbeat,
+                    // then add half of the time division to calculate the upbeat location
+                    overlappingUpbeatTimestamp = (measureTick - singleEighthTripLength) + (timeDivision / 2);
+                }
+            }
+
+            // the other scenario we have to check is if we are in the third position in an eighth note triplet, now we offset by singleEighthTripLength * 2 to calculate it
+            else if ((measureTick - (2 * singleEighthTripLength)) % timeDivision == 0) {
+                // once again checking if all pieces of the triplet exist and marking for removal if not
+                if (!allMapEvents.ContainsKey(measureTick - (2 * singleEighthTripLength)) || !allMapEvents.ContainsKey(measureTick - singleEighthTripLength)) {
+                    // we do not have a valid eighth note triplet, but it is once again possible we have a quarter note triplet
+                    // since we are in the third position of an eighth triplet, we want to check two positions backwards and two positions forwards
+                    if (!allMapEvents.ContainsKey(measureTick - (2 * singleEighthTripLength)) || !allMapEvents.ContainsKey(measureTick + (2 * singleEighthTripLength))) {
+                        return false;
+                    }
+                } else {
+                    if (DEBUG_PARSE) Debug.LogFormat("Valid EighthTrip at {0} [CHUNK {1}]", measureTick, chunkID);
+
+                    // another valid eighth triplet, check for a downbeat again
+                    checkRemoveOverlappingUpbeat = true;
+
+                    // we know that we we are in the third position of an eighth note triplet, so we offset twice to get to the downbeat,
+                    // then add half of the time division to calculate the upbeat location
+                    overlappingUpbeatTimestamp = (measureTick - (2 * singleEighthTripLength)) + (timeDivision / 2);
+                }
+            }
+
+            // if true we have a valid eighth note triplet, so we need to see if theres an upbeat that divides it and remove if so
+            if (checkRemoveOverlappingUpbeat && overlappingUpbeatTimestamp != -1) {
+                // check if the upbeat already made it through the parse and remove if so
+                if (parsedEvents.ContainsKey(overlappingUpbeatTimestamp)) {
+                    parsedEvents.Remove(overlappingUpbeatTimestamp);
+
+                    if (DEBUG_PARSE) Debug.LogFormat("Upbeat overlapping with EighthTrip removed at {0} [CHUNK {1}]", overlappingUpbeatTimestamp, chunkID);
+                }
+            }
+
+            return true;
         }
     }
 }
