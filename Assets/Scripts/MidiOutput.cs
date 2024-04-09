@@ -8,6 +8,7 @@ using Melanchall.DryWetMidi.Interaction;
 using System.Linq;
 using MapGeneration;
 using System;
+using System.IO;
 
 /**
 * This class currently governs midi map creation, map tracking, output device, and note creation.
@@ -54,8 +55,15 @@ public class MidiOutput : MonoBehaviour
 
         progressBar = (ProgressBar) gameManager.GetComponent("ProgressBar");
 
+        string SelectedMidiFilePath = PlayerPrefs.GetString("SelectedMidiFilePath", "");
+        Debug.Log(SelectedMidiFilePath);
+
+        // parse the file name from the selected midi file
+        string midiFileName = Path.GetFileNameWithoutExtension(SelectedMidiFilePath);
+        Debug.Log(midiFileName);
+
         // load the test midi file and setup output devices and playback
-        testMidi = MidiFile.Read("Assets/MIDIs/NoteChartingFast.mid");
+        testMidi = MidiFile.Read("Assets/MIDIs/" +  midiFileName + ".mid");
         outputDevice = OutputDevice.GetByIndex(0);
         playback = testMidi.GetPlayback(outputDevice);
 

@@ -9,7 +9,7 @@ public class ScoreManager : MonoBehaviour
 {
     [SerializeField] private float score = 0;
     public float Score => score;
-    [SerializeField] private TextMeshProUGUI scoreText;
+    [SerializeField] private TMP_Text scoreText;
 
     [SerializeField] private float comboStreak = 0;
     [SerializeField] private float comboMultiplier = 1;
@@ -28,15 +28,7 @@ public class ScoreManager : MonoBehaviour
 
     void Start()
     {
-        scoreText = GetComponent<TextMeshProUGUI>();
-        if (scoreText == null)
-        {
-            Debug.LogError("No TextMeshProUGUI component found attached to the GameObject.");
-        }
-        else
-        {
-            UpdateScoreText();
-        }
+        UpdateScoreText();
     }
 
     private void UpdateScoreText()
@@ -51,12 +43,15 @@ public class ScoreManager : MonoBehaviour
     {
         comboStreak++;
         AddPoints(points * comboMultiplier);
-        UpdateComboMultiplier();
+        if (comboStreak % 10 == 0) // every 10 hits
+        {
+            UpdateComboMultiplier();
+        }
     }
 
     private void UpdateComboMultiplier()
     {
-        if (comboStreak % 5 == 0)
+        if (comboMultiplier < 4.0f)
         {
             comboMultiplier += 0.5f;
         }

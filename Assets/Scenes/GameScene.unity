@@ -1061,9 +1061,9 @@ RectTransform:
   - {fileID: 1070669874}
   - {fileID: 1084946553}
   - {fileID: 495287138}
+  - {fileID: 851417517}
   - {fileID: 1879285934}
   - {fileID: 3172566514124915495}
-  - {fileID: 851417517}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -1128,7 +1128,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: New Text
+  m_text: 'Score: '
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
