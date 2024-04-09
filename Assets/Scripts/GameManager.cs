@@ -18,6 +18,7 @@ public class GameManager : MonoBehaviour
     public GameObject playbackObject;
     private MidiOutput playback;
     private bool resumePlayback = false;
+    private bool isGameCompleted = false; 
 
 
     Scene scene;
@@ -91,6 +92,21 @@ public class GameManager : MonoBehaviour
             playback.StartPlayback();
         }
         // ScoreText.SetActive(true);
+    }
+
+    //method called when game is completed
+    public void GameCompleted() {
+        isGameCompleted = true; 
+        SceneManager.LoadScene("EndGame");
+    }
+
+    //check if the MIDI file is playing
+    bool IsMidiPlaying() {
+        if (playback != null){
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public void GoToSettings() {
