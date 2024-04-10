@@ -6,24 +6,6 @@ using Melanchall.DryWetMidi.Interaction;
 namespace MapGeneration {
     public class MapEvent
     {
-        // static lookup table for determining what user input to put a key on
-        // pretty much bins the input based off note name; will be removed later
-        private static Dictionary<Melanchall.DryWetMidi.MusicTheory.NoteName, int> noteLookupTable = new Dictionary<Melanchall.DryWetMidi.MusicTheory.NoteName, int>()
-        {
-            { Melanchall.DryWetMidi.MusicTheory.NoteName.C, 0 },
-            { Melanchall.DryWetMidi.MusicTheory.NoteName.CSharp, 0 },
-            { Melanchall.DryWetMidi.MusicTheory.NoteName.D, 1 },
-            { Melanchall.DryWetMidi.MusicTheory.NoteName.DSharp, 1 },
-            { Melanchall.DryWetMidi.MusicTheory.NoteName.E, 2 },
-            { Melanchall.DryWetMidi.MusicTheory.NoteName.F, 3 },
-            { Melanchall.DryWetMidi.MusicTheory.NoteName.FSharp, 3 },
-            { Melanchall.DryWetMidi.MusicTheory.NoteName.G, 4 },
-            { Melanchall.DryWetMidi.MusicTheory.NoteName.GSharp, 4 },
-            { Melanchall.DryWetMidi.MusicTheory.NoteName.A, 5 },
-            { Melanchall.DryWetMidi.MusicTheory.NoteName.ASharp, 5 },
-            { Melanchall.DryWetMidi.MusicTheory.NoteName.B, 6 }
-        };
-
         // Timestamp of this moment of time in the MIDI
         private long timestamp;
 
@@ -107,13 +89,16 @@ namespace MapGeneration {
         public List<int> GetTilesToGenerate() {
             List<int> tiles = new List<int>();
 
-            foreach (Note note in notes) {
+            // we never want the player to play more than two simultaneous notes
+            // so if the score has two or less notes, make them play one, if more then let them play two at once
+            // for piano pieces this will even out the bass clef, but if there are larger chords we will still get simultaneous input
+            int numNotesToGenerate = notes.Count <= 2 ? 1 : 2;
+
+            for (int i = 0; i < numNotesToGenerate; i++) {
                 int noteID;
 
-                if (noteLookupTable.TryGetValue(note.NoteName, out noteID)) {
-                    if (!tiles.Contains(noteID)) { // only add the note if it is not already there (no duplicating note names allowed)
-                        tiles.Add(noteID);
-                    }
+                if (NoteBinner.noteLookupTable.TryGetValue(notes[i].NoteName, out noteID)) {
+                    tiles.Add(noteID);
                 }
             }
 
