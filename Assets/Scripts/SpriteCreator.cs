@@ -10,6 +10,7 @@ using System.Linq;
 public class SpriteCreator : MonoBehaviour
 {
     public GameObject notePrefab;
+    public GameObject ghostNotePrefab;
     public TMP_Text textElement;
 
     public float downwardsForce = 100f;
@@ -57,6 +58,14 @@ public class SpriteCreator : MonoBehaviour
                 }
             }
 
+        //spawn ghost notes randomly
+        if (UnityEngine.Random.value < 0.2f)
+        {
+            int randomNoteIndex = UnityEngine.Random.Range(0, keys.Count);
+            float randomXPosition = (spacerSize * (randomNoteIndex + 1)) + randomNoteIndex + 0.5f;
+            generateObject(randomXPosition, randomNoteIndex, true);
+        }
+
             if (keysPressed.Length != 0) {
                 textElement.text = "Keys Pressed: " + keysPressed.Replace("Semicolon", ";").Trim();
             } else {
@@ -67,18 +76,30 @@ public class SpriteCreator : MonoBehaviour
         }
     }
 
-    private void generateObject(float xPosition, int colorIndex) {
+    private void generateObject(float xPosition, int colorIndex, bool isGhostNote = false) {
         setScreenUnits();
         xPosition -= unitWidth; 
 
-        GameObject newNote = Instantiate(notePrefab, new Vector2(xPosition, 4), Quaternion.identity);
-        // Debug.Log("Block spawned at " + Time.time);
-        newNote.tag = "Note";
+        GameObject newNote;
 
-        newNote.GetComponent<Renderer>().material.SetColor("_Color", colors[colorIndex]);
-        //newNote.GetComponent<Rigidbody2D>().AddForce(new Vector2(0, -downwardsForce));
+        if (isGhostNote)
+        {
+            newNote = Instantiate(ghostNotePrefab, new Vector2(xPosition, 4), Quaternion.identity);
+            newNote.tag = "GhostNote";
+            //ghost note color gray
+            newNote.GetComponent<Renderer>().material.SetColor("_Color", Color.gray);
+            //ghost note outline color black
+            newNote.GetComponent<Renderer>().material.SetColor("_OutlineColor", Color.black);
+        }
+        else
+        {
+            newNote = Instantiate(notePrefab, new Vector2(xPosition, 4), Quaternion.identity);
+            newNote.tag = "Note";
+            //regular note color
+            newNote.GetComponent<Renderer>().material.SetColor("_Color", colors[colorIndex]);
+        }
+
         newNote.GetComponent<Rigidbody2D>().velocity = new Vector2(0, -10);
-
         lastRender = Time.time;
     }
 
