@@ -150,7 +150,13 @@ namespace MapGeneration {
                                     if (measureTick == singleQTripletLength || measureTick == 4 * singleQTripletLength) {
                                         // if we do not have all three pieces of the triplet we do not want it (so we check 1 note before and 1 note after)
                                         if (!allMapEvents.ContainsKey(measureTick - singleQTripletLength) || !allMapEvents.ContainsKey(measureTick + singleQTripletLength)) {
-                                            removeEvent = true;
+                                            // for easy mode parsing we could possibly have a half note triplet though, so check for that before we commit to removing the event
+                                            // since we are checking if we are in the second note of a triplet, this could only be the third note of the half note triplet
+                                            if (!allMapEvents.ContainsKey(measureTick - (2 * singleQTripletLength)) || !allMapEvents.ContainsKey(measureTick - (4 * singleQTripletLength))) {
+                                                removeEvent = true;
+                                            } else {
+                                                if (DEBUG_PARSE) Debug.LogFormat("Valid HalfTrip at {0} [CHUNK {1}]", measureTick, chunkID);
+                                            }
                                         } else {
                                             if (DEBUG_PARSE) Debug.LogFormat("Valid QTrip at {0} [CHUNK {1}]", measureTick, chunkID);
 
@@ -163,7 +169,12 @@ namespace MapGeneration {
                                     else if (measureTick == singleQTripletLength * 2 || measureTick == singleQTripletLength * 5) {
                                         // once again checking if we have all 3 pieces, but now we want to check if we have the 2 earlier instead of one before and one after
                                         if (!allMapEvents.ContainsKey(measureTick - (2 * singleQTripletLength)) || !allMapEvents.ContainsKey(measureTick - singleQTripletLength)) {
-                                            removeEvent = true;
+                                            // it is once again possible that we have a half note triplet; since the tick could be 640 or 1600, it would have to be the second note in the half note triplet
+                                            if (!allMapEvents.ContainsKey(measureTick - (2 * singleQTripletLength)) || !allMapEvents.ContainsKey(measureTick + (2 * singleQTripletLength))) {
+                                                removeEvent = true;
+                                            } else {
+                                                if (DEBUG_PARSE) Debug.LogFormat("Valid HalfTrip at {0} [CHUNK {1}]", measureTick, chunkID);
+                                            }
                                         } else {
                                             if (DEBUG_PARSE) Debug.LogFormat("Valid QTrip at {0} [CHUNK {1}]", measureTick, chunkID);
 
@@ -359,6 +370,83 @@ namespace MapGeneration {
             chunkParsed = true;
         }
 
+        private bool CheckValidEighthTriplet(int measureTick) {
+            // we want to allow eighth note triplets, but if an upbeat divides them we have to account for it, here we check these cases
+            int singleEighthTripLength = measureLength / 12; // 12 possible locations
+
+            // if an upbeat divides an eighth triplet, we will want to remove it 
+            bool checkRemoveOverlappingUpbeat = false;
+            int overlappingUpbeatTimestamp = -1;
+
+            // here we are checking if we are in the second position of an eighth note triplet
+            // we offset the measureTick by an eighth trip length to see if it would land on a downbeat for any measure
+            if ((measureTick - singleEighthTripLength) % timeDivision == 0) {
+                if (!allMapEvents.ContainsKey(measureTick - singleEighthTripLength) || !allMapEvents.ContainsKey(measureTick + singleEighthTripLength)) {
+                    // we do not have a valid eighth note triplet, however it is possible we may have a valid quarter note triplet so we want to check for that too
+                    // since we are in the second position of an eighth triplet, we want to check four positions and two positions backwards
+                    if (!allMapEvents.ContainsKey(measureTick - (4 * singleEighthTripLength)) || !allMapEvents.ContainsKey(measureTick - (2 * singleEighthTripLength))) {
+                        // now that we do not have an eighth or quarter note triplet, we need to last check if we have a half note triplet
+                        // we are in the second position of a quarter note triplet, which means for a half note triplet it is only possible to be the second note
+                        // a half note triplet consists of 3 half notes each equating to the length of 4 single eighth note triplets, so we check the timestamps of 4 trips before and after
+                        if (!allMapEvents.ContainsKey(measureTick - (4 * singleEighthTripLength)) || !allMapEvents.ContainsKey(measureTick + (4 * singleEighthTripLength))) {
+                            return false;
+                        } else {
+                            if (DEBUG_PARSE) Debug.LogFormat("Valid HalfTrip at {0} [CHUNK] {1}]", measureTick, chunkID);
+                        }
+                    }
+                } else {
+                    if (DEBUG_PARSE) Debug.LogFormat("Valid EighthTrip at {0} [CHUNK {1}]", measureTick, chunkID);
+
+                    // we now know that we have a valid eighth triplet, so we want to check for a conflicting upbeat and flag for removal if so
+                    checkRemoveOverlappingUpbeat = true;
+
+                    // we know that we we are in the second position of an eighth note triplet, so we offset to get to the downbeat,
+                    // then add half of the time division to calculate the upbeat location
+                    overlappingUpbeatTimestamp = (measureTick - singleEighthTripLength) + (timeDivision / 2);
+                }
+            }
+
+            // the other scenario we have to check is if we are in the third position in an eighth note triplet, now we offset by singleEighthTripLength * 2 to calculate it
+            else if ((measureTick - (2 * singleEighthTripLength)) % timeDivision == 0) {
+                // once again checking if all pieces of the triplet exist and marking for removal if not
+                if (!allMapEvents.ContainsKey(measureTick - (2 * singleEighthTripLength)) || !allMapEvents.ContainsKey(measureTick - singleEighthTripLength)) {
+                    // we do not have a valid eighth note triplet, but it is once again possible we have a quarter note triplet
+                    // since we are in the third position of an eighth triplet, we want to check two positions backwards and two positions forwards
+                    if (!allMapEvents.ContainsKey(measureTick - (2 * singleEighthTripLength)) || !allMapEvents.ContainsKey(measureTick + (2 * singleEighthTripLength))) {
+                        // no valid quarter trip, check if we have a valid half note triplet
+                        // we are in the third position of an eighth trip, which means that we could only be the third note in the half note triplet
+                        // since a half note triplet has 3 half notes equating to 4 single eighth note triplets, we check 4 positions back and 8 positions back
+                        if (!allMapEvents.ContainsKey(measureTick - (4 * singleEighthTripLength)) || !allMapEvents.ContainsKey(measureTick - (8 * singleEighthTripLength))) {
+                            return false;
+                        } else {
+                            if (DEBUG_PARSE) Debug.LogFormat("Valid HalfTrip at {0} [CHUNK] {1}]", measureTick, chunkID);
+                        }
+                    }
+                } else {
+                    if (DEBUG_PARSE) Debug.LogFormat("Valid EighthTrip at {0} [CHUNK {1}]", measureTick, chunkID);
+
+                    // another valid eighth triplet, check for a downbeat again
+                    checkRemoveOverlappingUpbeat = true;
+
+                    // we know that we we are in the third position of an eighth note triplet, so we offset twice to get to the downbeat,
+                    // then add half of the time division to calculate the upbeat location
+                    overlappingUpbeatTimestamp = (measureTick - (2 * singleEighthTripLength)) + (timeDivision / 2);
+                }
+            }
+
+            // if true we have a valid eighth note triplet, so we need to see if theres an upbeat that divides it and remove if so
+            if (checkRemoveOverlappingUpbeat && overlappingUpbeatTimestamp != -1) {
+                // check if the upbeat already made it through the parse and remove if so
+                if (parsedEvents.ContainsKey(overlappingUpbeatTimestamp)) {
+                    parsedEvents.Remove(overlappingUpbeatTimestamp);
+
+                    if (DEBUG_PARSE) Debug.LogFormat("Upbeat overlapping with EighthTrip removed at {0} [CHUNK {1}]", overlappingUpbeatTimestamp, chunkID);
+                }
+            }
+
+            return true;
+        }
+
         // returns adjacent MapEvents to the current startingIndex
         private MapEvent GetAdjacentEvent(int startingIndex, int offset) {
             int newIndex = startingIndex + offset;
@@ -401,69 +489,6 @@ namespace MapGeneration {
                 default:
                     return false;
             }
-        }
-
-        private bool CheckValidEighthTriplet(int measureTick) {
-            // we want to allow eighth note triplets, but if an upbeat divides them we have to account for it, here we check these cases
-            int singleEighthTripLength = measureLength / 12; // 12 possible locations
-
-            // if an upbeat divides an eighth triplet, we will want to remove it 
-            bool checkRemoveOverlappingUpbeat = false;
-            int overlappingUpbeatTimestamp = -1;
-
-            // here we are checking if we are in the second position of an eighth note triplet
-            // we offset the measureTick by an eighth trip length to see if it would land on a downbeat for any measure
-            if ((measureTick - singleEighthTripLength) % timeDivision == 0) {
-                if (!allMapEvents.ContainsKey(measureTick - singleEighthTripLength) || !allMapEvents.ContainsKey(measureTick + singleEighthTripLength)) {
-                    // we do not have a valid eighth note triplet, however it is possible we may have a valid quarter note triplet so we want to check for that too
-                    // since we are in the second position of an eighth triplet, we want to check four positions and two positions backwards
-                    if (!allMapEvents.ContainsKey(measureTick - (4 * singleEighthTripLength)) || !allMapEvents.ContainsKey(measureTick - (2 * singleEighthTripLength))) {
-                        return false;
-                    }
-                } else {
-                    if (DEBUG_PARSE) Debug.LogFormat("Valid EighthTrip at {0} [CHUNK {1}]", measureTick, chunkID);
-
-                    // we now know that we have a valid eighth triplet, so we want to check for a conflicting upbeat and flag for removal if so
-                    checkRemoveOverlappingUpbeat = true;
-
-                    // we know that we we are in the second position of an eighth note triplet, so we offset to get to the downbeat,
-                    // then add half of the time division to calculate the upbeat location
-                    overlappingUpbeatTimestamp = (measureTick - singleEighthTripLength) + (timeDivision / 2);
-                }
-            }
-
-            // the other scenario we have to check is if we are in the third position in an eighth note triplet, now we offset by singleEighthTripLength * 2 to calculate it
-            else if ((measureTick - (2 * singleEighthTripLength)) % timeDivision == 0) {
-                // once again checking if all pieces of the triplet exist and marking for removal if not
-                if (!allMapEvents.ContainsKey(measureTick - (2 * singleEighthTripLength)) || !allMapEvents.ContainsKey(measureTick - singleEighthTripLength)) {
-                    // we do not have a valid eighth note triplet, but it is once again possible we have a quarter note triplet
-                    // since we are in the third position of an eighth triplet, we want to check two positions backwards and two positions forwards
-                    if (!allMapEvents.ContainsKey(measureTick - (2 * singleEighthTripLength)) || !allMapEvents.ContainsKey(measureTick + (2 * singleEighthTripLength))) {
-                        return false;
-                    }
-                } else {
-                    if (DEBUG_PARSE) Debug.LogFormat("Valid EighthTrip at {0} [CHUNK {1}]", measureTick, chunkID);
-
-                    // another valid eighth triplet, check for a downbeat again
-                    checkRemoveOverlappingUpbeat = true;
-
-                    // we know that we we are in the third position of an eighth note triplet, so we offset twice to get to the downbeat,
-                    // then add half of the time division to calculate the upbeat location
-                    overlappingUpbeatTimestamp = (measureTick - (2 * singleEighthTripLength)) + (timeDivision / 2);
-                }
-            }
-
-            // if true we have a valid eighth note triplet, so we need to see if theres an upbeat that divides it and remove if so
-            if (checkRemoveOverlappingUpbeat && overlappingUpbeatTimestamp != -1) {
-                // check if the upbeat already made it through the parse and remove if so
-                if (parsedEvents.ContainsKey(overlappingUpbeatTimestamp)) {
-                    parsedEvents.Remove(overlappingUpbeatTimestamp);
-
-                    if (DEBUG_PARSE) Debug.LogFormat("Upbeat overlapping with EighthTrip removed at {0} [CHUNK {1}]", overlappingUpbeatTimestamp, chunkID);
-                }
-            }
-
-            return true;
         }
     }
 }

@@ -54,13 +54,13 @@ public class MidiOutput : MonoBehaviour
         progressBar = (ProgressBar) gameManager.GetComponent("ProgressBar");
 
         // load the test midi file and setup output devices and playback
-        testMidi = MidiFile.Read("Assets/MIDIs/EdgeCases.mid");
+        testMidi = MidiFile.Read("Assets/MIDIs/ShortSong1.mid");
         outputDevice = OutputDevice.GetByIndex(0);
         playback = testMidi.GetPlayback(outputDevice);
 
         // generate the map for our test level
         generator = new MapGenerator(testMidi);
-        difficulty = MapDifficulty.Easy;
+        difficulty = MapDifficulty.Hard;
     }
 
     /**
