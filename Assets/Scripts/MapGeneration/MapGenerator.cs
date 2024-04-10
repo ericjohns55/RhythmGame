@@ -111,6 +111,7 @@ namespace MapGeneration {
                 List<Note> notes; 
                 if (noteMap.TryGetValue(timestamp, out notes)) {
                     foreach (Note note in notes) {  // load the notes into our MapEvent for this timestamp
+                        Debug.LogFormat("NOTE: {0}{1}      CHANNEL: {2}", note.NoteName, note.Octave, note.Channel);
                         mapEvent.AddNote(note);
                     }
                 }
@@ -161,7 +162,7 @@ namespace MapGeneration {
                 chunk.AddToList(generatedMap);
             }
 
-            PrintGeneratedMap();
+            // PrintGeneratedMap();
 
             return generatedMap;
         }
