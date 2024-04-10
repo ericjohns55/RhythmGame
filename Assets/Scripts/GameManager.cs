@@ -13,13 +13,16 @@ public class GameManager : MonoBehaviour
     public GameObject pauseMenu;
     public GameObject settingsMenu;
     public GameObject ScoreText;
+    public GameObject endScreen;
+    public TMP_Text ScoreTextUI;
     public static bool isPaused = false;
     private static string state = "game";
     public GameObject playbackObject;
     private MidiOutput playback;
     private bool resumePlayback = false;
     private bool isGameCompleted = false; 
-
+    private int totalNotes;
+    private int destroyedNotes;
 
     Scene scene;
     public TMP_Text countdown;
@@ -31,6 +34,8 @@ public class GameManager : MonoBehaviour
             playback = (MidiOutput) playbackObject.GetComponent("MidiOutput");
             settingsMenu.SetActive(false);
             pauseMenu.SetActive(false);
+            totalNotes = GameObject.FindGameObjectsWithTag("Note").Length;
+            destroyedNotes = 0;
         } else {
             playback = null;
         }
@@ -55,6 +60,19 @@ public class GameManager : MonoBehaviour
             
             Debug.Log("Time.timeScale = " + Time.timeScale);
         }
+        if (destroyedNotes >= totalNotes){
+            EndGame();
+        }
+    }
+
+    public void NoteDestroyed() 
+    {
+        destroyedNotes++;
+    }
+
+    private void EndGame()
+    {
+        SceneManager.LoadScene("EndGame");
     }
 
     public void PauseGame() {
@@ -92,21 +110,6 @@ public class GameManager : MonoBehaviour
             playback.StartPlayback();
         }
         // ScoreText.SetActive(true);
-    }
-
-    //method called when game is completed
-    public void GameCompleted() {
-        isGameCompleted = true; 
-        SceneManager.LoadScene("EndGame");
-    }
-
-    //check if the MIDI file is playing
-    bool IsMidiPlaying() {
-        if (playback != null){
-            return true;
-        } else {
-            return false;
-        }
     }
 
     public void GoToSettings() {
