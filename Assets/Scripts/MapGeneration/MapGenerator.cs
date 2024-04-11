@@ -111,7 +111,6 @@ namespace MapGeneration {
                 List<Note> notes; 
                 if (noteMap.TryGetValue(timestamp, out notes)) {
                     foreach (Note note in notes) {  // load the notes into our MapEvent for this timestamp
-                        Debug.LogFormat("NOTE: {0}{1}      CHANNEL: {2}", note.NoteName, note.Octave, note.Channel);
                         mapEvent.AddNote(note);
                     }
                 }
@@ -161,6 +160,8 @@ namespace MapGeneration {
 
                 chunk.AddToList(generatedMap);
             }
+
+            NoteBinner.BinGeneratedMap(generatedMap);
 
             // PrintGeneratedMap();
 
@@ -223,16 +224,6 @@ namespace MapGeneration {
                 }
             }
         }
-
-        // Debugs the LinkedList and shows current timestamp, next timestamp, and number of notes to be played
-        // private void DebugLinkedList() {
-        //     for (LinkedListNode<MapEvent> node = mapEvents.First; node != null; node = node.Next) {
-        //         long timestamp = node.Value.GetTimestamp();
-        //         long nextTimestamp = node.Next != null ? node.Next.Value.GetTimestamp() : -1;
-
-        //         Debug.LogFormat("Map event found at timestamp {0} (next: {1}) [{2} NOTES]", timestamp, nextTimestamp, node.Value.GetNoteCount());
-        //     }
-        // }
 
         // Compares doubles with a tolerance
         // TODO: determine if this is really needed

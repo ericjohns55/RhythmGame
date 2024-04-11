@@ -24,6 +24,9 @@ namespace MapGeneration {
         // Notes that exist in this moment of time in the midi
         List<Note> notes = new List<Note>();
 
+        // contains the indices of the tiles we want to generate on the map
+        List<int> tilesToGenerate;
+
         // Constructor
         public MapEvent(long timestamp, short timeDivision, Tuple<TimeSignature, long> timeSignatureEvent) {
             this.timestamp = timestamp;
@@ -35,6 +38,8 @@ namespace MapGeneration {
             measureLength = ticksPerBeat * timeSignature.Numerator;
             measureTick = (int) (ticksSinceTimeSigChange % measureLength); // get just the ticks in the current measure
             beatNumber = (measureTick / ticksPerBeat) + 1;
+
+            tilesToGenerate = new List<int>();
 
             // UnityEngine.Debug.LogFormat("Parsed timestamp {0} at measure tick {1} [{2}] [time signature: {3}]", timestamp, measureTick, beatNumber, timeSignatureEvent.Item1);
         }
@@ -84,25 +89,39 @@ namespace MapGeneration {
             return stringBuilder.ToString().Trim().Replace("Sharp", "#");
         }
 
-        // Generates a list of indices to generate a tile for based on the notes
-        // Currently the only omitted notes are duplicated note names, but this will change based off chart difficulty
-        public List<int> GetTilesToGenerate() {
-            List<int> tiles = new List<int>();
-
+        // returns the number of tiles we want to generate during playback
+        public int GetNumberTilesToGenerate() {
             // we never want the player to play more than two simultaneous notes
             // so if the score has two or less notes, make them play one, if more then let them play two at once
             // for piano pieces this will even out the bass clef, but if there are larger chords we will still get simultaneous input
-            int numNotesToGenerate = notes.Count <= 2 ? 1 : 2;
+            return notes.Count <= 2 ? 1 : 2;
+        }
 
-            for (int i = 0; i < numNotesToGenerate; i++) {
-                int noteID;
+        // adds an index of a note to generate for this map event
+        public void AddTileToGenerate(int tileID) {
+            tilesToGenerate.Add(tileID);
+        }
 
-                if (NoteBinner.noteLookupTable.TryGetValue(notes[i].NoteName, out noteID)) {
-                    tiles.Add(noteID);
-                }
-            }
+        // Generates a list of indices to generate a tile for based on the notes
+        // Currently the only omitted notes are duplicated note names, but this will change based off chart difficulty
+        public List<int> GetTilesToGenerate() {
+            return tilesToGenerate;
 
-            return tiles;
+            // List<int> tiles = new List<int>();
+
+            // // we never want the player to play more than two simultaneous notes
+            // // so if the score has two or less notes, make them play one, if more then let them play two at once
+            // // for piano pieces this will even out the bass clef, but if there are larger chords we will still get simultaneous input
+            // int numNotesToGenerate = notes.Count <= 2 ? 1 : 2;
+
+            // for (int i = 0; i < numNotesToGenerate; i++) {
+            //     // since we only generate on one side of the map at a time, we will never get two of the same note IDs
+            //     // two notes being generated will yield one note on the left side of the map and one note on the right side of the map
+            //     int noteID = NoteBinner.GenerateNextNoteIndex();
+            //     tiles.Add(noteID);
+            // }
+
+            // return tiles;
         }
     }
 }

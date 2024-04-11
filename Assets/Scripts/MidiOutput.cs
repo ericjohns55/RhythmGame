@@ -60,7 +60,7 @@ public class MidiOutput : MonoBehaviour
 
         // generate the map for our test level
         generator = new MapGenerator(testMidi);
-        difficulty = MapDifficulty.Hard;
+        difficulty = MapDifficulty.Easy;
     }
 
     /**
