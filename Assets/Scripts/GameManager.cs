@@ -29,13 +29,13 @@ public class GameManager : MonoBehaviour
 
     // Start is called before the first frame update
     void Start() {
+        destroyedNotes = 0;
         scene = SceneManager.GetActiveScene();
         if (scene.name == "GameScene") {
             playback = (MidiOutput) playbackObject.GetComponent("MidiOutput");
             settingsMenu.SetActive(false);
             pauseMenu.SetActive(false);
             totalNotes = GameObject.FindGameObjectsWithTag("Note").Length;
-            destroyedNotes = 0;
         } else {
             playback = null;
         }
