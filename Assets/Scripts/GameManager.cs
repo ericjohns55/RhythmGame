@@ -60,14 +60,15 @@ public class GameManager : MonoBehaviour
             
             Debug.Log("Time.timeScale = " + Time.timeScale);
         }
-        if (destroyedNotes >= totalNotes){
-            EndGame();
-        }
     }
 
     public void NoteDestroyed() 
     {
         destroyedNotes++;
+
+        if (destroyedNotes >= totalNotes){
+            EndGame();
+        }
     }
 
     private void EndGame()
