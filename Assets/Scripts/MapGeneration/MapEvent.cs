@@ -106,22 +106,6 @@ namespace MapGeneration {
         // Currently the only omitted notes are duplicated note names, but this will change based off chart difficulty
         public List<int> GetTilesToGenerate() {
             return tilesToGenerate;
-
-            // List<int> tiles = new List<int>();
-
-            // // we never want the player to play more than two simultaneous notes
-            // // so if the score has two or less notes, make them play one, if more then let them play two at once
-            // // for piano pieces this will even out the bass clef, but if there are larger chords we will still get simultaneous input
-            // int numNotesToGenerate = notes.Count <= 2 ? 1 : 2;
-
-            // for (int i = 0; i < numNotesToGenerate; i++) {
-            //     // since we only generate on one side of the map at a time, we will never get two of the same note IDs
-            //     // two notes being generated will yield one note on the left side of the map and one note on the right side of the map
-            //     int noteID = NoteBinner.GenerateNextNoteIndex();
-            //     tiles.Add(noteID);
-            // }
-
-            // return tiles;
         }
     }
 }
