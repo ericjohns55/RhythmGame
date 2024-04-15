@@ -28,8 +28,14 @@ public class MidiList : MonoBehaviour
     //start is called before the first frame update
     void Start()
     {
-        string midiFolderPath = "MIDIs"; 
-        string[] midiFiles = Directory.GetFiles(Application.dataPath + "/" + midiFolderPath, "*.mid");
+        string midiFolderPath = PlayerPrefs.GetString("MidiFilePath", "MIDIs");
+        string[] midiFiles;
+        Debug.Log(midiFolderPath);
+        if (midiFolderPath != "MIDIs") {
+            midiFiles = Directory.GetFiles(midiFolderPath, "*.mid");
+        } else { // Fallback to default unity asset path
+            midiFiles = Directory.GetFiles(Application.dataPath + "/" + midiFolderPath, "*.mid");
+        }
 
         //calculates height of content panel
         float panelHeight = midiFiles.Length * (buttonHeight + spacing);

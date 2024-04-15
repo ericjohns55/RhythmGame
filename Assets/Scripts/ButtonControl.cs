@@ -26,9 +26,6 @@ public class ButtonControl : MonoBehaviour
 
     private ScoreManager scoreManager;
 
-    private static float comboStreak = 0;
-    private static float comboMultiplier = 1;
-
     private List<KeyCode> activationKeys = new List<KeyCode>() {
         KeyCode.A, KeyCode.S, KeyCode.D, KeyCode.F,
         KeyCode.J, KeyCode.K, KeyCode.L, KeyCode.Semicolon
@@ -83,27 +80,6 @@ public class ButtonControl : MonoBehaviour
         return Vector2.Distance(transform.position, targetPosition);
     }
 
-    private void IncrementComboAndScore(int points)
-    {
-        comboStreak++;
-        scoreManager.AddPoints(points * comboMultiplier);
-        UpdateComboMultiplier();
-    }
-
-    private void UpdateComboMultiplier()
-    {
-        if (comboStreak % 5 == 0)
-        {
-            comboMultiplier += 0.5f;
-        }
-    }
-
-    private void ResetCombo()
-    {
-        comboStreak = 0;
-        comboMultiplier = 1;
-    }
-
     // Finds the position of the corresponding note based on the activation key
     private void FindNotePosition()
     {
@@ -139,16 +115,16 @@ public class ButtonControl : MonoBehaviour
             switch (distance)
             {
                 case float d when d > 1.5f: // Miss
-                    ResetCombo();
+                    scoreManager.ResetCombo();
                     break;
                 case float d when d > 1.0f: // Awful
-                    IncrementComboAndScore(10);
+                    scoreManager.IncrementComboAndScore(10);
                     break;
                 case float d when d > 0.5f: // Good
-                    IncrementComboAndScore(20);
+                    scoreManager.IncrementComboAndScore(20);
                     break;
                 default: // Excellent
-                    IncrementComboAndScore(30);
+                    scoreManager.IncrementComboAndScore(30);
                     break;
             }
 
