@@ -429,6 +429,7 @@ GameObject:
   - component: {fileID: 1074731395}
   - component: {fileID: 1074731394}
   - component: {fileID: 1074731393}
+  - component: {fileID: 1074731396}
   m_Layer: 5
   m_Name: Play
   m_TagString: Untagged
@@ -550,6 +551,21 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1074731391}
   m_CullTransparentMesh: 1
+--- !u!114 &1074731396
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1074731391}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_EffectColor: {r: 0, g: 0, b: 0, a: 1}
+  m_EffectDistance: {x: 1, y: -1}
+  m_UseGraphicAlpha: 1
 --- !u!1 &1100231882
 GameObject:
   m_ObjectHideFlags: 0
@@ -973,6 +989,7 @@ GameObject:
   - component: {fileID: 1601035929}
   - component: {fileID: 1601035928}
   - component: {fileID: 1601035927}
+  - component: {fileID: 1601035930}
   m_Layer: 5
   m_Name: Exit
   m_TagString: Untagged
@@ -1094,6 +1111,21 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1601035925}
   m_CullTransparentMesh: 1
+--- !u!114 &1601035930
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1601035925}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_EffectColor: {r: 0, g: 0, b: 0, a: 1}
+  m_EffectDistance: {x: 1, y: -1}
+  m_UseGraphicAlpha: 1
 --- !u!1 &1609943935
 GameObject:
   m_ObjectHideFlags: 0
@@ -1182,6 +1214,7 @@ GameObject:
   - component: {fileID: 1644163090}
   - component: {fileID: 1644163089}
   - component: {fileID: 1644163092}
+  - component: {fileID: 1644163093}
   m_Layer: 5
   m_Name: Midi
   m_TagString: Untagged
@@ -1320,6 +1353,21 @@ MonoBehaviour:
   ScoreText: {fileID: 0}
   playbackObject: {fileID: 0}
   countdown: {fileID: 0}
+--- !u!114 &1644163093
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1644163087}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_EffectColor: {r: 0, g: 0, b: 0, a: 1}
+  m_EffectDistance: {x: 1, y: -1}
+  m_UseGraphicAlpha: 1
 --- !u!1 &1883080489
 GameObject:
   m_ObjectHideFlags: 0
