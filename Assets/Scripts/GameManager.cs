@@ -35,7 +35,7 @@ public class GameManager : MonoBehaviour
             playback = (MidiOutput) playbackObject.GetComponent("MidiOutput");
             settingsMenu.SetActive(false);
             pauseMenu.SetActive(false);
-            totalNotes = (int)progressBar.maxValue;
+            totalNotes = (int)progressBar.GetMaxValue();
             destroyedNotes = 0; 
             isPaused = false;
         } else {
