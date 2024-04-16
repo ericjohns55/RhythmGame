@@ -37,7 +37,7 @@ namespace MapGeneration {
         private int chunkID = -1;
 
         // will debug the parse mode if true, will not otherwise
-        private bool DEBUG_PARSE = true;
+        private bool DEBUG_PARSE = false;
 
         // Constructor which requires the measure timestamps, time division, and tempo of the measure
         public MeasureChunk(long startingTimestamp, long endingTimestamp, short timeDivision, int bpm, TimeSignature timeSignature) {
@@ -397,6 +397,9 @@ namespace MapGeneration {
             bool checkRemoveOverlappingUpbeat = false;
             int overlappingUpbeatTimestamp = -1;
 
+            // if we have an incomplete triplet we want to flag it, we may allow it assuming we dont have an overlapping upbeat
+            bool possibleIncompleteTriplet = false;
+
             // here we are checking if we are in the second position of an eighth note triplet
             // we offset the measureTick by an eighth trip length to see if it would land on a downbeat for any measure
             if ((measureTick - singleEighthTripLength) % timeDivision == 0) {
@@ -408,7 +411,8 @@ namespace MapGeneration {
                         // we are in the second position of a quarter note triplet, which means for a half note triplet it is only possible to be the second note
                         // a half note triplet consists of 3 half notes each equating to the length of 4 single eighth note triplets, so we check the timestamps of 4 trips before and after
                         if (!allMapEvents.ContainsKey(measureTick - (4 * singleEighthTripLength)) || !allMapEvents.ContainsKey(measureTick + (4 * singleEighthTripLength))) {
-                            return false;
+                            // we do not have a full triplet, but we may have an incomplete triplet
+                            possibleIncompleteTriplet = true;
                         } else {
                             if (DEBUG_PARSE) Debug.LogFormat("Valid HalfTrip at {0} [CHUNK] {1}]", measureTick, chunkID);
                         }
@@ -418,7 +422,9 @@ namespace MapGeneration {
 
                     // we now know that we have a valid eighth triplet, so we want to check for a conflicting upbeat and flag for removal if so
                     checkRemoveOverlappingUpbeat = true;
+                }
 
+                if (possibleIncompleteTriplet || checkRemoveOverlappingUpbeat) {
                     // we know that we we are in the second position of an eighth note triplet, so we offset to get to the downbeat,
                     // then add half of the time division to calculate the upbeat location
                     overlappingUpbeatTimestamp = (measureTick - singleEighthTripLength) + (timeDivision / 2);
@@ -436,7 +442,7 @@ namespace MapGeneration {
                         // we are in the third position of an eighth trip, which means that we could only be the third note in the half note triplet
                         // since a half note triplet has 3 half notes equating to 4 single eighth note triplets, we check 4 positions back and 8 positions back
                         if (!allMapEvents.ContainsKey(measureTick - (4 * singleEighthTripLength)) || !allMapEvents.ContainsKey(measureTick - (8 * singleEighthTripLength))) {
-                            return false;
+                            possibleIncompleteTriplet = true;
                         } else {
                             if (DEBUG_PARSE) Debug.LogFormat("Valid HalfTrip at {0} [CHUNK] {1}]", measureTick, chunkID);
                         }
@@ -446,7 +452,9 @@ namespace MapGeneration {
 
                     // another valid eighth triplet, check for a downbeat again
                     checkRemoveOverlappingUpbeat = true;
+                }
 
+                if (possibleIncompleteTriplet || checkRemoveOverlappingUpbeat) {
                     // we know that we we are in the third position of an eighth note triplet, so we offset twice to get to the downbeat,
                     // then add half of the time division to calculate the upbeat location
                     overlappingUpbeatTimestamp = (measureTick - (2 * singleEighthTripLength)) + (timeDivision / 2);
@@ -454,12 +462,17 @@ namespace MapGeneration {
             }
 
             // if true we have a valid eighth note triplet, so we need to see if theres an upbeat that divides it and remove if so
-            if (checkRemoveOverlappingUpbeat && overlappingUpbeatTimestamp != -1) {
+            if ((checkRemoveOverlappingUpbeat && overlappingUpbeatTimestamp != -1) || possibleIncompleteTriplet) {
                 // check if the upbeat already made it through the parse and remove if so
                 if (parsedEvents.ContainsKey(overlappingUpbeatTimestamp)) {
-                    parsedEvents.Remove(overlappingUpbeatTimestamp);
+                    if (checkRemoveOverlappingUpbeat) {
+                        parsedEvents.Remove(overlappingUpbeatTimestamp);
 
-                    if (DEBUG_PARSE) Debug.LogFormat("Upbeat overlapping with EighthTrip removed at {0} [CHUNK {1}]", overlappingUpbeatTimestamp, chunkID);
+                        if (DEBUG_PARSE) Debug.LogFormat("Upbeat overlapping with EighthTrip removed at {0} [CHUNK {1}]", overlappingUpbeatTimestamp, chunkID);
+                    } else if (possibleIncompleteTriplet) {
+                        // we have an incomplete triplet and an overlapping note, prioritize the overlapping note instead
+                        return false;
+                    }
                 }
             }
 
