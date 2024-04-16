@@ -30,7 +30,6 @@ public class GameManager : MonoBehaviour
             playback = (MidiOutput) playbackObject.GetComponent("MidiOutput");
             settingsMenu.SetActive(false);
             pauseMenu.SetActive(false);
-            isPaused = false;
         } else {
             playback = null;
         }
@@ -109,7 +108,6 @@ public class GameManager : MonoBehaviour
     }
 
     public void GoToMainMenu() {
-        isPaused = false;
         Time.timeScale = 1f;
         if (scene.name == "GameScene") {
             playback.ReleaseOutputDevice();

@@ -8,7 +8,6 @@ using Melanchall.DryWetMidi.Interaction;
 using System.Linq;
 using MapGeneration;
 using System;
-using System.IO;
 
 /**
 * This class currently governs midi map creation, map tracking, output device, and note creation.
@@ -34,13 +33,14 @@ public class MidiOutput : MonoBehaviour
 
     private MapGenerator generator;
     private LinkedListNode<MapEvent> currentNode = null;
-    LinkedList<MapEvent> generatedMap = null;
     private MapDifficulty difficulty;
 
     // Needed for progressbar
     private ProgressBar progressBar;
     public GameManager gameManager;
+    private int noteCount = 0;
  
+    private bool testFlag = false;
     private float executionTime = 0f;
 
     private float waitAmount = 0.0f;
@@ -54,23 +54,16 @@ public class MidiOutput : MonoBehaviour
 
         progressBar = (ProgressBar) gameManager.GetComponent("ProgressBar");
 
-        string SelectedMidiFilePath = PlayerPrefs.GetString("SelectedMidiFilePath", "");
-        Debug.Log(SelectedMidiFilePath);
-
-        // parse the file name from the selected midi file
-        string midiFileName = Path.GetFileNameWithoutExtension(SelectedMidiFilePath);
-        Debug.Log(midiFileName);
-
         // load the test midi file and setup output devices and playback
-
-        testMidi = MidiFile.Read("Assets/MIDIs/" +  midiFileName + ".mid");
-        
+        testMidi = MidiFile.Read("Assets/MIDIs/NoteChartingFast.mid");
         outputDevice = OutputDevice.GetByIndex(0);
         playback = testMidi.GetPlayback(outputDevice);
 
         // generate the map for our test level
         generator = new MapGenerator(testMidi);
-        difficulty = MapDifficulty.Easy;
+        difficulty = MapDifficulty.FullMidi;
+
+        noteCount = generator.noteCount;
     }
 
     /**
@@ -106,22 +99,12 @@ public class MidiOutput : MonoBehaviour
 
                 if (playback.IsRunning) {
                     playback.Stop();
-
-                    StopAllCoroutines();
-
-                    // TODO: make it so we pause and unpause cleanly
-                    // reset previous playback
-                    currentNode = null;
-                    progressBar.ResetBar();
+                    currentNode = null; // setting this to null will end the coroutine
                 } else {
                     // the linked list was generated based off of a SortedDictionary, so the first note is guaranteed the first node
-                    if (generatedMap == null) {
-                        generatedMap = generator.GenerateMap(difficulty);
-                        progressBar.SetMaxValue(generatedMap.Count);
-                    }
-                    
-                    currentNode = generatedMap.First;   
-                    waitAmount = 0.0f;                 
+                    currentNode = generator.GenerateMap(difficulty).First;
+
+                    progressBar.SetMaxValue(noteCount);
 
                     // testFlag = true;
                     StartCoroutine(BeginMidiPlayback());
@@ -134,7 +117,7 @@ public class MidiOutput : MonoBehaviour
     }
 
     private IEnumerator BeginMidiPlayback() {
-        yield return new WaitForSeconds(0.2f); // in theory this is delay
+        yield return new WaitForSeconds(0.0f); // in theory this is delay
         playback.MoveToStart();
         playback.Start();
     }
