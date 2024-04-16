@@ -21,6 +21,7 @@ public class GameManager : MonoBehaviour
     private MidiOutput playback;
     private bool resumePlayback = false;
     private bool isGameCompleted = false; 
+    public ProgressBar progressBar;
     private int totalNotes;
     private int destroyedNotes;
 
@@ -34,7 +35,7 @@ public class GameManager : MonoBehaviour
             playback = (MidiOutput) playbackObject.GetComponent("MidiOutput");
             settingsMenu.SetActive(false);
             pauseMenu.SetActive(false);
-            totalNotes = GameObject.FindGameObjectsWithTag("Note").Length;
+            totalNotes = (int)progressBar.maxValue;
             destroyedNotes = 0; 
             isPaused = false;
         } else {
