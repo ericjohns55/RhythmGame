@@ -80,27 +80,38 @@ public class SpriteCreator : MonoBehaviour
         setScreenUnits();
         xPosition -= unitWidth; 
 
-        GameObject newNote;
-
         if (isGhostNote)
         {
-            newNote = Instantiate(ghostNotePrefab, new Vector2(xPosition, 4), Quaternion.identity);
-            newNote.tag = "GhostNote";
-            //ghost note color gray
-            newNote.GetComponent<Renderer>().material.SetColor("_Color", Color.gray);
-            //ghost note outline color black
-            newNote.GetComponent<Renderer>().material.SetColor("_OutlineColor", Color.black);
-        }
-        else
+           // Choose a random regular note to replace with a ghost note
+        GameObject[] regularNotes = GameObject.FindGameObjectsWithTag("Note");
+        if (regularNotes.Length > 0)
         {
-            newNote = Instantiate(notePrefab, new Vector2(xPosition, 4), Quaternion.identity);
-            newNote.tag = "Note";
-            //regular note color
-            newNote.GetComponent<Renderer>().material.SetColor("_Color", colors[colorIndex]);
-        }
+            int randomIndex = UnityEngine.Random.Range(0, regularNotes.Length);
+            GameObject noteToReplace = regularNotes[randomIndex];
 
-        newNote.GetComponent<Rigidbody2D>().velocity = new Vector2(0, -10);
-        lastRender = Time.time;
+            // Instantiate the ghost note
+            GameObject ghostNote = Instantiate(ghostNotePrefab, noteToReplace.transform.position, Quaternion.identity);
+            ghostNote.tag = "GhostNote";
+
+            // Set ghost note color to opaque gray
+            ghostNote.GetComponent<Renderer>().material.color = new Color(0.5f, 0.5f, 0.5f, 1f);
+            // Set ghost note outline color to black
+            ghostNote.GetComponent<Renderer>().material.SetColor("_OutlineColor", Color.black);
+
+            // Destroy the regular note that has been replaced
+            Destroy(noteToReplace);
+        }
+    }
+    else
+    {
+        // Instantiate a regular note
+        GameObject regularNote = Instantiate(notePrefab, new Vector2(xPosition, 4), Quaternion.identity);
+        regularNote.tag = "Note";
+        regularNote.GetComponent<Renderer>().material.SetColor("_Color", colors[colorIndex]);
+        regularNote.GetComponent<Rigidbody2D>().velocity = new Vector2(0, -10);
+    }
+
+    lastRender = Time.time;
     }
 
     // finds units width of screen and sets spacerSize
