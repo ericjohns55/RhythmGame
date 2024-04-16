@@ -21,9 +21,9 @@ public class GameManager : MonoBehaviour
     private MidiOutput playback;
     private bool resumePlayback = false;
     private bool isGameCompleted = false; 
-    public ProgressBar progressBar;
-    private int totalNotes;
-    private int destroyedNotes;
+    private ProgressBar progressBar;
+    [SerializeField] private int totalNotes;
+    [SerializeField] private int destroyedNotes;
 
     Scene scene;
     public TMP_Text countdown;
@@ -33,6 +33,7 @@ public class GameManager : MonoBehaviour
         scene = SceneManager.GetActiveScene();
         if (scene.name == "GameScene") {
             playback = (MidiOutput) playbackObject.GetComponent("MidiOutput");
+            progressBar = (ProgressBar) this.GetComponent("ProgressBar");
             settingsMenu.SetActive(false);
             pauseMenu.SetActive(false);
             totalNotes = (int)progressBar.GetMaxValue();
@@ -45,6 +46,11 @@ public class GameManager : MonoBehaviour
 
     // Update is called once per frame
     void Update() {
+        if (scene.name == "GameScene") {
+            if (totalNotes != progressBar.GetMaxValue()) {
+                totalNotes = (int)progressBar.GetMaxValue();
+            }
+        }
         if(Input.GetKeyDown(KeyCode.Escape)) {
             if (state != "countdown") {
                 if (scene.name == "GameScene") {
@@ -75,6 +81,11 @@ public class GameManager : MonoBehaviour
 
     private void EndGame()
     {
+        isPaused = false;
+        Time.timeScale = 1f;
+        if (scene.name == "GameScene") {
+            playback.ReleaseOutputDevice();
+        }
         SceneManager.LoadScene("EndGame");
     }
 
