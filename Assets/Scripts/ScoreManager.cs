@@ -35,7 +35,9 @@ public class ScoreManager : MonoBehaviour
     {
         if (scoreText != null)
         {
+
             scoreText.text = "<mspace=0.75em> Score " + score.ToString() + "\nStreak " + comboStreak.ToString() + "\n Combo " + comboMultiplier.ToString() + "</mspace>";
+
         }
     }
 
