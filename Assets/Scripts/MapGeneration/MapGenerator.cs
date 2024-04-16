@@ -163,7 +163,7 @@ namespace MapGeneration {
 
             NoteBinner.BinGeneratedMap(generatedMap);
 
-            // PrintGeneratedMap();
+            PrintGeneratedMap();
 
             return generatedMap;
         }

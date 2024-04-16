@@ -37,7 +37,7 @@ namespace MapGeneration {
         private int chunkID = -1;
 
         // will debug the parse mode if true, will not otherwise
-        private bool DEBUG_PARSE = false;
+        private bool DEBUG_PARSE = true;
 
         // Constructor which requires the measure timestamps, time division, and tempo of the measure
         public MeasureChunk(long startingTimestamp, long endingTimestamp, short timeDivision, int bpm, TimeSignature timeSignature) {
@@ -143,8 +143,11 @@ namespace MapGeneration {
                                     // for our purposes, a quarter note triplet can exist only within the first half of the measure or second, it cannot split it
                                     int singleQTripletLength = measureLength / 6; // 6 possible locations a quarter note triplet can land in for 4/4
 
-                                    // there is a chance we may have a downbeat within the 
+                                    // there is a chance we may have a downbeat within the triplet
                                     bool checkRemoveOverlappingDownbeat = false;
+
+                                    // if we have an incomplete triplet, we want to allow it as long as there is not an overlapping note
+                                    bool possibleIncompleteTriplet = false;
 
                                     // this checks if we are in the second note of the triplet (for 4/4 this will be 320 or 1280)
                                     if (measureTick == singleQTripletLength || measureTick == 4 * singleQTripletLength) {
@@ -152,8 +155,11 @@ namespace MapGeneration {
                                         if (!allMapEvents.ContainsKey(measureTick - singleQTripletLength) || !allMapEvents.ContainsKey(measureTick + singleQTripletLength)) {
                                             // for easy mode parsing we could possibly have a half note triplet though, so check for that before we commit to removing the event
                                             // since we are checking if we are in the second note of a triplet, this could only be the third note of the half note triplet
-                                            if (!allMapEvents.ContainsKey(measureTick - (2 * singleQTripletLength)) || !allMapEvents.ContainsKey(measureTick - (4 * singleQTripletLength))) {
+                                            if (!allMapEvents.ContainsKey(measureTick - (2 * singleQTripletLength)) || !allMapEvents.ContainsKey(measureTick - (4 * singleQTripletLength))) {                                                
                                                 removeEvent = true;
+
+                                                // this is an incomplete triplet, but we may want to allow it even though we are currently marking for removal
+                                                possibleIncompleteTriplet = true;
                                             } else {
                                                 if (DEBUG_PARSE) Debug.LogFormat("Valid HalfTrip at {0} [CHUNK {1}]", measureTick, chunkID);
                                             }
@@ -172,6 +178,9 @@ namespace MapGeneration {
                                             // it is once again possible that we have a half note triplet; since the tick could be 640 or 1600, it would have to be the second note in the half note triplet
                                             if (!allMapEvents.ContainsKey(measureTick - (2 * singleQTripletLength)) || !allMapEvents.ContainsKey(measureTick + (2 * singleQTripletLength))) {
                                                 removeEvent = true;
+
+                                                // this is an incomplete triplet, but we may want to allow it even though we are currently marking for removal
+                                                possibleIncompleteTriplet = true;
                                             } else {
                                                 if (DEBUG_PARSE) Debug.LogFormat("Valid HalfTrip at {0} [CHUNK {1}]", measureTick, chunkID);
                                             }
@@ -184,7 +193,7 @@ namespace MapGeneration {
                                     }
 
                                     // in the scenario of a valid triplet, we want to check if there is a downbeat between the 2nd and 3rd notes
-                                    if (checkRemoveOverlappingDownbeat) {
+                                    if (checkRemoveOverlappingDownbeat || possibleIncompleteTriplet) {
                                         // the first possibility for an overlapping quarter would be 1.5 * a triplet length
                                         int downbeatInTripletTimestamp = (int) (singleQTripletLength * 1.5);
 
@@ -195,9 +204,19 @@ namespace MapGeneration {
 
                                         // notice how we are checking parsedEvents instead of allMapEvents like before, this ensures that we only remove it if it still exists 
                                         if (parsedEvents.ContainsKey(downbeatInTripletTimestamp)) {
-                                            parsedEvents.Remove(downbeatInTripletTimestamp);
+                                            // if this flag is true, we want to remove the extra downbeat because this flag will only be true if we have a complete triplet
+                                            if (checkRemoveOverlappingDownbeat) {
+                                                parsedEvents.Remove(downbeatInTripletTimestamp);
 
-                                            if (DEBUG_PARSE) Debug.LogFormat("Downbeat overlapping with QTrip removed at {0} [CHUNK {1}]", downbeatInTripletTimestamp, chunkID);
+                                                if (DEBUG_PARSE) Debug.LogFormat("Downbeat overlapping with QTrip removed at {0} [CHUNK {1}]", downbeatInTripletTimestamp, chunkID);
+                                            }
+                                        } else {
+                                            // if we did not have an overlapping downbeat and the event was previously marked for removal, we want to change our mind and allow an incomplete triplet
+                                            if (possibleIncompleteTriplet && removeEvent) {
+                                                removeEvent = false;
+
+                                                if (DEBUG_PARSE) Debug.LogFormat("Allowing incomplete triplet at {0} [CHUNK {1}]", measureTick, chunkID);
+                                            }
                                         }
                                     }
                                 }

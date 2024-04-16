@@ -58,7 +58,8 @@ public class MidiOutput : MonoBehaviour
         Debug.Log(SelectedMidiFilePath);
 
         // parse the file name from the selected midi file
-        string midiFileName = Path.GetFileNameWithoutExtension(SelectedMidiFilePath);
+        // string midiFileName = Path.GetFileNameWithoutExtension(SelectedMidiFilePath);
+        string midiFileName = "TripletTests";
         Debug.Log(midiFileName);
 
         // load the test midi file and setup output devices and playback
