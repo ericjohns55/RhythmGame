@@ -11,7 +11,7 @@ namespace MapGeneration {
         private const int LAST_RECENTLY_USED_OVERRIDE = 3;
 
         // number of possible tile locations in the application
-        private const int NUMBER_TILES = 8;
+        private static int NUMBER_TILES = 8;
 
         // holds the number of MapEvents parsed since a given tile index was last used 
         private static Dictionary<int, int> lastUsed = new Dictionary<int, int>();
@@ -130,7 +130,16 @@ namespace MapGeneration {
         }
 
         // generates binned notes for a map
-        public static void BinGeneratedMap(LinkedList<MapEvent> map) {
+        public static void BinGeneratedMap(LinkedList<MapEvent> map, MapDifficulty difficulty) {
+            int difficultyOffset = 0;
+
+            if (difficulty == MapDifficulty.Easy || difficulty == MapDifficulty.Medium) {
+                NUMBER_TILES = 8;
+            } else {
+                NUMBER_TILES = 6;
+                difficultyOffset = 1;
+            }
+
             // since we are generating a whole map, reset this class to default state
             Reset();
 
@@ -145,7 +154,7 @@ namespace MapGeneration {
 
                 // generate number of tiles needed
                 for (int i = 0; i < numTilesToGenerate; i++) {
-                    mapEvent.AddTileToGenerate(GenerateNextNoteIndex());
+                    mapEvent.AddTileToGenerate(GenerateNextNoteIndex() + difficultyOffset);
                 }
 
                 current = current.Next;

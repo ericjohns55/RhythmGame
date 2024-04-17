@@ -161,7 +161,7 @@ namespace MapGeneration {
                 chunk.AddToList(generatedMap);
             }
 
-            NoteBinner.BinGeneratedMap(generatedMap);
+            NoteBinner.BinGeneratedMap(generatedMap, difficulty);
 
             // PrintGeneratedMap();
 

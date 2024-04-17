@@ -58,7 +58,8 @@ public class MidiOutput : MonoBehaviour
         Debug.Log(SelectedMidiFilePath);
 
         // parse the file name from the selected midi file
-        string midiFileName = Path.GetFileNameWithoutExtension(SelectedMidiFilePath);
+        // string midiFileName = Path.GetFileNameWithoutExtension(SelectedMidiFilePath);
+        string midiFileName = "ShortSong1";
         Debug.Log(midiFileName);
 
         // load the test midi file and setup output devices and playback
@@ -70,7 +71,7 @@ public class MidiOutput : MonoBehaviour
 
         // generate the map for our test level
         generator = new MapGenerator(testMidi);
-        difficulty = MapDifficulty.Medium;
+        difficulty = MapDifficulty.Hard;
     }
 
     /**
