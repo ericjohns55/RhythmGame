@@ -19,16 +19,12 @@ public class MidiOutput : MonoBehaviour
 {
     private SpriteCreator spriteCreator;
 
-    private string notesPlaying = "";
-    private string lastPlayed = "";
-
     private float timestamp = 0f;
     private float timecheck = 0f;
 
     private OutputDevice outputDevice;
     private Playback playback;
 
-    public TMP_Text noteLogger;
     // public GameObject scoreManager;
     public float delay;
 
@@ -84,12 +80,6 @@ public class MidiOutput : MonoBehaviour
     // Update is called once per frame
     void Update() //FixedUpdate()
     {
-        //Sets the TMP element on screen to display the names of the notes being played.
-        if (!notesPlaying.Equals(lastPlayed)) {
-            noteLogger.text = notesPlaying;
-            lastPlayed = notesPlaying;
-        }
-
         /*
         * The following logical chain starts, stops, and resets midi playback using
         * the spacebar
@@ -99,9 +89,6 @@ public class MidiOutput : MonoBehaviour
                 timestamp = Time.time;
                 timecheck = timestamp;
                 //These assignments clear the note display TMPs
-                notesPlaying = "";
-                lastPlayed = "";
-                noteLogger.text = "";
 
                 progressBar.ResetBar();
 
@@ -157,7 +144,6 @@ public class MidiOutput : MonoBehaviour
 
         // THIS ONE GOVERNS TIME BETWEEN BLOCKS. NEEDS TO BE BASED ON TIME BETWEEN NOTES
         //yield return new WaitForSeconds(.75f);
-        notesPlaying = currentEvent.GetNoteList(); // debug text for current notes (will remove later)
 
         long currentTimestamp = currentEvent.GetTimestamp(); // grabs current timestamp for next calculation
         //Debug.Log("Note: being played at: " + Time.time);
