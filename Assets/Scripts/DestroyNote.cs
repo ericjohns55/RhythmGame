@@ -14,6 +14,7 @@ public class DestroyNote : MonoBehaviour
     void OnCollisionEnter2D(Collision2D collisionInfo) {
         if (collisionInfo.collider.gameObject.tag == "Note") {
             scoreManager.ResetCombo();
+            gameManager.NoteDestroyed(); 
             Destroy(collisionInfo.gameObject);
         }
     }
