@@ -61,9 +61,7 @@ public class SpriteCreator : MonoBehaviour
         //spawn ghost notes randomly
         if (UnityEngine.Random.value < 0.2f)
         {
-            int randomNoteIndex = UnityEngine.Random.Range(0, keys.Count);
-            float randomXPosition = (spacerSize * (randomNoteIndex + 1)) + randomNoteIndex + 0.5f;
-            generateObject(randomXPosition, randomNoteIndex, true);
+            ReplaceWithGhostNote();
         }
 
             if (keysPressed.Length != 0) {
@@ -73,6 +71,30 @@ public class SpriteCreator : MonoBehaviour
                     textElement.text = "Waiting for input...";
                 }
             }
+        }
+    }
+
+    private void ReplaceWithGhostNote() 
+    {
+        GameObject[] regularNotes = GameObject.FindGameObjectsWithTag("Note");
+
+        if (regularNotes.Length > 0)
+        {
+            //pick random note to be replaced
+            int randomIndex = UnityEngine.Random.Range(0, regularNotes.Length);
+            GameObject noteToReplace = regularNotes[randomIndex];
+
+            //instantiate ghost note
+            GameObject ghostNote = Instantiate(ghostNotePrefab, noteToReplace.transform.position, Quaternion.identity);
+            ghostNote.tag = "GhostNote";
+
+            //ghost note color to opaque gray
+            ghostNote.GetComponent<Renderer>().material.color = new Color(0.5f, 0.5f, 0.5f, 1f);
+            // Set ghost note outline color to black
+            ghostNote.GetComponent<Renderer>().material.SetColor("_OutlineColor", Color.black);
+
+            //destroy the regular note that was replaced
+            Destroy(noteToReplace);
         }
     }
 
