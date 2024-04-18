@@ -25,6 +25,7 @@ public class ButtonControl : MonoBehaviour
     private float xPosition;
 
     private ScoreManager scoreManager;
+    private GameManager gameManager;
 
     private static float comboStreak = 0;
     private static float comboMultiplier = 1;
@@ -57,6 +58,7 @@ public class ButtonControl : MonoBehaviour
         scoreManager = FindObjectOfType<ScoreManager>();
         defaultColor = GetComponent<SpriteRenderer>().color;
         spriteCreator = FindObjectOfType<SpriteCreator>();
+        gameManager = (GameManager) FindObjectOfType<GameManager>().GetComponent("GameManager");
         transform.position = notePosition;
     }
 
@@ -152,6 +154,7 @@ public class ButtonControl : MonoBehaviour
                     break;
             }
 
+            gameManager.NoteDestroyed();
             Destroy(other.gameObject);
         }
     }

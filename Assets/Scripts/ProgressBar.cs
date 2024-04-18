@@ -63,4 +63,9 @@ public class ProgressBar : MonoBehaviour
     public void Increment() {
         currentValue += 1f;
     }
+
+    // Public method to retrieve the max value
+    public float GetMaxValue() {
+        return maxValue;
+    }
 }

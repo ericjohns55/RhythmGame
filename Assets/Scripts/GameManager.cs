@@ -13,12 +13,17 @@ public class GameManager : MonoBehaviour
     public GameObject pauseMenu;
     public GameObject settingsMenu;
     public GameObject ScoreText;
+    public GameObject endScreen;
+    public TMP_Text ScoreTextUI;
     public static bool isPaused = false;
     private static string state = "game";
     public GameObject playbackObject;
     private MidiOutput playback;
     private bool resumePlayback = false;
-
+    private bool isGameCompleted = false; 
+    private ProgressBar progressBar;
+    [SerializeField] private int totalNotes;
+    [SerializeField] private int destroyedNotes;
 
     Scene scene;
     public TMP_Text countdown;
@@ -28,8 +33,12 @@ public class GameManager : MonoBehaviour
         scene = SceneManager.GetActiveScene();
         if (scene.name == "GameScene") {
             playback = (MidiOutput) playbackObject.GetComponent("MidiOutput");
+            progressBar = (ProgressBar) this.GetComponent("ProgressBar");
             settingsMenu.SetActive(false);
             pauseMenu.SetActive(false);
+            totalNotes = (int)progressBar.GetMaxValue();
+            destroyedNotes = 0; 
+            isPaused = false;
         } else {
             playback = null;
         }
@@ -37,6 +46,11 @@ public class GameManager : MonoBehaviour
 
     // Update is called once per frame
     void Update() {
+        if (scene.name == "GameScene") {
+            if (totalNotes != progressBar.GetMaxValue()) {
+                totalNotes = (int)progressBar.GetMaxValue();
+            }
+        }
         if(Input.GetKeyDown(KeyCode.Escape)) {
             if (state != "countdown") {
                 if (scene.name == "GameScene") {
@@ -54,6 +68,25 @@ public class GameManager : MonoBehaviour
             
             Debug.Log("Time.timeScale = " + Time.timeScale);
         }
+    }
+
+    public void NoteDestroyed() 
+    {
+        destroyedNotes++;
+
+        if (destroyedNotes >= totalNotes){
+            EndGame();
+        }
+    }
+
+    private void EndGame()
+    {
+        isPaused = false;
+        Time.timeScale = 1f;
+        if (scene.name == "GameScene") {
+            playback.ReleaseOutputDevice();
+        }
+        SceneManager.LoadScene("EndGame");
     }
 
     public void PauseGame() {
@@ -95,7 +128,6 @@ public class GameManager : MonoBehaviour
 
     public void GoToSettings() {
         settingsMenu.SetActive(true);
-        pauseMenu.SetActive(false);
         SceneManager.LoadScene("SettingsScreen");
     }
 
@@ -108,6 +140,7 @@ public class GameManager : MonoBehaviour
     }
 
     public void GoToMainMenu() {
+        isPaused = false;
         Time.timeScale = 1f;
         if (scene.name == "GameScene") {
             playback.ReleaseOutputDevice();
