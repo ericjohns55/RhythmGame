@@ -288,7 +288,7 @@ namespace MapGeneration {
                                         } else {
                                             removeEvent = true;
                                         }
-                                    } else if (CompareBeat(measureTick, ValidRhythm.Eighth_Triplet)) { // TODO: consider tempo here (especially for testing ShortSong1)
+                                    } else if (CompareBeat(measureTick, ValidRhythm.Eighth_Triplet)) { 
                                         // we split the eighth note triplet check into a helper method because it will be repeated in the hard mode parsing
                                         if (!CheckValidEighthTriplet(measureTick)) {
                                             removeEvent = true;

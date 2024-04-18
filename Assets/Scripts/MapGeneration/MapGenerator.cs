@@ -41,8 +41,11 @@ namespace MapGeneration {
         // Dictionary holding all of our time changes with timestamps
         private SortedDictionary<long, TimeSignature> timeChanges = new SortedDictionary<long, TimeSignature>();
 
-        // List of map events; inputted in order of timestamp so the first element will be the first note and the last element will be the last note
-        // private LinkedList<MapEvent> mapEvents = new LinkedList<MapEvent>();
+        // number of notes in a generated map
+        private int totalNoteCount = 0;
+
+        // an extra measure length at the end of the song, used for EndScreen delay
+        private float songEndDelay = 0.0f;
         
         private List<MeasureChunk> measureChunks;
 
@@ -79,6 +82,11 @@ namespace MapGeneration {
             bpm = (int) Math.Round(60.0 / secondsPerQuarterNote, 0);
 
             Debug.LogFormat("Found tempo {0} ({1} seconds per quarter note)", bpm, secondsPerQuarterNote);
+
+            // calculating the length of an extra measure at the end of the song
+            TimeSignature lastTimeSig = timeChanges.Values.Last();
+            songEndDelay = (float) (secondsPerQuarterNote * lastTimeSig.Numerator) / (lastTimeSig.Denominator / 4);
+            Debug.LogFormat("Generating song end delay at {0}s", songEndDelay);
         
             // Parsing notes
             // a SortedDictionary ensures that our note map will be in order of timestamps (helps when creating the LinkedList)
@@ -161,9 +169,9 @@ namespace MapGeneration {
                 chunk.AddToList(generatedMap);
             }
 
-            NoteBinner.BinGeneratedMap(generatedMap, difficulty);
+            totalNoteCount = NoteBinner.BinGeneratedMap(generatedMap, difficulty);
 
-            // PrintGeneratedMap();
+            PrintGeneratedMap();
 
             return generatedMap;
         }
@@ -175,17 +183,13 @@ namespace MapGeneration {
         }
 
         // returns number of notes in the current map
-        public int GetNoteCount(LinkedList<MapEvent> map) {
-            int noteCount = 0;
+        public int GetNoteCount() {
+            return totalNoteCount;
+        }
 
-            LinkedListNode<MapEvent> node = map.First;
-
-            while (node != null) {
-                noteCount++;
-                node = node.Next;
-            }
-
-            return noteCount;
+        // returns one extra measure length time to wait after a game ends
+        public float GetSongEndDelay() {
+            return songEndDelay;
         }
 
         // Returns how many seconds into the program you are based off the midi timestamp

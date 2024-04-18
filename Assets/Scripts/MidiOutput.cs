@@ -54,8 +54,7 @@ public class MidiOutput : MonoBehaviour
         Debug.Log(SelectedMidiFilePath);
 
         // parse the file name from the selected midi file
-        // string midiFileName = Path.GetFileNameWithoutExtension(SelectedMidiFilePath);
-        string midiFileName = "ShortSong1";
+        string midiFileName = Path.GetFileNameWithoutExtension(SelectedMidiFilePath);
         Debug.Log(midiFileName);
 
         // load the test midi file and setup output devices and playback
@@ -67,7 +66,7 @@ public class MidiOutput : MonoBehaviour
 
         // generate the map for our test level
         generator = new MapGenerator(testMidi);
-        difficulty = MapDifficulty.Hard;
+        difficulty = MapDifficulty.Medium;
     }
 
     /**
@@ -106,6 +105,8 @@ public class MidiOutput : MonoBehaviour
                     if (generatedMap == null) {
                         generatedMap = generator.GenerateMap(difficulty);
                         progressBar.SetMaxValue(generatedMap.Count);
+                        gameManager.SetNoteCount(generator.GetNoteCount());
+                        gameManager.SetSongEndDelay(generator.GetSongEndDelay());
                     }
                     
                     currentNode = generatedMap.First;   

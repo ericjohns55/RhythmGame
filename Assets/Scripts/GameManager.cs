@@ -24,6 +24,8 @@ public class GameManager : MonoBehaviour
     private ProgressBar progressBar;
     [SerializeField] private int totalNotes;
     [SerializeField] private int destroyedNotes;
+    private float songEndDelay = 0.0f;
+    
 
     Scene scene;
     public TMP_Text countdown;
@@ -46,11 +48,6 @@ public class GameManager : MonoBehaviour
 
     // Update is called once per frame
     void Update() {
-        if (scene.name == "GameScene") {
-            if (totalNotes != progressBar.GetMaxValue()) {
-                totalNotes = (int)progressBar.GetMaxValue();
-            }
-        }
         if(Input.GetKeyDown(KeyCode.Escape)) {
             if (state != "countdown") {
                 if (scene.name == "GameScene") {
@@ -75,8 +72,13 @@ public class GameManager : MonoBehaviour
         destroyedNotes++;
 
         if (destroyedNotes >= totalNotes){
-            EndGame();
+            StartCoroutine(EndGameWithDelay());
         }
+    }
+
+    IEnumerator EndGameWithDelay() {
+        yield return new WaitForSeconds(songEndDelay);
+        EndGame();
     }
 
     private void EndGame()
@@ -159,5 +161,13 @@ public class GameManager : MonoBehaviour
     public void QuitGame() {
         Debug.Log("Quitting Game");
         Application.Quit();
+    }
+
+    public void SetNoteCount(int totalNoteCount) {
+        totalNotes = totalNoteCount;
+    }
+
+    public void SetSongEndDelay(float delay) {
+        songEndDelay = delay;
     }
 }
