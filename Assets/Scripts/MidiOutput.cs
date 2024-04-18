@@ -4,6 +4,7 @@ using UnityEngine;
 using TMPro;
 using Melanchall.DryWetMidi.Core;
 using Melanchall.DryWetMidi.Multimedia;
+using Melanchall.DryWetMidi.Tools;
 using Melanchall.DryWetMidi.Interaction;
 using System.Linq;
 using MapGeneration;
@@ -41,7 +42,13 @@ public class MidiOutput : MonoBehaviour
 
     private float waitAmount = 0.0f;
 
-    private MidiFile testMidi;
+    // Made static for the purposes of testing MIDI file merging
+    private static MidiFile testMidi;
+
+    private static MidiFile blankMidi;
+
+    // This MIDI file will be a fusion of the blank MIDI and the MIDI to be played
+    private MidiFile modifiedMidi;
     void Start()
     {
         // grab instance of SpriteCreator for note creation
@@ -60,13 +67,28 @@ public class MidiOutput : MonoBehaviour
         // load the test midi file and setup output devices and playback
 
         testMidi = MidiFile.Read("Assets/MIDIs/" +  midiFileName + ".mid");
+        blankMidi = MidiFile.Read("Assets/MIDIs/blank.mid");
+
+        IEnumerable<MidiFile> midis = GetMidis();//.getEnumerator();
+        midis = new[] { blankMidi, testMidi };
+        
+
+        //modifiedMidi = MergeSequentially();
+        modifiedMidi = midis.MergeSequentially();
         
         outputDevice = OutputDevice.GetByIndex(0);
         playback = testMidi.GetPlayback(outputDevice);
 
         // generate the map for our test level
-        generator = new MapGenerator(testMidi);
+        generator = new MapGenerator(modifiedMidi);
+        
         difficulty = MapDifficulty.Easy;
+    }
+
+    public static IEnumerable<MidiFile> GetMidis()
+    {
+        yield return blankMidi;
+        yield return testMidi;
     }
 
     /**
