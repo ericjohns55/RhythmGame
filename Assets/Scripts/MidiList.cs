@@ -4,6 +4,7 @@ using UnityEngine.UI;
 using System.IO;
 using TMPro;
 using System;
+using System.Security.Cryptography;
 /**
 * Displays all midi files in a list, with a scrolling action. 
 * Each midi file is its own button.
@@ -16,8 +17,8 @@ public class MidiList : MonoBehaviour
     public GameObject buttonPrefab;
     public Transform contentPanel;
     public ScrollRect scrollRect;
+    public TMP_Text scoreText;
     private float contentHeight;
-
     
     //spacing between midi buttons
     private float spacing = 5f;
@@ -83,16 +84,31 @@ public class MidiList : MonoBehaviour
         //adjusts the width and height of the button
         buttonRectTransform.sizeDelta = new Vector2(160, buttonHeight);
 
-        button.GetComponent<Button>().onClick.AddListener(() => StartGameWithMidi(midiFilePath));
+        button.GetComponent<Button>().onClick.AddListener(() => SelectMidi(midiFilePath));
     }
 
-    void StartGameWithMidi(string midiFilePath) 
+    void SelectMidi(string midiFilePath) 
     {
         if (!string.IsNullOrEmpty(midiFilePath))
         {
             //saves selected Midi file path 
             PlayerPrefs.SetString("SelectedMidiFilePath", midiFilePath);
-            SceneManager.LoadScene("GameScene");
+            Debug.Log("SelectedMidiFilePath: " + midiFilePath);
+            Debug.Log("MD5: " + ComputeMD5Hash(midiFilePath));
+            scoreText.text = "";
+        }
+    }
+
+    string ComputeMD5Hash(string filePath)
+    {
+        using (var md5 = MD5.Create())
+        {
+            using (var stream = File.OpenRead(filePath))
+            {
+                byte[] hashBytes = md5.ComputeHash(stream);
+                // Convert the byte array to hexadecimal string
+                return BitConverter.ToString(hashBytes).Replace("-", "").ToLowerInvariant();
+            }
         }
     }
 }

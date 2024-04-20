@@ -1,11 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
+using System;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using TMPro;
 using Melanchall.DryWetMidi.Core;
 using Melanchall.DryWetMidi.Multimedia;
 using Melanchall.DryWetMidi.Interaction;
+using System.Security.Cryptography;
 
 public class GameManager : MonoBehaviour
 {
@@ -81,6 +84,7 @@ public class GameManager : MonoBehaviour
 
     private void EndGame()
     {
+
         isPaused = false;
         Time.timeScale = 1f;
         if (scene.name == "GameScene") {
@@ -159,5 +163,18 @@ public class GameManager : MonoBehaviour
     public void QuitGame() {
         Debug.Log("Quitting Game");
         Application.Quit();
+    }
+
+    string ComputeMD5Hash(string filePath)
+    {
+        using (var md5 = MD5.Create())
+        {
+            using (var stream = File.OpenRead(filePath))
+            {
+                byte[] hashBytes = md5.ComputeHash(stream);
+                // Convert the byte array to hexadecimal string
+                return BitConverter.ToString(hashBytes).Replace("-", "").ToLowerInvariant();
+            }
+        }
     }
 }

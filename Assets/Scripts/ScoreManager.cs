@@ -80,4 +80,8 @@ public class ScoreManager : MonoBehaviour
             scoreText.enabled = false;
         }
     }
+
+    public float GetScore() {
+        return score;
+    }
 }
