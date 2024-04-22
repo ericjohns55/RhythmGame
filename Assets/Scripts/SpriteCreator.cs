@@ -34,12 +34,15 @@ public class SpriteCreator : MonoBehaviour
     void Start()
     {
         setScreenUnits();
+        //invoking ReplaceWithGhostNote method with delay of 1 sec and repeat
+        //every 2 secs
+        InvokeRepeating("ReplaceWithGhostNote", 1f, 2f);
     }
 
     // Update is called once per frame
     void FixedUpdate()
     {
-        if (Time.time > timestamp + 0.15f) {
+        if (Time.time > timestamp + 0.75f) {
             String keysPressed = "";
 
             foreach (KeyCode key in keys) {
