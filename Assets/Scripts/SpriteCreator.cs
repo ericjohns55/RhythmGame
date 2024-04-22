@@ -99,7 +99,7 @@ public class SpriteCreator : MonoBehaviour
             Destroy(noteToReplace);
         } else 
         {
-            Debug.Log("No regular notes found.")
+            Debug.Log("No regular notes found.");
         }
     }
 
