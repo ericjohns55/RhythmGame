@@ -79,10 +79,12 @@ public class SpriteCreator : MonoBehaviour
 
     private void ReplaceWithGhostNote() 
     {
+        Debug.Log("Attempting to spawn ghost note...");
         GameObject[] regularNotes = GameObject.FindGameObjectsWithTag("Note");
 
         if (regularNotes.Length > 0)
         {
+            Debug.Log("Regular notes found. Spawning ghost note...");
             //pick random note to be replaced
             int randomIndex = UnityEngine.Random.Range(0, regularNotes.Length);
             GameObject noteToReplace = regularNotes[randomIndex];
@@ -98,6 +100,9 @@ public class SpriteCreator : MonoBehaviour
 
             //destroy the regular note that was replaced
             Destroy(noteToReplace);
+        } else 
+        {
+            Debug.Log("No regular notes found.")
         }
     }
 
