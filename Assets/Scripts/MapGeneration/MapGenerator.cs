@@ -171,7 +171,7 @@ namespace MapGeneration {
 
             totalNoteCount = NoteBinner.BinGeneratedMap(generatedMap, difficulty);
 
-            PrintGeneratedMap();
+            // PrintGeneratedMap();
 
             return generatedMap;
         }

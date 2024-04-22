@@ -14,7 +14,7 @@ public class GameManager : MonoBehaviour
     public GameObject settingsMenu;
     public GameObject ScoreText;
     public GameObject endScreen;
-    public TMP_Text ScoreTextUI;
+   // public TMP_Text ScoreTextUI;
     public static bool isPaused = false;
     private static string state = "game";
     public GameObject playbackObject;
@@ -25,22 +25,20 @@ public class GameManager : MonoBehaviour
     [SerializeField] private int totalNotes;
     [SerializeField] private int destroyedNotes;
     private float songEndDelay = 0.0f;
-    
 
     Scene scene;
     public TMP_Text countdown;
 
     // Start is called before the first frame update
     void Start() {
+        
+        destroyedNotes = 0;
         scene = SceneManager.GetActiveScene();
         if (scene.name == "GameScene") {
             playback = (MidiOutput) playbackObject.GetComponent("MidiOutput");
-            progressBar = (ProgressBar) this.GetComponent("ProgressBar");
             settingsMenu.SetActive(false);
             pauseMenu.SetActive(false);
-            totalNotes = (int)progressBar.GetMaxValue();
-            destroyedNotes = 0; 
-            isPaused = false;
+            totalNotes = GameObject.FindGameObjectsWithTag("Note").Length;
         } else {
             playback = null;
         }
@@ -64,13 +62,13 @@ public class GameManager : MonoBehaviour
             }
             
             Debug.Log("Time.timeScale = " + Time.timeScale);
+            Debug.Log("TOTAL NOTES---------------: " + totalNotes);
         }
     }
 
     public void NoteDestroyed() 
     {
         destroyedNotes++;
-
         if (destroyedNotes >= totalNotes){
             StartCoroutine(EndGameWithDelay());
         }
@@ -83,11 +81,6 @@ public class GameManager : MonoBehaviour
 
     private void EndGame()
     {
-        isPaused = false;
-        Time.timeScale = 1f;
-        if (scene.name == "GameScene") {
-            playback.ReleaseOutputDevice();
-        }
         SceneManager.LoadScene("EndGame");
     }
 
@@ -142,9 +135,9 @@ public class GameManager : MonoBehaviour
     }
 
     public void GoToMainMenu() {
-        isPaused = false;
         Time.timeScale = 1f;
         if (scene.name == "GameScene") {
+            Debug.Log("RELEASING PLAYBACK DEVICE");
             playback.ReleaseOutputDevice();
         }
         SceneManager.LoadScene("HomeScreen");
@@ -153,6 +146,14 @@ public class GameManager : MonoBehaviour
     public void GoToGameScene() {
         Time.timeScale = 1f;
         SceneManager.LoadScene("GameScene");
+        settingsMenu.SetActive(false);
+        pauseMenu.SetActive(false);
+        isPaused = false;
+    }
+
+    public void GoToLatencyTest() {
+        Time.timeScale = 1f;
+        SceneManager.LoadScene("LatencyTest");
         settingsMenu.SetActive(false);
         pauseMenu.SetActive(false);
         isPaused = false;
