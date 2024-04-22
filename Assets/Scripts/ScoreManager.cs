@@ -7,14 +7,14 @@ using TMPro;
 ///<summary>
 public class ScoreManager : MonoBehaviour
 {
-    [SerializeField] private float score = 0;
-    public float Score => score;
+    [SerializeField] private int score = 0;
+    public int Score => score;
     [SerializeField] private TMP_Text scoreText;
 
-    [SerializeField] private float comboStreak = 0;
+    [SerializeField] private int comboStreak = 0;
     [SerializeField] private float comboMultiplier = 1;
 
-    public void AddPoints(float points)
+    public void AddPoints(int points)
     {
         score += points;
         UpdateScoreText();
@@ -44,7 +44,7 @@ public class ScoreManager : MonoBehaviour
     public void IncrementComboAndScore(int points)
     {
         comboStreak++;
-        AddPoints(points * comboMultiplier);
+        AddPoints((int) (points * comboMultiplier));
         if (comboStreak % 10 == 0) // every 10 hits
         {
             UpdateComboMultiplier();
@@ -81,7 +81,7 @@ public class ScoreManager : MonoBehaviour
         }
     }
 
-    public float GetScore() {
+    public int GetScore() {
         return score;
     }
 }

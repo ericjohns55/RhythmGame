@@ -27,6 +27,7 @@ public class GameManager : MonoBehaviour
     private ProgressBar progressBar;
     [SerializeField] private int totalNotes;
     [SerializeField] private int destroyedNotes;
+    private ScoreManager scoreManager;
 
     Scene scene;
     public TMP_Text countdown;
@@ -37,6 +38,7 @@ public class GameManager : MonoBehaviour
         if (scene.name == "GameScene") {
             playback = (MidiOutput) playbackObject.GetComponent("MidiOutput");
             progressBar = (ProgressBar) this.GetComponent("ProgressBar");
+            scoreManager = (ScoreManager) this.GetComponent("ScoreManager");
             settingsMenu.SetActive(false);
             pauseMenu.SetActive(false);
             totalNotes = (int)progressBar.GetMaxValue();
@@ -84,7 +86,11 @@ public class GameManager : MonoBehaviour
 
     private void EndGame()
     {
-
+        string midiFilePath = PlayerPrefs.GetString("SelectedMidiFilePath", "");
+        string hash = ComputeMD5Hash(midiFilePath);
+        if (PlayerPrefs.GetInt(hash, 0) < scoreManager.GetScore()) {
+            PlayerPrefs.SetInt(hash, scoreManager.GetScore());
+        }
         isPaused = false;
         Time.timeScale = 1f;
         if (scene.name == "GameScene") {
