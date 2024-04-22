@@ -86,15 +86,15 @@ public class GameManager : MonoBehaviour
 
     private void EndGame()
     {
-        string midiFilePath = PlayerPrefs.GetString("SelectedMidiFilePath", "");
-        string hash = ComputeMD5Hash(midiFilePath);
-        if (PlayerPrefs.GetInt(hash, 0) < scoreManager.GetScore()) {
-            PlayerPrefs.SetInt(hash, scoreManager.GetScore());
-        }
         isPaused = false;
         Time.timeScale = 1f;
         if (scene.name == "GameScene") {
             playback.ReleaseOutputDevice();
+            string midiFilePath = PlayerPrefs.GetString("SelectedMidiFilePath", "");
+            string hash = ComputeMD5Hash(midiFilePath);
+            if (PlayerPrefs.GetInt(hash, 0) < scoreManager.GetScore()) {
+                PlayerPrefs.SetInt(hash, scoreManager.GetScore());
+            }
         }
         SceneManager.LoadScene("EndGame");
     }

@@ -95,7 +95,7 @@ public class MidiList : MonoBehaviour
             PlayerPrefs.SetString("SelectedMidiFilePath", midiFilePath);
             Debug.Log("SelectedMidiFilePath: " + midiFilePath);
             Debug.Log("MD5: " + ComputeMD5Hash(midiFilePath));
-            scoreText.text = "";
+            scoreText.text = "Score:\n" + PlayerPrefs.GetInt(ComputeMD5Hash(midiFilePath), 0);
         }
     }
 
