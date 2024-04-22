@@ -80,6 +80,7 @@ public class MidiOutput : MonoBehaviour
         playback = testMidi.GetPlayback(outputDevice);
 
         // generate the map for our test level
+
         generator = new MapGenerator(modifiedMidi);
         
         difficulty = MapDifficulty.Easy;
@@ -127,6 +128,8 @@ public class MidiOutput : MonoBehaviour
                     if (generatedMap == null) {
                         generatedMap = generator.GenerateMap(difficulty);
                         progressBar.SetMaxValue(generatedMap.Count);
+                        gameManager.SetNoteCount(generator.GetNoteCount());
+                        gameManager.SetSongEndDelay(generator.GetSongEndDelay());
                     }
                     
                     currentNode = generatedMap.First;   

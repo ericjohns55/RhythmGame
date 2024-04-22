@@ -21,8 +21,10 @@ public class GameManager : MonoBehaviour
     private MidiOutput playback;
     private bool resumePlayback = false;
     private bool isGameCompleted = false; 
-    private int totalNotes;
-    private int destroyedNotes;
+    private ProgressBar progressBar;
+    [SerializeField] private int totalNotes;
+    [SerializeField] private int destroyedNotes;
+    private float songEndDelay = 0.0f;
 
     Scene scene;
     public TMP_Text countdown;
@@ -67,11 +69,14 @@ public class GameManager : MonoBehaviour
     public void NoteDestroyed() 
     {
         destroyedNotes++;
-        Debug.Log("notes destryoing");
         if (destroyedNotes >= totalNotes){
-            Debug.Log("end screen should load");
-            EndGame();
+            StartCoroutine(EndGameWithDelay());
         }
+    }
+
+    IEnumerator EndGameWithDelay() {
+        yield return new WaitForSeconds(songEndDelay);
+        EndGame();
     }
 
     private void EndGame()
@@ -132,6 +137,7 @@ public class GameManager : MonoBehaviour
     public void GoToMainMenu() {
         Time.timeScale = 1f;
         if (scene.name == "GameScene") {
+            Debug.Log("RELEASING PLAYBACK DEVICE");
             playback.ReleaseOutputDevice();
         }
         SceneManager.LoadScene("HomeScreen");
@@ -156,5 +162,13 @@ public class GameManager : MonoBehaviour
     public void QuitGame() {
         Debug.Log("Quitting Game");
         Application.Quit();
+    }
+
+    public void SetNoteCount(int totalNoteCount) {
+        totalNotes = totalNoteCount;
+    }
+
+    public void SetSongEndDelay(float delay) {
+        songEndDelay = delay;
     }
 }
