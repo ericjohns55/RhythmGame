@@ -76,6 +76,7 @@ public class GameManager : MonoBehaviour
 
     IEnumerator EndGameWithDelay() {
         yield return new WaitForSeconds(songEndDelay);
+        playback.ReleaseOutputDevice();
         EndGame();
     }
 

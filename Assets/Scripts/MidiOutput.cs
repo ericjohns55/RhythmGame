@@ -214,6 +214,10 @@ public class MidiOutput : MonoBehaviour
 
     public void ReleaseOutputDevice() {
         if (playback != null) {
+            if (playback.IsRunning) {
+                playback.Stop();
+            }
+            
             playback.Dispose();
         }
 
