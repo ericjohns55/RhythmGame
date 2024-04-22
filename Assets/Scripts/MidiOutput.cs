@@ -67,7 +67,7 @@ public class MidiOutput : MonoBehaviour
         // load the test midi file and setup output devices and playback
 
         testMidi = MidiFile.Read("Assets/MIDIs/" +  midiFileName + ".mid");
-        blankMidi = MidiFile.Read("Assets/MIDIs/blank.mid");
+        blankMidi = MidiFile.Read("Assets/SystemMIDIs/blank.mid");
 
         IEnumerable<MidiFile> midis = GetMidis();//.getEnumerator();
         midis = new[] { blankMidi, testMidi };
