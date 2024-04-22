@@ -14,31 +14,29 @@ public class GameManager : MonoBehaviour
     public GameObject settingsMenu;
     public GameObject ScoreText;
     public GameObject endScreen;
-    public TMP_Text ScoreTextUI;
+   // public TMP_Text ScoreTextUI;
     public static bool isPaused = false;
     private static string state = "game";
     public GameObject playbackObject;
     private MidiOutput playback;
     private bool resumePlayback = false;
     private bool isGameCompleted = false; 
-    private ProgressBar progressBar;
-    [SerializeField] private int totalNotes;
-    [SerializeField] private int destroyedNotes;
+    private int totalNotes;
+    private int destroyedNotes;
 
     Scene scene;
     public TMP_Text countdown;
 
     // Start is called before the first frame update
     void Start() {
+        
+        destroyedNotes = 0;
         scene = SceneManager.GetActiveScene();
         if (scene.name == "GameScene") {
             playback = (MidiOutput) playbackObject.GetComponent("MidiOutput");
-            progressBar = (ProgressBar) this.GetComponent("ProgressBar");
             settingsMenu.SetActive(false);
             pauseMenu.SetActive(false);
-            totalNotes = (int)progressBar.GetMaxValue();
-            destroyedNotes = 0; 
-            isPaused = false;
+            totalNotes = GameObject.FindGameObjectsWithTag("Note").Length;
         } else {
             playback = null;
         }
@@ -46,11 +44,6 @@ public class GameManager : MonoBehaviour
 
     // Update is called once per frame
     void Update() {
-        if (scene.name == "GameScene") {
-            if (totalNotes != progressBar.GetMaxValue()) {
-                totalNotes = (int)progressBar.GetMaxValue();
-            }
-        }
         if(Input.GetKeyDown(KeyCode.Escape)) {
             if (state != "countdown") {
                 if (scene.name == "GameScene") {
@@ -67,25 +60,22 @@ public class GameManager : MonoBehaviour
             }
             
             Debug.Log("Time.timeScale = " + Time.timeScale);
+            Debug.Log("TOTAL NOTES---------------: " + totalNotes);
         }
     }
 
     public void NoteDestroyed() 
     {
         destroyedNotes++;
-
+        Debug.Log("notes destryoing");
         if (destroyedNotes >= totalNotes){
+            Debug.Log("end screen should load");
             EndGame();
         }
     }
 
     private void EndGame()
     {
-        isPaused = false;
-        Time.timeScale = 1f;
-        if (scene.name == "GameScene") {
-            playback.ReleaseOutputDevice();
-        }
         SceneManager.LoadScene("EndGame");
     }
 
@@ -128,6 +118,7 @@ public class GameManager : MonoBehaviour
 
     public void GoToSettings() {
         settingsMenu.SetActive(true);
+        pauseMenu.SetActive(false);
         SceneManager.LoadScene("SettingsScreen");
     }
 
@@ -140,7 +131,6 @@ public class GameManager : MonoBehaviour
     }
 
     public void GoToMainMenu() {
-        isPaused = false;
         Time.timeScale = 1f;
         if (scene.name == "GameScene") {
             playback.ReleaseOutputDevice();
@@ -151,6 +141,14 @@ public class GameManager : MonoBehaviour
     public void GoToGameScene() {
         Time.timeScale = 1f;
         SceneManager.LoadScene("GameScene");
+        settingsMenu.SetActive(false);
+        pauseMenu.SetActive(false);
+        isPaused = false;
+    }
+
+    public void GoToLatencyTest() {
+        Time.timeScale = 1f;
+        SceneManager.LoadScene("LatencyTest");
         settingsMenu.SetActive(false);
         pauseMenu.SetActive(false);
         isPaused = false;
