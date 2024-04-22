@@ -39,7 +39,7 @@ public class SpriteCreator : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
-        if (Time.time > timestamp + 0.75f) {
+        if (Time.time > timestamp + 0.2f) {
             String keysPressed = "";
 
             foreach (KeyCode key in keys) {
@@ -58,11 +58,11 @@ public class SpriteCreator : MonoBehaviour
                 }
             }
 
-        //spawn ghost notes randomly
-        if (UnityEngine.Random.value < 0.2f)
-        {
-            ReplaceWithGhostNote();
-        }
+            //spawn ghost notes randomly
+            if (UnityEngine.Random.value <= 0.35f)
+            {
+                ReplaceWithGhostNote();
+            }
 
             if (keysPressed.Length != 0) {
                 textElement.text = "Keys Pressed: " + keysPressed.Replace("Semicolon", ";").Trim();
