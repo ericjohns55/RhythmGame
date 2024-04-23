@@ -39,7 +39,7 @@ public class SpriteCreator : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
-        if (Time.time > timestamp + 0.2f) {
+        if (Time.time > timestamp + 0.15f) {
             String keysPressed = "";
 
             foreach (KeyCode key in keys) {
@@ -47,6 +47,14 @@ public class SpriteCreator : MonoBehaviour
                     Debug.Log(key.ToString() + ": " + keys.IndexOf(key).ToString());
 
                     int noteIndex = keys.IndexOf(key);
+
+                    //before regular notes are generated on the screen 
+                    //spawn ghost notes randomly
+                    if (UnityEngine.Random.value < 0.4f)
+                    {
+                        Debug.Log("Random value chosen");
+                        ReplaceWithGhostNote();
+                    }
                     
                     setScreenUnits();
                     float xPosition = (spacerSize * (noteIndex + 1)) + noteIndex + 0.5f;
@@ -56,12 +64,6 @@ public class SpriteCreator : MonoBehaviour
 
                     timestamp = Time.time;
                 }
-            }
-
-            //spawn ghost notes randomly
-            if (UnityEngine.Random.value <= 0.35f)
-            {
-                ReplaceWithGhostNote();
             }
 
             if (keysPressed.Length != 0) {
@@ -92,8 +94,9 @@ public class SpriteCreator : MonoBehaviour
 
             //ghost note color to opaque gray
             ghostNote.GetComponent<Renderer>().material.color = new Color(0.5f, 0.5f, 0.5f, 1f);
-            // Set ghost note outline color to black
+            //ghost note outline color to black
             ghostNote.GetComponent<Renderer>().material.SetColor("_OutlineColor", Color.black);
+            ghostNote.GetComponent<Rigidbody2D>().velocity = new Vector2(0, -10);
 
             //destroy the regular note that was replaced
             Destroy(noteToReplace);
@@ -107,38 +110,39 @@ public class SpriteCreator : MonoBehaviour
         setScreenUnits();
         xPosition -= unitWidth; 
 
-        if (isGhostNote)
-        {
-           // Choose a random regular note to replace with a ghost note
-        GameObject[] regularNotes = GameObject.FindGameObjectsWithTag("Note");
-        if (regularNotes.Length > 0)
-        {
-            int randomIndex = UnityEngine.Random.Range(0, regularNotes.Length);
-            GameObject noteToReplace = regularNotes[randomIndex];
+        // if (isGhostNote)
+        // {
+        //     // Choose a random regular note to replace with a ghost note
+        //     GameObject[] regularNotes = GameObject.FindGameObjectsWithTag("Note");
+        //     if (regularNotes.Length > 0)
+        //     {
+        //         int randomIndex = UnityEngine.Random.Range(0, regularNotes.Length);
+        //         GameObject noteToReplace = regularNotes[randomIndex];
 
-            // Instantiate the ghost note
-            GameObject ghostNote = Instantiate(ghostNotePrefab, noteToReplace.transform.position, Quaternion.identity);
-            ghostNote.tag = "GhostNote";
+        //         // Instantiate the ghost note
+        //         GameObject ghostNote = Instantiate(ghostNotePrefab, noteToReplace.transform.position, Quaternion.identity);
+        //         ghostNote.tag = "GhostNote";
 
-            // Set ghost note color to opaque gray
-            ghostNote.GetComponent<Renderer>().material.color = new Color(0.5f, 0.5f, 0.5f, 1f);
-            // Set ghost note outline color to black
-            ghostNote.GetComponent<Renderer>().material.SetColor("_OutlineColor", Color.black);
+        //         // Set ghost note color to opaque gray
+        //         ghostNote.GetComponent<Renderer>().material.color = new Color(0.5f, 0.5f, 0.5f, 1f);
+        //         // Set ghost note outline color to black
+        //         ghostNote.GetComponent<Renderer>().material.SetColor("_OutlineColor", Color.black);
+        //         ghostNote.GetComponent<Rigidbody2D>().velocity = new Vector2(0, -10);
 
-            // Destroy the regular note that has been replaced
-            Destroy(noteToReplace);
-        }
-    }
-    else
-    {
-        // Instantiate a regular note
-        GameObject regularNote = Instantiate(notePrefab, new Vector2(xPosition, 4), Quaternion.identity);
-        regularNote.tag = "Note";
-        regularNote.GetComponent<Renderer>().material.SetColor("_Color", colors[colorIndex]);
-        regularNote.GetComponent<Rigidbody2D>().velocity = new Vector2(0, -10);
-    }
+        //         // Destroy the regular note that has been replaced
+        //         Destroy(noteToReplace);
+        //     }
+        // }
+        // else
+        //{
+            // Instantiate a regular note
+            GameObject regularNote = Instantiate(notePrefab, new Vector2(xPosition, 4), Quaternion.identity);
+            regularNote.tag = "Note";
+            regularNote.GetComponent<Renderer>().material.SetColor("_Color", colors[colorIndex]);
+            regularNote.GetComponent<Rigidbody2D>().velocity = new Vector2(0, -10);
+        //}
 
-    lastRender = Time.time;
+        lastRender = Time.time;
     }
 
     // finds units width of screen and sets spacerSize
