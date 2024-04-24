@@ -13,8 +13,6 @@ public class SpriteCreator : MonoBehaviour
     public GameObject ghostNotePrefab;
     public TMP_Text textElement;
 
-    private bool regularEventRemoved = false;
-
     public float downwardsForce = 100f;
 
     private float spacerSize;
@@ -88,6 +86,24 @@ public class SpriteCreator : MonoBehaviour
         }
     }
 }
+private void RemoveRegularNote()
+{
+    // Find all regular notes in the scene
+    GameObject[] regularNotes = GameObject.FindGameObjectsWithTag("Note");
+
+    if (regularNotes.Length > 0)
+    {
+        // Pick a random regular note to be replaced
+        int randomIndex = UnityEngine.Random.Range(0, regularNotes.Length);
+        GameObject noteToReplace = regularNotes[randomIndex];
+
+        // Instantiate a ghost note instead of removing the regular note
+        generateObject(noteToReplace.transform.position.x, 0, true);
+
+        // Destroy the regular note that was replaced
+        Destroy(noteToReplace);
+    }
+}
 
 
    private void SpawnGhostNote() 
@@ -120,23 +136,19 @@ public class SpriteCreator : MonoBehaviour
         Debug.Log("No regular notes found. Skipping ghost note spawning.");
     }
 }
-
-
-
-
     private void generateObject(float xPosition, int colorIndex, bool isGhostNote = false) {
         setScreenUnits();
         xPosition -= unitWidth; 
 
         if (isGhostNote)
         {
-            // Spawn ghost note
+           // Spawn ghost note
         GameObject ghostNote = Instantiate(ghostNotePrefab, new Vector2(xPosition, 4), Quaternion.identity);
         ghostNote.tag = "GhostNote";
         ghostNote.GetComponent<Renderer>().material.color = new Color(0.5f, 0.5f, 0.5f, 1f);
         ghostNote.GetComponent<Renderer>().material.SetColor("_OutlineColor", Color.black);
         ghostNote.GetComponent<Rigidbody2D>().velocity = new Vector2(0, -10);
-        }
+    }
         else
         {
             // Instantiate a regular note
