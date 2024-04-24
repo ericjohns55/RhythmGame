@@ -65,18 +65,7 @@ public class SpriteCreator : MonoBehaviour
                 
                 setScreenUnits();
                 float xPosition = (spacerSize * (noteIndex + 1)) + noteIndex + 0.5f;
-                generateObject(xPosition, noteIndex); // Generate the regular note first
-                
-                // Spawn ghost notes randomly
-                if (regularEventRemoved)
-                {
-                    regularEventRemoved = false; 
-                    if (UnityEngine.Random.value < 0.4f)
-                    {
-                        Debug.Log("Random value chosen");
-                        SpawnGhostNote();
-                    }
-                }
+                generateObject(xPosition, noteIndex);
 
                 keysPressed += key.ToString() + " ";
 
@@ -131,11 +120,13 @@ public class SpriteCreator : MonoBehaviour
 }
 
 
-
-
-    private void generateObject(float xPosition, int colorIndex, bool isGhostNote = false) {
+    private void generateObject(float xPosition, int colorIndex, bool isGhostNote) {
         setScreenUnits();
         xPosition -= unitWidth; 
+
+        if (!isGhostNote) {
+        RemoveEvent(true);
+    }
 
         if (isGhostNote)
         {
