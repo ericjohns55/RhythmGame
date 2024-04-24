@@ -293,7 +293,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: -50, y: 130}
-  m_SizeDelta: {x: 350, y: 50}
+  m_SizeDelta: {x: 500, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &137660799
 MonoBehaviour:
@@ -841,7 +841,6 @@ MonoBehaviour:
   playbackObject: {fileID: 0}
   totalNotes: 0
   destroyedNotes: 0
-  buttonControl: {fileID: 0}
   countdown: {fileID: 0}
 --- !u!1 &1796701029
 GameObject:
@@ -998,7 +997,6 @@ MonoBehaviour:
   playbackObject: {fileID: 0}
   totalNotes: 0
   destroyedNotes: 0
-  buttonControl: {fileID: 0}
   countdown: {fileID: 0}
 --- !u!114 &1796701035
 MonoBehaviour:
