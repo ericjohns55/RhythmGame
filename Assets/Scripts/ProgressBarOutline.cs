@@ -34,7 +34,7 @@ public class ProgressBarOutline : MonoBehaviour
      */
     void GenerateOutlineTexture() {
         int width = (int)(ProgressBarScript.barWidth + outlineSize * 2);
-        int height = (int)(barTransform.sizeDelta.y + outlineSize * 2);
+        int height = (int)(barTransform.sizeDelta.y + outlineSize); // not times two so the progress bar doesnt glitch
 
         if (outlineTexture != null)
             Destroy(outlineTexture);

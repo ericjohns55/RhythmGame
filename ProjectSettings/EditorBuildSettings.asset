@@ -20,4 +20,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/EndGame.unity
     guid: cc6c8ae8bd3804b9c9cafa8e4d129a05
+  - enabled: 1
+    path: Assets/Scenes/LatencyTest.unity
+    guid: 1ddbf018ab3148140bc92c6f3e154b11
   m_configObjects: {}
