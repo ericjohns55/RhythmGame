@@ -14,6 +14,11 @@ public class ScoreManager : MonoBehaviour
     [SerializeField] private int comboStreak = 0;
     [SerializeField] private float comboMultiplier = 1;
 
+    private int miss = 0;
+    private int awful = 0;
+    private int good = 0;
+    private int excellent = 0;
+
     public void AddPoints(int points)
     {
         score += points;
@@ -28,6 +33,14 @@ public class ScoreManager : MonoBehaviour
 
     void Start()
     {
+        miss = 0;
+        awful = 0;
+        good = 0;
+        excellent = 0;
+        PlayerPrefs.SetInt("miss", 0);
+        PlayerPrefs.SetInt("awful", 0);
+        PlayerPrefs.SetInt("good", 0);
+        PlayerPrefs.SetInt("excellent", 0);
         UpdateScoreText();
     }
 
@@ -83,5 +96,44 @@ public class ScoreManager : MonoBehaviour
 
     public int GetScore() {
         return score;
+    }
+
+    public void IncrementMiss() {
+        miss++;
+    }
+
+    public void IncrementAwful() {
+        awful++;
+    }
+
+    public void IncrementGood() {
+        good++;
+    }
+
+    public void IncrementExcellent() {
+        excellent++;
+    }
+
+    public int GetMiss() {
+        return miss;
+    }
+
+    public int GetAwful() {
+        return awful;
+    }
+
+    public int GetGood() {
+        return good;
+    }
+
+    public int GetExcellent() {
+        return excellent;
+    }
+
+    public void SaveHits() {
+        PlayerPrefs.SetInt("miss", miss);
+        PlayerPrefs.SetInt("awful", awful);
+        PlayerPrefs.SetInt("good", good);
+        PlayerPrefs.SetInt("excellent", excellent);
     }
 }

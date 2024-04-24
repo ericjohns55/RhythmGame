@@ -14,6 +14,12 @@ public class Settings : MonoBehaviour
 {
     public GameObject inputField;
 
+    public void Start() {
+        if (inputField != null) {
+            inputField.GetComponent<TMP_InputField>().text = PlayerPrefs.GetString("MidiFilePath", "");
+        }
+    }
+
     public void SaveMidiFilePath()
     {
         string path = inputField.GetComponent<TMP_InputField>().text;

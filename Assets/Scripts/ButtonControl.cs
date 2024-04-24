@@ -27,11 +27,6 @@ public class ButtonControl : MonoBehaviour
     private ScoreManager scoreManager;
     private GameManager gameManager;
 
-    private int miss = 0;
-    private int awful = 0;
-    private int good = 0;
-    private int excellent = 0;
-
     private List<KeyCode> activationKeys = new List<KeyCode>() {
         KeyCode.A, KeyCode.S, KeyCode.D, KeyCode.F,
         KeyCode.J, KeyCode.K, KeyCode.L, KeyCode.Semicolon
@@ -40,10 +35,6 @@ public class ButtonControl : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        miss = 0;
-        awful = 0;
-        good = 0;
-        excellent = 0;
         InitializeComponents();
     }
 
@@ -126,20 +117,20 @@ public class ButtonControl : MonoBehaviour
             switch (distance)
             {
                 case float d when d > 1.5f: // Miss
-                    miss++;
+                    scoreManager.IncrementMiss();
                     scoreManager.ResetCombo();
                     break;
                 case float d when d > 1.0f: // Awful
-                    awful++;
+                    scoreManager.IncrementAwful();
                     scoreManager.IncrementComboAndScore(10);
                     break;
                 case float d when d > 0.5f: // Good
-                    good++;
+                    scoreManager.IncrementGood();
                     Debug.Log("Good");
                     scoreManager.IncrementComboAndScore(20);
                     break;
                 default: // Excellent
-                    excellent++;
+                    scoreManager.IncrementExcellent();
                     Debug.Log("Excellent");
                     scoreManager.IncrementComboAndScore(30);
                     break;

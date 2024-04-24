@@ -95,6 +95,7 @@ public class GameManager : MonoBehaviour
             if (PlayerPrefs.GetInt(hash, 0) < scoreManager.GetScore()) {
                 PlayerPrefs.SetInt(hash, scoreManager.GetScore());
             }
+            scoreManager.SaveHits();
         }
         SceneManager.LoadScene("EndGame");
     }
