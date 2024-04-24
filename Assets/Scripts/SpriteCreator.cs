@@ -62,21 +62,12 @@ public class SpriteCreator : MonoBehaviour
                 Debug.Log(key.ToString() + ": " + keys.IndexOf(key).ToString());
 
                 int noteIndex = keys.IndexOf(key);
-                
+
                 setScreenUnits();
                 float xPosition = (spacerSize * (noteIndex + 1)) + noteIndex + 0.5f;
-                generateObject(xPosition, noteIndex); // Generate the regular note first
-                
-                // Spawn ghost notes randomly
-                if (regularEventRemoved)
-                {
-                    regularEventRemoved = false; 
-                    if (UnityEngine.Random.value < 0.4f)
-                    {
-                        Debug.Log("Random value chosen");
-                        SpawnGhostNote();
-                    }
-                }
+                generateObject(xPosition, noteIndex); 
+
+                RemoveEvent(true); 
 
                 keysPressed += key.ToString() + " ";
 
