@@ -117,15 +117,21 @@ public class ButtonControl : MonoBehaviour
             switch (distance)
             {
                 case float d when d > 1.5f: // Miss
+                    scoreManager.IncrementMiss();
                     scoreManager.ResetCombo();
                     break;
                 case float d when d > 1.0f: // Awful
+                    scoreManager.IncrementAwful();
                     scoreManager.IncrementComboAndScore(10);
                     break;
                 case float d when d > 0.5f: // Good
+                    scoreManager.IncrementGood();
+                    Debug.Log("Good");
                     scoreManager.IncrementComboAndScore(20);
                     break;
                 default: // Excellent
+                    scoreManager.IncrementExcellent();
+                    Debug.Log("Excellent");
                     scoreManager.IncrementComboAndScore(30);
                     break;
             }
