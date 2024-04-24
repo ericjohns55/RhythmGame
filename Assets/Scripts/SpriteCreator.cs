@@ -13,8 +13,6 @@ public class SpriteCreator : MonoBehaviour
     public GameObject ghostNotePrefab;
     public TMP_Text textElement;
 
-    private bool regularEventRemoved = false;
-
     public float downwardsForce = 100f;
 
     private float spacerSize;
@@ -120,7 +118,7 @@ public class SpriteCreator : MonoBehaviour
 }
 
 
-    private void generateObject(float xPosition, int colorIndex, bool isGhostNote) {
+    private void generateObject(float xPosition, int colorIndex, bool isGhostNote = false) {
         setScreenUnits();
         xPosition -= unitWidth; 
 
