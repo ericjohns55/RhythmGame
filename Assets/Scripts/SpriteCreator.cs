@@ -30,6 +30,8 @@ public class SpriteCreator : MonoBehaviour
     private float timestamp = 0f;
     private float lastRender = 0f;
 
+
+    // moved to MeasureChunk.cs to remove object 
     private void RemoveEvent(bool isRegularNote)
     {
     // If the removed event was a regular note, trigger chance for ghost note
@@ -118,22 +120,22 @@ public class SpriteCreator : MonoBehaviour
 }
 
 
-    private void generateObject(float xPosition, int colorIndex, bool isGhostNote = false) {
+    private void generateObject(float xPosition, int colorIndex, bool isGhostNote) {
         setScreenUnits();
         xPosition -= unitWidth; 
 
-        if (!isGhostNote) {
-        RemoveEvent(true);
-    }
+        if (removeEvent) {
+            isGhostNote = true;
+        }
 
         if (isGhostNote)
         {
             // Spawn ghost note
-        GameObject ghostNote = Instantiate(ghostNotePrefab, new Vector2(xPosition, 4), Quaternion.identity);
-        ghostNote.tag = "GhostNote";
-        ghostNote.GetComponent<Renderer>().material.color = new Color(0.5f, 0.5f, 0.5f, 1f);
-        ghostNote.GetComponent<Renderer>().material.SetColor("_OutlineColor", Color.black);
-        ghostNote.GetComponent<Rigidbody2D>().velocity = new Vector2(0, -10);
+            GameObject ghostNote = Instantiate(ghostNotePrefab, new Vector2(xPosition, 4), Quaternion.identity);
+            ghostNote.tag = "GhostNote";
+            ghostNote.GetComponent<Renderer>().material.color = new Color(0.5f, 0.5f, 0.5f, 1f);
+            ghostNote.GetComponent<Renderer>().material.SetColor("_OutlineColor", Color.black);
+            ghostNote.GetComponent<Rigidbody2D>().velocity = new Vector2(0, -10);
         }
         else
         {
@@ -153,9 +155,9 @@ public class SpriteCreator : MonoBehaviour
         spacerSize = (unitWidth * 2 - 8) / 9f;
     }
 
-    public void generateNote(int index) {
+    public void generateNote(int index, bool ghostNote) {
         float xPosition = (spacerSize * (index + 1) + index + 0.5f);
-        generateObject(xPosition, index);
+        generateObject(xPosition, index, ghostNote);
     }
 
     public float GetSpacerSize()

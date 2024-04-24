@@ -361,8 +361,13 @@ namespace MapGeneration {
                     }
 
                     if (removeEvent) {
-                        if (DEBUG_PARSE) Debug.LogFormat("Removing timestamp {0} [CHUNK {1}]", timestamp, chunkID);
-                        parsedEvents.Remove(mapEvent.GetMeasureTick());
+                        if (UnityEngine.Random.value < 0.4f) {
+                            if (DEBUG_PARSE) Debug.LogFormat("Setting timestamp {0} to ghost note [CHUNK {1}]", timestamp, chunkID);
+                            mapEvent.SetGhostNote(true);
+                         } else {
+                            if (DEBUG_PARSE) Debug.LogFormat("Removing timestamp {0} [CHUNK {1}]", timestamp, chunkID);
+                            parsedEvents.Remove(mapEvent.GetMeasureTick());
+                         }
                     }
                 }
             }
