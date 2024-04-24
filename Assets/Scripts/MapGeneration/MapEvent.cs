@@ -27,6 +27,8 @@ namespace MapGeneration {
         // contains the indices of the tiles we want to generate on the map
         List<int> tilesToGenerate;
 
+        public bool IsGhostNote { get; set; }
+
         // Constructor
         public MapEvent(long timestamp, short timeDivision, Tuple<TimeSignature, long> timeSignatureEvent) {
             this.timestamp = timestamp;

@@ -13,6 +13,8 @@ public class SpriteCreator : MonoBehaviour
     public GameObject ghostNotePrefab;
     public TMP_Text textElement;
 
+    private bool regularEventRemoved = false;
+
     public float downwardsForce = 100f;
 
     private float spacerSize;
@@ -29,6 +31,16 @@ public class SpriteCreator : MonoBehaviour
 
     private float timestamp = 0f;
     private float lastRender = 0f;
+
+    private void RemoveEvent(bool isRegularNote)
+    {
+    // If the removed event was a regular note, trigger chance for ghost note
+    if (isRegularNote && UnityEngine.Random.value < 0.4f)
+    {
+        Debug.Log("Random value chosen");
+        SpawnGhostNote();
+    }
+    }
 
     // Start is called before the first frame update
     void Start()
@@ -56,10 +68,14 @@ public class SpriteCreator : MonoBehaviour
                 generateObject(xPosition, noteIndex); // Generate the regular note first
                 
                 // Spawn ghost notes randomly
-                if (UnityEngine.Random.value < 0.4f)
+                if (regularEventRemoved)
                 {
-                    Debug.Log("Random value chosen");
-                    ReplaceWithGhostNote();
+                    regularEventRemoved = false; 
+                    if (UnityEngine.Random.value < 0.4f)
+                    {
+                        Debug.Log("Random value chosen");
+                        SpawnGhostNote();
+                    }
                 }
 
                 keysPressed += key.ToString() + " ";
@@ -83,7 +99,7 @@ public class SpriteCreator : MonoBehaviour
 }
 
 
-   private void ReplaceWithGhostNote() 
+   private void SpawnGhostNote() 
 {
     Debug.Log("Attempting to spawn ghost note...");
     GameObject[] regularNotes = GameObject.FindGameObjectsWithTag("Note");
@@ -121,37 +137,23 @@ public class SpriteCreator : MonoBehaviour
         setScreenUnits();
         xPosition -= unitWidth; 
 
-        // if (isGhostNote)
-        // {
-        //     // Choose a random regular note to replace with a ghost note
-        //     GameObject[] regularNotes = GameObject.FindGameObjectsWithTag("Note");
-        //     if (regularNotes.Length > 0)
-        //     {
-        //         int randomIndex = UnityEngine.Random.Range(0, regularNotes.Length);
-        //         GameObject noteToReplace = regularNotes[randomIndex];
-
-        //         // Instantiate the ghost note
-        //         GameObject ghostNote = Instantiate(ghostNotePrefab, noteToReplace.transform.position, Quaternion.identity);
-        //         ghostNote.tag = "GhostNote";
-
-        //         // Set ghost note color to opaque gray
-        //         ghostNote.GetComponent<Renderer>().material.color = new Color(0.5f, 0.5f, 0.5f, 1f);
-        //         // Set ghost note outline color to black
-        //         ghostNote.GetComponent<Renderer>().material.SetColor("_OutlineColor", Color.black);
-        //         ghostNote.GetComponent<Rigidbody2D>().velocity = new Vector2(0, -10);
-
-        //         // Destroy the regular note that has been replaced
-        //         Destroy(noteToReplace);
-        //     }
-        // }
-        // else
-        //{
+        if (isGhostNote)
+        {
+            // Spawn ghost note
+        GameObject ghostNote = Instantiate(ghostNotePrefab, new Vector2(xPosition, 4), Quaternion.identity);
+        ghostNote.tag = "GhostNote";
+        ghostNote.GetComponent<Renderer>().material.color = new Color(0.5f, 0.5f, 0.5f, 1f);
+        ghostNote.GetComponent<Renderer>().material.SetColor("_OutlineColor", Color.black);
+        ghostNote.GetComponent<Rigidbody2D>().velocity = new Vector2(0, -10);
+        }
+        else
+        {
             // Instantiate a regular note
             GameObject regularNote = Instantiate(notePrefab, new Vector2(xPosition, 4), Quaternion.identity);
             regularNote.tag = "Note";
             regularNote.GetComponent<Renderer>().material.SetColor("_Color", colors[colorIndex]);
             regularNote.GetComponent<Rigidbody2D>().velocity = new Vector2(0, -10);
-        //}
+        }
 
         lastRender = Time.time;
     }
