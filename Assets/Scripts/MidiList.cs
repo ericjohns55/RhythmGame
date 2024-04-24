@@ -53,15 +53,6 @@ public class MidiList : MonoBehaviour
             Debug.Log(midiFiles[i]);
             CreateMidiButton(midiFiles[i], i);
         }
-
-        //retrieves MIDI file path from PlayerPrefs
-        string midiFilePath = PlayerPrefs.GetString("MidiFilePath");
-        if (!string.IsNullOrEmpty(midiFilePath))
-        {
-            //find the index of the loaded MIDI file in the midiFiles array
-            int index = Array.IndexOf(midiFiles, midiFilePath);
-            CreateMidiButton(midiFilePath, index);
-        }
     }
 
     void CreateMidiButton(string midiFilePath, int index)
@@ -95,7 +86,7 @@ public class MidiList : MonoBehaviour
             PlayerPrefs.SetString("SelectedMidiFilePath", midiFilePath);
             Debug.Log("SelectedMidiFilePath: " + midiFilePath);
             Debug.Log("MD5: " + ComputeMD5Hash(midiFilePath));
-            //scoreText.text = "Score:\n" + PlayerPrefs.GetInt(ComputeMD5Hash(midiFilePath), 0);
+            scoreText.text = "Score:\n" + PlayerPrefs.GetInt(ComputeMD5Hash(midiFilePath), 0);
         }
     }
 
