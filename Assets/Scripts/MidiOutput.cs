@@ -83,7 +83,14 @@ public class MidiOutput : MonoBehaviour
 
         generator = new MapGenerator(modifiedMidi);
         
-        difficulty = MapDifficulty.Easy;
+        string difficultyString = PlayerPrefs.GetString("SelectedDifficulty", "Medium");
+        MapDifficulty defaultDifficulty = MapDifficulty.Medium;
+        if(Enum.TryParse(difficultyString, out MapDifficulty parsedDifficulty))
+        {
+            difficulty = parsedDifficulty;
+        } else {
+            difficulty = defaultDifficulty;
+        }
     }
 
     public static IEnumerable<MidiFile> GetMidis()
