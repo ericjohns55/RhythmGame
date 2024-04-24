@@ -34,12 +34,12 @@ public class SpriteCreator : MonoBehaviour
     // moved to MeasureChunk.cs to remove object 
     private void RemoveEvent(bool isRegularNote)
     {
-    // If the removed event was a regular note, trigger chance for ghost note
-    if (isRegularNote && UnityEngine.Random.value < 0.4f)
-    {
-        Debug.Log("Random value chosen");
-        SpawnGhostNote();
-    }
+        // If the removed event was a regular note, trigger chance for ghost note
+        if (isRegularNote && UnityEngine.Random.value < 0.4f)
+        {
+            Debug.Log("Random value chosen");
+            SpawnGhostNote();
+        }
     }
 
     // Start is called before the first frame update
@@ -50,88 +50,84 @@ public class SpriteCreator : MonoBehaviour
 
     // Update is called once per frame
     void FixedUpdate()
-{
-    if (Time.time > timestamp + 0.15f)
     {
-        String keysPressed = "";
+        // if (Time.time > timestamp + 0.15f)
+        // {
+        //     String keysPressed = "";
 
-        foreach (KeyCode key in keys)
-        {
-            if (Input.GetKey(key))
-            {
-                Debug.Log(key.ToString() + ": " + keys.IndexOf(key).ToString());
+        //     foreach (KeyCode key in keys)
+        //     {
+        //         if (Input.GetKey(key))
+        //         {
+        //             Debug.Log(key.ToString() + ": " + keys.IndexOf(key).ToString());
 
-                int noteIndex = keys.IndexOf(key);
-                
-                setScreenUnits();
-                float xPosition = (spacerSize * (noteIndex + 1)) + noteIndex + 0.5f;
-                generateObject(xPosition, noteIndex);
+        //             int noteIndex = keys.IndexOf(key);
+                    
+        //             setScreenUnits();
+        //             float xPosition = (spacerSize * (noteIndex + 1)) + noteIndex + 0.5f;
+        //             generateObject(xPosition, noteIndex);
 
-                keysPressed += key.ToString() + " ";
+        //             keysPressed += key.ToString() + " ";
 
-                timestamp = Time.time;
-            }
-        }
+        //             timestamp = Time.time;
+        //         }
+        //     }
 
-        if (keysPressed.Length != 0)
-        {
-            textElement.text = "Keys Pressed: " + keysPressed.Replace("Semicolon", ";").Trim();
-        }
-        else
-        {
-            if (Time.time > lastRender + 1.0f)
-            {
-                textElement.text = "Waiting for input...";
-            }
-        }
+        //     if (keysPressed.Length != 0)
+        //     {
+        //         textElement.text = "Keys Pressed: " + keysPressed.Replace("Semicolon", ";").Trim();
+        //     }
+        //     else
+        //     {
+        //         if (Time.time > lastRender + 1.0f)
+        //         {
+        //             textElement.text = "Waiting for input...";
+        //         }
+        //     }
+        // }
     }
-}
 
 
    private void SpawnGhostNote() 
-{
-    Debug.Log("Attempting to spawn ghost note...");
-    GameObject[] regularNotes = GameObject.FindGameObjectsWithTag("Note");
-
-    if (regularNotes.Length > 0)
     {
-        Debug.Log("Regular notes found. Spawning ghost note...");
-        // Pick a random regular note to be replaced
-        int randomIndex = UnityEngine.Random.Range(0, regularNotes.Length);
-        GameObject noteToReplace = regularNotes[randomIndex];
+        Debug.Log("Attempting to spawn ghost note...");
+        GameObject[] regularNotes = GameObject.FindGameObjectsWithTag("Note");
 
-        // Instantiate ghost note
-        GameObject ghostNote = Instantiate(ghostNotePrefab, noteToReplace.transform.position, Quaternion.identity);
-        ghostNote.tag = "GhostNote";
+        if (regularNotes.Length > 0)
+        {
+            Debug.Log("Regular notes found. Spawning ghost note...");
+            // Pick a random regular note to be replaced
+            int randomIndex = UnityEngine.Random.Range(0, regularNotes.Length);
+            GameObject noteToReplace = regularNotes[randomIndex];
 
-        // Set ghost note color to opaque gray
-        ghostNote.GetComponent<Renderer>().material.color = new Color(0.5f, 0.5f, 0.5f, 1f);
-        // Set ghost note outline color to black
-        ghostNote.GetComponent<Renderer>().material.SetColor("_OutlineColor", Color.black);
-        ghostNote.GetComponent<Rigidbody2D>().velocity = new Vector2(0, -10);
+            // Instantiate ghost note
+            GameObject ghostNote = Instantiate(ghostNotePrefab, noteToReplace.transform.position, Quaternion.identity);
+            ghostNote.tag = "GhostNote";
 
-        // Destroy the regular note that was replaced
-        Destroy(noteToReplace);
-    } 
-    else 
-    {
-        Debug.Log("No regular notes found. Skipping ghost note spawning.");
+            // Set ghost note color to opaque gray
+            ghostNote.GetComponent<Renderer>().material.color = new Color(0.5f, 0.5f, 0.5f, 1f);
+            // Set ghost note outline color to black
+            ghostNote.GetComponent<Renderer>().material.SetColor("_OutlineColor", Color.black);
+            ghostNote.GetComponent<Rigidbody2D>().velocity = new Vector2(0, -10);
+
+            // Destroy the regular note that was replaced
+            Destroy(noteToReplace);
+        } 
+        else 
+        {
+            Debug.Log("No regular notes found. Skipping ghost note spawning.");
+        }
     }
-}
 
 
     private void generateObject(float xPosition, int colorIndex, bool isGhostNote) {
         setScreenUnits();
         xPosition -= unitWidth; 
 
-        if (removeEvent) {
-            isGhostNote = true;
-        }
-
         if (isGhostNote)
         {
             // Spawn ghost note
-            GameObject ghostNote = Instantiate(ghostNotePrefab, new Vector2(xPosition, 4), Quaternion.identity);
+            GameObject ghostNote = Instantiate(notePrefab, new Vector2(xPosition, 4), Quaternion.identity);
             ghostNote.tag = "GhostNote";
             ghostNote.GetComponent<Renderer>().material.color = new Color(0.5f, 0.5f, 0.5f, 1f);
             ghostNote.GetComponent<Renderer>().material.SetColor("_OutlineColor", Color.black);
