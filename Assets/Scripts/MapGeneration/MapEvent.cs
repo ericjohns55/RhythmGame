@@ -27,6 +27,9 @@ namespace MapGeneration {
         // contains the indices of the tiles we want to generate on the map
         List<int> tilesToGenerate;
 
+        // true if a map event should be a ghost note, defaulted to false otherwise
+        private bool ghostNote = false;
+
         // Constructor
         public MapEvent(long timestamp, short timeDivision, Tuple<TimeSignature, long> timeSignatureEvent) {
             this.timestamp = timestamp;
@@ -63,6 +66,14 @@ namespace MapGeneration {
 
         public TimeSignature GetTimeSignature() {
             return timeSignature;
+        }
+                
+        public void SetGhostNote(bool ghostNote) {
+            this.ghostNote = ghostNote;
+        }
+
+        public bool GetGhostNote() {
+            return ghostNote;
         }
 
         // Returns the number of notes being played in the midi at this time

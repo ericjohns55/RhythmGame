@@ -133,6 +133,7 @@ public class MidiOutput : MonoBehaviour
                 } else {
                     // the linked list was generated based off of a SortedDictionary, so the first note is guaranteed the first node
                     if (generatedMap == null) {
+                        Debug.LogFormat("DIFFICULTY {0}", difficulty);
                         generatedMap = generator.GenerateMap(difficulty);
                         progressBar.SetMaxValue(generatedMap.Count);
                         gameManager.SetNoteCount(generator.GetNoteCount());
@@ -167,7 +168,7 @@ public class MidiOutput : MonoBehaviour
         MapEvent currentEvent = currentNode.Value;
         foreach (int noteID in currentEvent.GetTilesToGenerate()) { // generates notes from the current map event
            
-            spriteCreator.generateNote(noteID);
+            spriteCreator.generateNote(noteID, currentEvent.GetGhostNote());
             // Gives ScoreCheck the ID of the current note being played
             // scoreManager.GetComponent<ScoreCheck>().SetNoteID(noteID);
             //Debug.Log(noteID + " time: " + Time.time);
