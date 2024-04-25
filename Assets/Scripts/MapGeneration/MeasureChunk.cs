@@ -361,7 +361,7 @@ namespace MapGeneration {
                     }
 
                     if (removeEvent) {
-                        if (UnityEngine.Random.value < 0.4f) {
+                        if (UnityEngine.Random.value < 0.2f) {
                             if (DEBUG_PARSE) Debug.LogFormat("Setting timestamp {0} to ghost note [CHUNK {1}]", timestamp, chunkID);
                             mapEvent.SetGhostNote(true);
                          } else {

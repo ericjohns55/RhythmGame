@@ -88,36 +88,36 @@ public class SpriteCreator : MonoBehaviour
     }
 
 
-   private void SpawnGhostNote() 
-    {
-        Debug.Log("Attempting to spawn ghost note...");
-        GameObject[] regularNotes = GameObject.FindGameObjectsWithTag("Note");
+//    private void SpawnGhostNote() 
+//     {
+//         Debug.Log("Attempting to spawn ghost note...");
+//         GameObject[] regularNotes = GameObject.FindGameObjectsWithTag("Note");
 
-        if (regularNotes.Length > 0)
-        {
-            Debug.Log("Regular notes found. Spawning ghost note...");
-            // Pick a random regular note to be replaced
-            int randomIndex = UnityEngine.Random.Range(0, regularNotes.Length);
-            GameObject noteToReplace = regularNotes[randomIndex];
+//         if (regularNotes.Length > 0)
+//         {
+//             Debug.Log("Regular notes found. Spawning ghost note...");
+//             // Pick a random regular note to be replaced
+//             int randomIndex = UnityEngine.Random.Range(0, regularNotes.Length);
+//             GameObject noteToReplace = regularNotes[randomIndex];
 
-            // Instantiate ghost note
-            GameObject ghostNote = Instantiate(ghostNotePrefab, noteToReplace.transform.position, Quaternion.identity);
-            ghostNote.tag = "GhostNote";
+//             // Instantiate ghost note
+//             GameObject ghostNote = Instantiate(ghostNotePrefab, noteToReplace.transform.position, Quaternion.identity);
+//             ghostNote.tag = "GhostNote";
 
-            // Set ghost note color to opaque gray
-            ghostNote.GetComponent<Renderer>().material.color = new Color(0.5f, 0.5f, 0.5f, 1f);
-            // Set ghost note outline color to black
-            ghostNote.GetComponent<Renderer>().material.SetColor("_OutlineColor", Color.black);
-            ghostNote.GetComponent<Rigidbody2D>().velocity = new Vector2(0, -10);
+//             // Set ghost note color to opaque gray
+//             ghostNote.GetComponent<Renderer>().material.color = new Color(0.5f, 0.5f, 0.5f, 1f);
+//             // Set ghost note outline color to black
+//             ghostNote.GetComponent<Renderer>().material.SetColor("_OutlineColor", Color.black);
+//             ghostNote.GetComponent<Rigidbody2D>().velocity = new Vector2(0, -10);
 
-            // Destroy the regular note that was replaced
-            Destroy(noteToReplace);
-        } 
-        else 
-        {
-            Debug.Log("No regular notes found. Skipping ghost note spawning.");
-        }
-    }
+//             // Destroy the regular note that was replaced
+//             Destroy(noteToReplace);
+//         } 
+//         else 
+//         {
+//             Debug.Log("No regular notes found. Skipping ghost note spawning.");
+//         }
+//     }
 
 
     private void generateObject(float xPosition, int colorIndex, bool isGhostNote) {
@@ -129,8 +129,9 @@ public class SpriteCreator : MonoBehaviour
             // Spawn ghost note
             GameObject ghostNote = Instantiate(notePrefab, new Vector2(xPosition, 4), Quaternion.identity);
             ghostNote.tag = "GhostNote";
-            ghostNote.GetComponent<Renderer>().material.color = new Color(0.5f, 0.5f, 0.5f, 1f);
-            ghostNote.GetComponent<Renderer>().material.SetColor("_OutlineColor", Color.black);
+            ghostNote.GetComponent<Renderer>().material.color = new Color(0.5f, 0.5f, 0.5f, 0.5f); 
+            ghostNote.GetComponent<Renderer>().material.SetColor("_OutlineColor", Color.black); 
+            ghostNote.GetComponent<Renderer>().material.SetFloat("_OutlineWidth", 0.1f); 
             ghostNote.GetComponent<Rigidbody2D>().velocity = new Vector2(0, -10);
         }
         else
