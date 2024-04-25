@@ -55,7 +55,7 @@ public class LatencyPress : MonoBehaviour
 
         timeAdjust = PlayerPrefs.GetFloat("AV_Latency");
 
-        MidiFile testMidi = MidiFile.Read("Assets/MIDIs/latency.mid");
+        MidiFile testMidi = MidiFile.Read("Assets/SystemMIDIs/latency3.mid");
         outputDevice = OutputDevice.GetByIndex(0);
         playback = testMidi.GetPlayback(outputDevice);
         

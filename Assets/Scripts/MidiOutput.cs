@@ -4,6 +4,7 @@ using UnityEngine;
 using TMPro;
 using Melanchall.DryWetMidi.Core;
 using Melanchall.DryWetMidi.Multimedia;
+using Melanchall.DryWetMidi.Tools;
 using Melanchall.DryWetMidi.Interaction;
 using System.Linq;
 using MapGeneration;
@@ -41,7 +42,13 @@ public class MidiOutput : MonoBehaviour
 
     private float waitAmount = 0.0f;
 
-    private MidiFile testMidi;
+    // Made static for the purposes of testing MIDI file merging
+    private static MidiFile testMidi;
+
+    private static MidiFile blankMidi;
+
+    // This MIDI file will be a fusion of the blank MIDI and the MIDI to be played
+    private MidiFile modifiedMidi;
     void Start()
     {
         // grab instance of SpriteCreator for note creation
@@ -60,13 +67,36 @@ public class MidiOutput : MonoBehaviour
         // load the test midi file and setup output devices and playback
 
         testMidi = MidiFile.Read("Assets/MIDIs/" +  midiFileName + ".mid");
+        blankMidi = MidiFile.Read("Assets/SystemMIDIs/blank.mid");
+
+        IEnumerable<MidiFile> midis = GetMidis();//.getEnumerator();
+        midis = new[] { blankMidi, testMidi };
+        
+
+        //modifiedMidi = MergeSequentially();
+        modifiedMidi = midis.MergeSequentially();
         
         outputDevice = OutputDevice.GetByIndex(0);
         playback = testMidi.GetPlayback(outputDevice);
 
         // generate the map for our test level
-        generator = new MapGenerator(testMidi);
-        difficulty = MapDifficulty.Easy;
+
+        generator = new MapGenerator(modifiedMidi);
+        
+        string difficultyString = PlayerPrefs.GetString("SelectedDifficulty", "Medium");
+        MapDifficulty defaultDifficulty = MapDifficulty.Medium;
+        if(Enum.TryParse(difficultyString, out MapDifficulty parsedDifficulty))
+        {
+            difficulty = parsedDifficulty;
+        } else {
+            difficulty = defaultDifficulty;
+        }
+    }
+
+    public static IEnumerable<MidiFile> GetMidis()
+    {
+        yield return blankMidi;
+        yield return testMidi;
     }
 
     /**
@@ -103,8 +133,11 @@ public class MidiOutput : MonoBehaviour
                 } else {
                     // the linked list was generated based off of a SortedDictionary, so the first note is guaranteed the first node
                     if (generatedMap == null) {
+                        Debug.LogFormat("DIFFICULTY {0}", difficulty);
                         generatedMap = generator.GenerateMap(difficulty);
                         progressBar.SetMaxValue(generatedMap.Count);
+                        gameManager.SetNoteCount(generator.GetNoteCount());
+                        gameManager.SetSongEndDelay(generator.GetSongEndDelay());
                     }
                     
                     currentNode = generatedMap.First;   
@@ -189,6 +222,10 @@ public class MidiOutput : MonoBehaviour
 
     public void ReleaseOutputDevice() {
         if (playback != null) {
+            if (playback.IsRunning) {
+                playback.Stop();
+            }
+            
             playback.Dispose();
         }
 
