@@ -129,7 +129,7 @@ public class SpriteCreator : MonoBehaviour
             // Spawn ghost note
             GameObject ghostNote = Instantiate(notePrefab, new Vector2(xPosition, 4), Quaternion.identity);
             ghostNote.tag = "GhostNote";
-            ghostNote.GetComponent<Renderer>().material.color = new Color(0.5f, 0.5f, 0.5f, 0.5f); 
+            ghostNote.GetComponent<Renderer>().material.color = new Color(0.0f, 0.0f, 0.0f, 0.5f); 
             ghostNote.GetComponent<Renderer>().material.SetColor("_OutlineColor", Color.black); 
             ghostNote.GetComponent<Renderer>().material.SetFloat("_OutlineWidth", 0.1f); 
             ghostNote.GetComponent<Rigidbody2D>().velocity = new Vector2(0, -10);
