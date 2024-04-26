@@ -5,6 +5,7 @@ using System.IO;
 using TMPro;
 using System;
 using System.Security.Cryptography;
+using MapGeneration;
 /**
 * Displays all midi files in a list, with a scrolling action. 
 * Each midi file is its own button.
@@ -62,6 +63,9 @@ public class MidiList : MonoBehaviour
             int index = Array.IndexOf(midiFiles, midiFilePath);
             CreateMidiButton(midiFilePath, index);
         }
+
+        PlayerPrefs.SetString(DifficultySelector.DifficultyKey, MapDifficulty.Easy.ToString());
+        PlayerPrefs.SetInt(DifficultySelector.GhostKey, 0);
 
         currentlySelectedText.text = "no midi selected";
     }

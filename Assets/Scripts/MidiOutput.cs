@@ -32,7 +32,7 @@ public class MidiOutput : MonoBehaviour
     private MapGenerator generator;
     private LinkedListNode<MapEvent> currentNode = null;
     LinkedList<MapEvent> generatedMap = null;
-    private MapDifficulty difficulty;
+    private MapDifficulty difficulty = MapDifficulty.Easy;
 
     // Needed for progressbar
     private ProgressBar progressBar;
@@ -49,6 +49,7 @@ public class MidiOutput : MonoBehaviour
 
     // This MIDI file will be a fusion of the blank MIDI and the MIDI to be played
     private MidiFile modifiedMidi;
+
     void Start()
     {
         // grab instance of SpriteCreator for note creation
@@ -83,13 +84,17 @@ public class MidiOutput : MonoBehaviour
 
         generator = new MapGenerator(modifiedMidi);
         
-        string difficultyString = PlayerPrefs.GetString("SelectedDifficulty", "Easy");
-        MapDifficulty defaultDifficulty = MapDifficulty.Easy;
+        string difficultyString = PlayerPrefs.GetString(DifficultySelector.DifficultyKey, "Easy");
         if(Enum.TryParse(difficultyString, out MapDifficulty parsedDifficulty))
         {
             difficulty = parsedDifficulty;
+        }
+
+        if (PlayerPrefs.GetInt(DifficultySelector.GhostKey) == 1) {
+            Debug.Log("Enabling ghost notes for Map Generation");
+            generator.enableGhostNotes();
         } else {
-            difficulty = defaultDifficulty;
+            Debug.Log("Ghost notes will not be enabled for this MIDI");
         }
     }
 
@@ -133,7 +138,6 @@ public class MidiOutput : MonoBehaviour
                 } else {
                     // the linked list was generated based off of a SortedDictionary, so the first note is guaranteed the first node
                     if (generatedMap == null) {
-                        Debug.LogFormat("DIFFICULTY {0}", difficulty);
                         generatedMap = generator.GenerateMap(difficulty);
                         progressBar.SetMaxValue(generatedMap.Count);
                         gameManager.SetNoteCount(generator.GetNoteCount());

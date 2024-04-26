@@ -102,6 +102,11 @@ namespace MapGeneration {
 
         // returns the number of tiles we want to generate during playback
         public int GetNumberTilesToGenerate() {
+            // ghost notes will never be in pairs
+            if (ghostNote) {
+                return 1;
+            }
+
             // we never want the player to play more than two simultaneous notes
             // so if the score has two or less notes, make them play one, if more then let them play two at once
             // for piano pieces this will even out the bass clef, but if there are larger chords we will still get simultaneous input

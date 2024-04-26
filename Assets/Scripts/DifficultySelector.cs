@@ -9,8 +9,8 @@ public class DifficultySelector : MonoBehaviour
     public Toggle hardToggle;
     public Toggle ghostToggle;
 
-    private const string DifficultyKey = "SelectedDifficulty";
-    private const string GhostKey = "GhostNotes";
+    public static string DifficultyKey = "SelectedDifficulty";
+    public static string GhostKey = "GhostNotesKey";
 
     public void Start()
     {
@@ -32,11 +32,11 @@ public class DifficultySelector : MonoBehaviour
     }
 
     public void ToggleGhostNotes(Toggle toggle) {
-        bool ghostNotesStatus = toggle.isOn;
+        int ghostNotesStatus = toggle.isOn ? 1 : 0;
 
-        PlayerPrefs.SetString(GhostKey, ghostNotesStatus.ToString());
+        PlayerPrefs.SetInt(GhostKey, ghostNotesStatus);
         PlayerPrefs.Save();
 
-        Debug.LogFormat("Ghost notes: {0}", ghostNotesStatus ? "enabled" : "disabled");
+        Debug.LogFormat("Ghost notes: {0}", ghostNotesStatus == 1 ? "enabled" : "disabled");
     }
 }
