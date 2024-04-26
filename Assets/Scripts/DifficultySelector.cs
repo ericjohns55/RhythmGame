@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using MapGeneration;
 
 public class DifficultySelector : MonoBehaviour
 {
@@ -13,13 +14,13 @@ public class DifficultySelector : MonoBehaviour
 
     public void Start()
     {
-        easyToggle.onValueChanged.AddListener(delegate { OnToggleActivated(easyToggle, Difficulty.Easy); });
-        mediumToggle.onValueChanged.AddListener(delegate { OnToggleActivated(mediumToggle, Difficulty.Medium); });
-        hardToggle.onValueChanged.AddListener(delegate { OnToggleActivated(hardToggle, Difficulty.Hard); });
+        easyToggle.onValueChanged.AddListener(delegate { OnToggleActivated(easyToggle, MapDifficulty.Easy); });
+        mediumToggle.onValueChanged.AddListener(delegate { OnToggleActivated(mediumToggle, MapDifficulty.Medium); });
+        hardToggle.onValueChanged.AddListener(delegate { OnToggleActivated(hardToggle, MapDifficulty.Hard); });
         ghostToggle.onValueChanged.AddListener(delegate { ToggleGhostNotes(ghostToggle); });
     }
 
-    public void OnToggleActivated(Toggle toggle, Difficulty difficulty)
+    public void OnToggleActivated(Toggle toggle, MapDifficulty difficulty)
     {
         if (toggle.isOn)
         {
@@ -38,11 +39,4 @@ public class DifficultySelector : MonoBehaviour
 
         Debug.LogFormat("Ghost notes: {0}", ghostNotesStatus ? "enabled" : "disabled");
     }
-}
-
-public enum Difficulty
-{
-    Easy,
-    Medium,
-    Hard
 }
