@@ -164,16 +164,16 @@ public class GameManager : MonoBehaviour
     public void GoToGameScene() {
         Time.timeScale = 1f;
         SceneManager.LoadScene("GameScene");
-        settingsMenu.SetActive(false);
-        pauseMenu.SetActive(false);
+        // settingsMenu.SetActive(false);
+        // pauseMenu.SetActive(false);
         isPaused = false;
     }
 
     public void GoToLatencyTest() {
         Time.timeScale = 1f;
         SceneManager.LoadScene("LatencyTest");
-        settingsMenu.SetActive(false);
-        pauseMenu.SetActive(false);
+        // settingsMenu.SetActive(false);
+        // pauseMenu.SetActive(false);
         isPaused = false;
     }
 

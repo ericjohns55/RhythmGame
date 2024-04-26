@@ -47,7 +47,11 @@ namespace MapGeneration {
         // an extra measure length at the end of the song, used for EndScreen delay
         private float songEndDelay = 0.0f;
         
+        // holds all Measures for map generation
         private List<MeasureChunk> measureChunks;
+
+        // true if the map generator should generate ghost notes, false otherwise
+        private bool ghostNotesEnabled = false;
 
         // Constructor, requires the midi file to parse
         public MapGenerator(MidiFile midiFile) {
@@ -163,7 +167,7 @@ namespace MapGeneration {
             // parse and generate map based off of all measure chunks
             foreach (MeasureChunk chunk in measureChunks) {
                 if (difficulty != MapDifficulty.FullMidi) {
-                    chunk.ParseMeasure(difficulty);
+                    chunk.ParseMeasure(difficulty, ghostNotesEnabled);
                 }
 
                 chunk.AddToList(generatedMap);
@@ -195,6 +199,11 @@ namespace MapGeneration {
         // Returns how many seconds into the program you are based off the midi timestamp
         public float ConvertTickToSeconds(long tickTimestamp) {
             return (float) (tickTimestamp / timeDivision * secondsPerQuarterNote);
+        }
+
+        // Enables ghost notes for map generation
+        public void enableGhostNotes() {
+            ghostNotesEnabled = true;
         }
 
         // Calculates how many real-life seconds are between two timestamps in the midi file

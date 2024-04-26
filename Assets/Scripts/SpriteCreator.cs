@@ -1,11 +1,6 @@
-using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using System;
-using Melanchall.DryWetMidi.Core;
-using Melanchall.DryWetMidi.Multimedia;
-using System.Text;
-using System.Linq;
 
 public class SpriteCreator : MonoBehaviour
 {
@@ -13,7 +8,7 @@ public class SpriteCreator : MonoBehaviour
     public GameObject ghostNotePrefab;
     public TMP_Text textElement;
 
-    public float downwardsForce = 100f;
+    public float downwardsForce = 10f;
 
     private float spacerSize;
 
@@ -22,118 +17,30 @@ public class SpriteCreator : MonoBehaviour
     private Color[] colors = {Color.red, Color.yellow, Color.green, Color.blue,
                               Color.magenta, new Color(0.647f, 0.647f, 0.647f), Color.gray, Color.white};
 
-    List<KeyCode> keys = new List<KeyCode>() {
-        KeyCode.A, KeyCode.S, KeyCode.D, KeyCode.F,
-        KeyCode.J, KeyCode.K, KeyCode.L, KeyCode.Semicolon
-    };
-
-    private float timestamp = 0f;
-    private float lastRender = 0f;
-
     // Start is called before the first frame update
     void Start()
     {
         setScreenUnits();
     }
 
-    // Update is called once per frame
-    void FixedUpdate()
-    {
-        if (Time.time > timestamp + 0.15f) {
-            String keysPressed = "";
-
-            foreach (KeyCode key in keys) {
-                if (Input.GetKey(key)) {
-                    Debug.Log(key.ToString() + ": " + keys.IndexOf(key).ToString());
-
-                    int noteIndex = keys.IndexOf(key);
-                    
-                    setScreenUnits();
-                    float xPosition = (spacerSize * (noteIndex + 1)) + noteIndex + 0.5f;
-                    generateObject(xPosition, noteIndex);
-
-                    keysPressed += key.ToString() + " ";
-
-                    timestamp = Time.time;
-                }
-            }
-
-        //spawn ghost notes randomly
-        if (UnityEngine.Random.value < 0.2f)
-        {
-            ReplaceWithGhostNote();
-        }
-
-            if (keysPressed.Length != 0) {
-                textElement.text = "Keys Pressed: " + keysPressed.Replace("Semicolon", ";").Trim();
-            } else {
-                if (Time.time > lastRender + 1.0f) {
-                    textElement.text = "Waiting for input...";
-                }
-            }
-        }
-    }
-
-    private void ReplaceWithGhostNote() 
-    {
-        GameObject[] regularNotes = GameObject.FindGameObjectsWithTag("Note");
-
-        if (regularNotes.Length > 0)
-        {
-            //pick random note to be replaced
-            int randomIndex = UnityEngine.Random.Range(0, regularNotes.Length);
-            GameObject noteToReplace = regularNotes[randomIndex];
-
-            //instantiate ghost note
-            GameObject ghostNote = Instantiate(ghostNotePrefab, noteToReplace.transform.position, Quaternion.identity);
-            ghostNote.tag = "GhostNote";
-
-            //ghost note color to opaque gray
-            ghostNote.GetComponent<Renderer>().material.color = new Color(0.5f, 0.5f, 0.5f, 1f);
-            // Set ghost note outline color to black
-            ghostNote.GetComponent<Renderer>().material.SetColor("_OutlineColor", Color.black);
-
-            //destroy the regular note that was replaced
-            Destroy(noteToReplace);
-        }
-    }
-
-    private void generateObject(float xPosition, int colorIndex, bool isGhostNote = false) {
+    private void generateObject(float xPosition, int colorIndex, bool isGhostNote) {
         setScreenUnits();
         xPosition -= unitWidth; 
 
-        if (isGhostNote)
-        {
-           // Choose a random regular note to replace with a ghost note
-        GameObject[] regularNotes = GameObject.FindGameObjectsWithTag("Note");
-        if (regularNotes.Length > 0)
-        {
-            int randomIndex = UnityEngine.Random.Range(0, regularNotes.Length);
-            GameObject noteToReplace = regularNotes[randomIndex];
+        GameObject note = Instantiate(notePrefab, new Vector2(xPosition, 4), Quaternion.identity);
 
-            // Instantiate the ghost note
-            GameObject ghostNote = Instantiate(ghostNotePrefab, noteToReplace.transform.position, Quaternion.identity);
-            ghostNote.tag = "GhostNote";
-
-            // Set ghost note color to opaque gray
-            ghostNote.GetComponent<Renderer>().material.color = new Color(0.5f, 0.5f, 0.5f, 1f);
-            // Set ghost note outline color to black
-            ghostNote.GetComponent<Renderer>().material.SetColor("_OutlineColor", Color.black);
-
-            // Destroy the regular note that has been replaced
-            Destroy(noteToReplace);
+        if (isGhostNote) {
+            note.tag = "GhostNote";
+            note.GetComponent<Renderer>().material.color = new Color(0.0f, 0.0f, 0.0f, 0.75f); 
+            note.GetComponent<Renderer>().material.SetColor("_OutlineColor", Color.black); 
+            note.GetComponent<Renderer>().material.SetFloat("_OutlineWidth", 0.1f); 
+            note.GetComponent<Rigidbody2D>().velocity = new Vector2(0, -10);
+        } else {
+            note.tag = "Note";
+            note.GetComponent<Renderer>().material.SetColor("_Color", colors[colorIndex]);
         }
-    }
-    else
-    {
-        // Instantiate a regular note
-        GameObject regularNote = Instantiate(notePrefab, new Vector2(xPosition, 4), Quaternion.identity);
-        regularNote.tag = "Note";
-        regularNote.GetComponent<Renderer>().material.SetColor("_Color", colors[colorIndex]);
-        regularNote.GetComponent<Rigidbody2D>().velocity = new Vector2(0, -10);
-    }
-
-    lastRender = Time.time;
+        
+        note.GetComponent<Rigidbody2D>().velocity = new Vector2(0, -downwardsForce);
     }
 
     // finds units width of screen and sets spacerSize
@@ -142,9 +49,9 @@ public class SpriteCreator : MonoBehaviour
         spacerSize = (unitWidth * 2 - 8) / 9f;
     }
 
-    public void generateNote(int index) {
+    public void generateNote(int index, bool ghostNote) {
         float xPosition = (spacerSize * (index + 1) + index + 0.5f);
-        generateObject(xPosition, index);
+        generateObject(xPosition, index, ghostNote);
     }
 
     public float GetSpacerSize()
@@ -156,9 +63,5 @@ public class SpriteCreator : MonoBehaviour
     {
         return unitWidth;
     }
-
-    public List<KeyCode> Keys
-    {
-        get { return keys; }
-    }
 }
+

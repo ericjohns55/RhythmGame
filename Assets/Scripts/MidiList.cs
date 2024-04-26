@@ -5,6 +5,7 @@ using System.IO;
 using TMPro;
 using System;
 using System.Security.Cryptography;
+using MapGeneration;
 /**
 * Displays all midi files in a list, with a scrolling action. 
 * Each midi file is its own button.
@@ -17,7 +18,7 @@ public class MidiList : MonoBehaviour
     public GameObject buttonPrefab;
     public Transform contentPanel;
     public ScrollRect scrollRect;
-    public TMP_Text scoreText;
+    public TMP_Text currentlySelectedText;
     private float contentHeight;
     
     //spacing between midi buttons
@@ -31,7 +32,7 @@ public class MidiList : MonoBehaviour
     {
         string midiFolderPath = PlayerPrefs.GetString("MidiFilePath", "MIDIs");
         string[] midiFiles;
-        Debug.Log(midiFolderPath);
+        // Debug.Log(midiFolderPath);
         if (midiFolderPath != "MIDIs") {
             midiFiles = Directory.GetFiles(midiFolderPath, "*.mid");
         } else { // Fallback to default unity asset path
@@ -50,7 +51,7 @@ public class MidiList : MonoBehaviour
         //loads MIDI files from folder
         for (int i = 0; i < midiFiles.Length; i++)
         {
-            Debug.Log(midiFiles[i]);
+            // Debug.Log(midiFiles[i]);
             CreateMidiButton(midiFiles[i], i);
         }
 
@@ -62,6 +63,11 @@ public class MidiList : MonoBehaviour
             int index = Array.IndexOf(midiFiles, midiFilePath);
             CreateMidiButton(midiFilePath, index);
         }
+
+        PlayerPrefs.SetString(DifficultySelector.DifficultyKey, MapDifficulty.Easy.ToString());
+        PlayerPrefs.SetInt(DifficultySelector.GhostKey, 0);
+
+        currentlySelectedText.text = "no midi selected";
     }
 
     void CreateMidiButton(string midiFilePath, int index)
@@ -93,9 +99,10 @@ public class MidiList : MonoBehaviour
         {
             //saves selected Midi file path 
             PlayerPrefs.SetString("SelectedMidiFilePath", midiFilePath);
-            Debug.Log("SelectedMidiFilePath: " + midiFilePath);
-            Debug.Log("MD5: " + ComputeMD5Hash(midiFilePath));
-            //scoreText.text = "Score:\n" + PlayerPrefs.GetInt(ComputeMD5Hash(midiFilePath), 0);
+            // Debug.Log("SelectedMidiFilePath: " + midiFilePath);
+            // Debug.Log("MD5: " + ComputeMD5Hash(midiFilePath));
+
+            currentlySelectedText.text = Path.GetFileNameWithoutExtension(midiFilePath) + " selected";
         }
     }
 

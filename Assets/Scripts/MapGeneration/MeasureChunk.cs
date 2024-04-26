@@ -96,7 +96,7 @@ namespace MapGeneration {
         }
 
         // parses all map events based off the intended difficulty
-        public void ParseMeasure(MapDifficulty difficulty) {
+        public void ParseMeasure(MapDifficulty difficulty, bool ghostNotesEnabled) {
             // array of all measure ticks in the current measure
             int[] measureTicks = allMapEvents.Keys.ToArray();
 
@@ -380,8 +380,24 @@ namespace MapGeneration {
                     }
 
                     if (removeEvent) {
-                        if (DEBUG_PARSE) Debug.LogFormat("Removing timestamp {0} [CHUNK {1}]", timestamp, chunkID);
-                        parsedEvents.Remove(mapEvent.GetMeasureTick());
+                        if (ghostNotesEnabled) {
+                            // have different chances of ghost note generation on differing difficulties
+                            if ((difficulty == MapDifficulty.Easy && UnityEngine.Random.value < 0.2f) ||
+                                (difficulty == MapDifficulty.Medium && UnityEngine.Random.value < 0.33f) ||
+                                (difficulty == MapDifficulty.Hard && UnityEngine.Random.value < 0.5f)) {
+                                    removeEvent = false;
+                            }
+                        }
+
+                        // remove the event if ghost notes did not change our mind with random chances
+                        if (removeEvent) {
+                            if (DEBUG_PARSE) Debug.LogFormat("Removing timestamp {0} [CHUNK {1}]", timestamp, chunkID);
+                            parsedEvents.Remove(mapEvent.GetMeasureTick());
+                        } else {
+                            // we have determined we want this to be a ghost note, update the MapEvent
+                            if (DEBUG_PARSE) Debug.LogFormat("Setting timestamp {0} to ghost note [CHUNK {1}]", timestamp, chunkID);
+                            mapEvent.SetGhostNote(true);
+                        }
                     }
                 }
             }

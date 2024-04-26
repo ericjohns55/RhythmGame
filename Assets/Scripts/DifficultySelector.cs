@@ -1,22 +1,26 @@
 using UnityEngine;
 using UnityEngine.UI;
+using MapGeneration;
 
 public class DifficultySelector : MonoBehaviour
 {
     public Toggle easyToggle;
     public Toggle mediumToggle;
     public Toggle hardToggle;
+    public Toggle ghostToggle;
 
-    private const string DifficultyKey = "SelectedDifficulty";
+    public static string DifficultyKey = "SelectedDifficulty";
+    public static string GhostKey = "GhostNotesKey";
 
     public void Start()
     {
-        easyToggle.onValueChanged.AddListener(delegate { OnToggleActivated(easyToggle, Difficulty.Easy); });
-        mediumToggle.onValueChanged.AddListener(delegate { OnToggleActivated(mediumToggle, Difficulty.Medium); });
-        hardToggle.onValueChanged.AddListener(delegate { OnToggleActivated(hardToggle, Difficulty.Hard); });
+        easyToggle.onValueChanged.AddListener(delegate { OnToggleActivated(easyToggle, MapDifficulty.Easy); });
+        mediumToggle.onValueChanged.AddListener(delegate { OnToggleActivated(mediumToggle, MapDifficulty.Medium); });
+        hardToggle.onValueChanged.AddListener(delegate { OnToggleActivated(hardToggle, MapDifficulty.Hard); });
+        ghostToggle.onValueChanged.AddListener(delegate { ToggleGhostNotes(ghostToggle); });
     }
 
-    public void OnToggleActivated(Toggle toggle, Difficulty difficulty)
+    public void OnToggleActivated(Toggle toggle, MapDifficulty difficulty)
     {
         if (toggle.isOn)
         {
@@ -26,11 +30,13 @@ public class DifficultySelector : MonoBehaviour
             Debug.Log("Selected difficulty: " + difficulty.ToString());
         }
     }
-}
 
-public enum Difficulty
-{
-    Easy,
-    Medium,
-    Hard
+    public void ToggleGhostNotes(Toggle toggle) {
+        int ghostNotesStatus = toggle.isOn ? 1 : 0;
+
+        PlayerPrefs.SetInt(GhostKey, ghostNotesStatus);
+        PlayerPrefs.Save();
+
+        Debug.LogFormat("Ghost notes: {0}", ghostNotesStatus == 1 ? "enabled" : "disabled");
+    }
 }

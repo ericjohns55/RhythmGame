@@ -581,8 +581,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   notePrefab: {fileID: 605494658288768327, guid: db2c4042412db184f89bf5a186806f35, type: 3}
+  ghostNotePrefab: {fileID: 0}
   textElement: {fileID: 0}
-  downwardsForce: 500
+  downwardsForce: 10
 --- !u!114 &519420035
 MonoBehaviour:
   m_ObjectHideFlags: 0

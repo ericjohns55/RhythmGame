@@ -32,7 +32,7 @@ public class MidiOutput : MonoBehaviour
     private MapGenerator generator;
     private LinkedListNode<MapEvent> currentNode = null;
     LinkedList<MapEvent> generatedMap = null;
-    private MapDifficulty difficulty;
+    private MapDifficulty difficulty = MapDifficulty.Easy;
 
     // Needed for progressbar
     private ProgressBar progressBar;
@@ -49,6 +49,7 @@ public class MidiOutput : MonoBehaviour
 
     // This MIDI file will be a fusion of the blank MIDI and the MIDI to be played
     private MidiFile modifiedMidi;
+
     void Start()
     {
         // grab instance of SpriteCreator for note creation
@@ -83,13 +84,17 @@ public class MidiOutput : MonoBehaviour
 
         generator = new MapGenerator(modifiedMidi);
         
-        string difficultyString = PlayerPrefs.GetString("SelectedDifficulty", "Medium");
-        MapDifficulty defaultDifficulty = MapDifficulty.Medium;
+        string difficultyString = PlayerPrefs.GetString(DifficultySelector.DifficultyKey, "Easy");
         if(Enum.TryParse(difficultyString, out MapDifficulty parsedDifficulty))
         {
             difficulty = parsedDifficulty;
+        }
+
+        if (PlayerPrefs.GetInt(DifficultySelector.GhostKey) == 1) {
+            Debug.Log("Enabling ghost notes for Map Generation");
+            generator.enableGhostNotes();
         } else {
-            difficulty = defaultDifficulty;
+            Debug.Log("Ghost notes will not be enabled for this MIDI");
         }
     }
 
@@ -167,7 +172,7 @@ public class MidiOutput : MonoBehaviour
         MapEvent currentEvent = currentNode.Value;
         foreach (int noteID in currentEvent.GetTilesToGenerate()) { // generates notes from the current map event
            
-            spriteCreator.generateNote(noteID);
+            spriteCreator.generateNote(noteID, currentEvent.GetGhostNote());
             // Gives ScoreCheck the ID of the current note being played
             // scoreManager.GetComponent<ScoreCheck>().SetNoteID(noteID);
             //Debug.Log(noteID + " time: " + Time.time);
