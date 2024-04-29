@@ -94,9 +94,11 @@ public class GameManager : MonoBehaviour
             playback.ReleaseOutputDevice();
             string midiFilePath = PlayerPrefs.GetString("SelectedMidiFilePath", "");
             string hash = ComputeMD5Hash(midiFilePath);
-            if (PlayerPrefs.GetInt(hash, 0) < scoreManager.GetScore()) {
-                PlayerPrefs.SetInt(hash, scoreManager.GetScore());
+            string difficulty = PlayerPrefs.GetString("SelectedDifficulty");
+            if (PlayerPrefs.GetInt(hash + "_" + difficulty + "_Best", 0) < scoreManager.GetScore()) {
+                PlayerPrefs.SetInt(hash + "_" + difficulty + "_Best", scoreManager.GetScore());
             }
+            PlayerPrefs.SetInt(hash + "_" + difficulty + "_Current", scoreManager.GetScore());
             scoreManager.SaveHits();
         }
         SceneManager.LoadScene("EndGame");

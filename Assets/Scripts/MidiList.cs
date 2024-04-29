@@ -20,6 +20,8 @@ public class MidiList : MonoBehaviour
     public ScrollRect scrollRect;
     public TMP_Text currentlySelectedText;
     private float contentHeight;
+
+    public TMP_Text scoreText;
     
     //spacing between midi buttons
     private float spacing = 5f;
@@ -53,15 +55,6 @@ public class MidiList : MonoBehaviour
         {
             // Debug.Log(midiFiles[i]);
             CreateMidiButton(midiFiles[i], i);
-        }
-
-        //retrieves MIDI file path from PlayerPrefs
-        string midiFilePath = PlayerPrefs.GetString("MidiFilePath");
-        if (!string.IsNullOrEmpty(midiFilePath))
-        {
-            //find the index of the loaded MIDI file in the midiFiles array
-            int index = Array.IndexOf(midiFiles, midiFilePath);
-            CreateMidiButton(midiFilePath, index);
         }
 
         PlayerPrefs.SetString(DifficultySelector.DifficultyKey, MapDifficulty.Easy.ToString());
@@ -99,11 +92,18 @@ public class MidiList : MonoBehaviour
         {
             //saves selected Midi file path 
             PlayerPrefs.SetString("SelectedMidiFilePath", midiFilePath);
-            // Debug.Log("SelectedMidiFilePath: " + midiFilePath);
-            // Debug.Log("MD5: " + ComputeMD5Hash(midiFilePath));
+            Debug.Log("SelectedMidiFilePath: " + midiFilePath);
+            Debug.Log("MD5: " + ComputeMD5Hash(midiFilePath));
+            UpdateText();
 
             currentlySelectedText.text = Path.GetFileNameWithoutExtension(midiFilePath) + " selected";
         }
+    }
+
+    public void UpdateText() {
+        string hash = ComputeMD5Hash(PlayerPrefs.GetString("SelectedMidiFilePath"));
+        string difficulty = PlayerPrefs.GetString("SelectedDifficulty");
+        scoreText.text = "Score:\n" + PlayerPrefs.GetInt(hash + "_" + difficulty + "_Best", 0);
     }
 
     string ComputeMD5Hash(string filePath)

@@ -9,6 +9,10 @@ public class DifficultySelector : MonoBehaviour
     public Toggle hardToggle;
     public Toggle ghostToggle;
 
+    public GameObject midiList;
+    private MidiList midiListScript;
+
+
     public static string DifficultyKey = "SelectedDifficulty";
     public static string GhostKey = "GhostNotesKey";
 
@@ -18,6 +22,11 @@ public class DifficultySelector : MonoBehaviour
         mediumToggle.onValueChanged.AddListener(delegate { OnToggleActivated(mediumToggle, MapDifficulty.Medium); });
         hardToggle.onValueChanged.AddListener(delegate { OnToggleActivated(hardToggle, MapDifficulty.Hard); });
         ghostToggle.onValueChanged.AddListener(delegate { ToggleGhostNotes(ghostToggle); });
+
+        midiListScript = (MidiList) midiList.GetComponent("MidiList");
+
+        easyToggle.isOn = true;
+        PlayerPrefs.SetString(DifficultyKey, MapDifficulty.Easy.ToString());
     }
 
     public void OnToggleActivated(Toggle toggle, MapDifficulty difficulty)
@@ -28,6 +37,8 @@ public class DifficultySelector : MonoBehaviour
             PlayerPrefs.Save();
 
             Debug.Log("Selected difficulty: " + difficulty.ToString());
+
+            midiListScript.UpdateText();
         }
     }
 
