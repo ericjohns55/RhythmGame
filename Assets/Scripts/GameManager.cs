@@ -23,7 +23,7 @@ public class GameManager : MonoBehaviour
     public GameObject playbackObject;
     private MidiOutput playback;
     private bool resumePlayback = false;
-    private bool isGameCompleted = false; 
+    //private bool isGameCompleted = false; 
     private ProgressBar progressBar;
     [SerializeField] private int totalNotes;
     [SerializeField] private int destroyedNotes;
