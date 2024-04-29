@@ -16,9 +16,11 @@ public class EndScreen : MonoBehaviour
         scoreText = this.GetComponent<TMP_Text>();
 
         string hash = ComputeMD5Hash(PlayerPrefs.GetString("SelectedMidiFilePath"));
+        string difficulty = PlayerPrefs.GetString("SelectedDifficulty");
 
-        scoreText.text = "<mspace=0.75em>    Score " + PlayerPrefs.GetInt(hash)
-        + "\n\nExcellent " + PlayerPrefs.GetInt("excellent")
+        scoreText.text = "<mspace=0.75em>    Score " + PlayerPrefs.GetInt(hash + "_" + difficulty + "_Current")
+        + "\n     Best " + PlayerPrefs.GetInt(hash + "_" + difficulty + "_Best")
+        + "\nExcellent " + PlayerPrefs.GetInt("excellent")
         + "\n     Good " + PlayerPrefs.GetInt("good")
         + "\n    Awful " + PlayerPrefs.GetInt("awful")
         + "\n     Miss " + PlayerPrefs.GetInt("miss") + "</mspace>";
