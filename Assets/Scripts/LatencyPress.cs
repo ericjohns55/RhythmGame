@@ -166,10 +166,6 @@ public class LatencyPress : MonoBehaviour
 
     public void exitScene()
     {
-        
-        playback.Stop();
-        playback.Dispose();
-        outputDevice.Dispose();
         SceneManager.LoadScene(0);
     }
 }

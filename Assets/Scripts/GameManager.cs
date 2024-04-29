@@ -1,11 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
+using System;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using TMPro;
 using Melanchall.DryWetMidi.Core;
 using Melanchall.DryWetMidi.Multimedia;
 using Melanchall.DryWetMidi.Interaction;
+using System.Security.Cryptography;
 
 public class GameManager : MonoBehaviour
 {
@@ -24,6 +27,7 @@ public class GameManager : MonoBehaviour
     private ProgressBar progressBar;
     [SerializeField] private int totalNotes;
     [SerializeField] private int destroyedNotes;
+    private ScoreManager scoreManager;
     private float songEndDelay = 0.0f;
 
     Scene scene;
@@ -36,6 +40,8 @@ public class GameManager : MonoBehaviour
         scene = SceneManager.GetActiveScene();
         if (scene.name == "GameScene") {
             playback = (MidiOutput) playbackObject.GetComponent("MidiOutput");
+            progressBar = (ProgressBar) this.GetComponent("ProgressBar");
+            scoreManager = (ScoreManager) this.GetComponent("ScoreManager");
             settingsMenu.SetActive(false);
             pauseMenu.SetActive(false);
             totalNotes = GameObject.FindGameObjectsWithTag("Note").Length;
@@ -82,6 +88,17 @@ public class GameManager : MonoBehaviour
 
     private void EndGame()
     {
+        isPaused = false;
+        Time.timeScale = 1f;
+        if (scene.name == "GameScene") {
+            playback.ReleaseOutputDevice();
+            string midiFilePath = PlayerPrefs.GetString("SelectedMidiFilePath", "");
+            string hash = ComputeMD5Hash(midiFilePath);
+            if (PlayerPrefs.GetInt(hash, 0) < scoreManager.GetScore()) {
+                PlayerPrefs.SetInt(hash, scoreManager.GetScore());
+            }
+            scoreManager.SaveHits();
+        }
         SceneManager.LoadScene("EndGame");
     }
 
@@ -147,16 +164,16 @@ public class GameManager : MonoBehaviour
     public void GoToGameScene() {
         Time.timeScale = 1f;
         SceneManager.LoadScene("GameScene");
-        settingsMenu.SetActive(false);
-        pauseMenu.SetActive(false);
+        // settingsMenu.SetActive(false);
+        // pauseMenu.SetActive(false);
         isPaused = false;
     }
 
     public void GoToLatencyTest() {
         Time.timeScale = 1f;
         SceneManager.LoadScene("LatencyTest");
-        settingsMenu.SetActive(false);
-        pauseMenu.SetActive(false);
+        // settingsMenu.SetActive(false);
+        // pauseMenu.SetActive(false);
         isPaused = false;
     }
 
@@ -165,6 +182,18 @@ public class GameManager : MonoBehaviour
         Application.Quit();
     }
 
+    string ComputeMD5Hash(string filePath)
+    {
+        using (var md5 = MD5.Create())
+        {
+            using (var stream = File.OpenRead(filePath))
+            {
+                byte[] hashBytes = md5.ComputeHash(stream);
+                // Convert the byte array to hexadecimal string
+                return BitConverter.ToString(hashBytes).Replace("-", "").ToLowerInvariant();
+            }
+        }
+    }
     public void SetNoteCount(int totalNoteCount) {
         totalNotes = totalNoteCount;
     }
