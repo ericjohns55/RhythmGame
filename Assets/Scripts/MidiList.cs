@@ -86,10 +86,14 @@ public class MidiList : MonoBehaviour
             PlayerPrefs.SetString("SelectedMidiFilePath", midiFilePath);
             Debug.Log("SelectedMidiFilePath: " + midiFilePath);
             Debug.Log("MD5: " + ComputeMD5Hash(midiFilePath));
-            string hash = ComputeMD5Hash(midiFilePath);
-            string difficulty = PlayerPrefs.GetString("SelectedDifficulty");
-            scoreText.text = "Score:\n" + PlayerPrefs.GetInt(hash + "_" + difficulty + "_Best", 0);
+            UpdateText();
         }
+    }
+
+    public void UpdateText() {
+        string hash = ComputeMD5Hash(PlayerPrefs.GetString("SelectedMidiFilePath"));
+        string difficulty = PlayerPrefs.GetString("SelectedDifficulty");
+        scoreText.text = "Score:\n" + PlayerPrefs.GetInt(hash + "_" + difficulty + "_Best", 0);
     }
 
     string ComputeMD5Hash(string filePath)
