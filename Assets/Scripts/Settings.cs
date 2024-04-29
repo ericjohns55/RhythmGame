@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using UnityEngine.IO;
+using TMPro;
 /*
 * Uses input field for the user to input their midi file path.
 * Once user inputs their path, they click the "add" button and it takes 
@@ -11,14 +12,17 @@ using UnityEngine.IO;
 
 public class Settings : MonoBehaviour
 {
-    public InputField pathInputField;
-    public InputField midiFilePathInput;
+    public GameObject inputField;
 
+    public void Start() {
+        if (inputField != null) {
+            inputField.GetComponent<TMP_InputField>().text = PlayerPrefs.GetString("MidiFilePath", "");
+        }
+    }
 
-    public void LoadMidiFile()
+    public void SaveMidiFilePath()
     {
-        string path = pathInputField.text;
-
+        string path = inputField.GetComponent<TMP_InputField>().text;
 
         if (string.IsNullOrEmpty(path))
         {
@@ -26,12 +30,11 @@ public class Settings : MonoBehaviour
             return;
         }
 
-        if (System.IO.File.Exists(path))
+        if (System.IO.Directory.Exists(path))
         {
-            string midiFilePath = midiFilePathInput.text;
+            Debug.Log(path);
             // Saves the MIDI file path to PlayerPrefs
-            PlayerPrefs.SetString("MidiFilePath", midiFilePath);
-            SceneManager.LoadScene("MidiListScene");
+            PlayerPrefs.SetString("MidiFilePath", path);
         }
         else
         {

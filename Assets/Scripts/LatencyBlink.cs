@@ -49,7 +49,7 @@ public class LatencyBlink : MonoBehaviour
         beatQueue.Add(sixth);
         beatQueue.Add(seventh);
 
-        MidiFile testMidi = MidiFile.Read("Assets/MIDIs/latency.mid");
+        MidiFile testMidi = MidiFile.Read("Assets/SystemMIDIs/latency3.mid");
         outputDevice = OutputDevice.GetByIndex(0);
         playback = testMidi.GetPlayback(outputDevice);
 
