@@ -29,6 +29,12 @@ public class MidiOutput : MonoBehaviour
     // public GameObject scoreManager;
     public float delay;
 
+    public GameObject Instructions;
+    [SerializeField]
+    private TMP_Text countdown;
+    private float countFrom = 3;
+    private bool startUp = true;
+
     private MapGenerator generator;
     private LinkedListNode<MapEvent> currentNode = null;
     LinkedList<MapEvent> generatedMap = null;
@@ -51,8 +57,18 @@ public class MidiOutput : MonoBehaviour
     private MidiFile modifiedMidi;
     void Start()
     {
-        // grab instance of SpriteCreator for note creation
+        PlayerPrefs.SetInt("ViewInstructions", 0); //This line is just for demonstration to the team
+        // Checks if the viewer has ever viewed the automatic instructions before and if 
+        // not, shows them and stops the game until the player hits the okay button.
+        if(PlayerPrefs.GetInt("ViewInstructions") == 0)
+        {
+            
+            Instructions.SetActive(true);
+            Time.timeScale = 0f;
+            PlayerPrefs.SetInt("ViewInstructions", 1);
+        }
 
+        // grab instance of SpriteCreator for note creation
         spriteCreator = Camera.main.GetComponent<SpriteCreator>();
 
         progressBar = (ProgressBar) gameManager.GetComponent("ProgressBar");
@@ -84,6 +100,32 @@ public class MidiOutput : MonoBehaviour
         generator = new MapGenerator(modifiedMidi);
         
         difficulty = MapDifficulty.Easy;
+
+        StartCoroutine(CountdownStart());
+    }
+
+    /**
+    * This coroutine governs the countdown at the start of the game. It will countdown from
+    * three then display a message. The startUp boolean disables and enables the playback
+    * so it cannot begin until the countdown is complete.
+    */
+    IEnumerator CountdownStart()
+    {
+        countdown.gameObject.SetActive(true);
+        startUp = true;
+        while(countFrom > 0)
+        {
+            countdown.SetText(countFrom.ToString());
+
+            yield return new WaitForSeconds(1f);
+
+            countFrom --;
+        }
+
+        countdown.SetText("Let's Rhythm!");
+        yield return new WaitForSeconds(1f);
+        countdown.gameObject.SetActive(false);
+        startUp = false;
     }
 
     public static IEnumerable<MidiFile> GetMidis()
@@ -102,11 +144,13 @@ public class MidiOutput : MonoBehaviour
     // Update is called once per frame
     void Update() //FixedUpdate()
     {
+
         /*
         * The following logical chain starts, stops, and resets midi playback using
         * the spacebar
         */
-        if (Time.time > timestamp + 0.50f) {
+        if (Time.time > timestamp + 0.50f && startUp == false) // startUp is checked for here 
+        {
             if (Input.GetKey(KeyCode.P)) {
                 timestamp = Time.time;
                 timecheck = timestamp;
@@ -189,6 +233,11 @@ public class MidiOutput : MonoBehaviour
         }
 
         progressBar.Increment();
+    }
+
+    public void StartCountdown()
+    {
+        Time.timeScale = 1f;
     }
 
     public void StopPlayback()
