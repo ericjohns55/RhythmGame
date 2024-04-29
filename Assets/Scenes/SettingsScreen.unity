@@ -1086,9 +1086,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1085648696}
-        m_TargetAssemblyTypeName: Settings, Assembly-CSharp
-        m_MethodName: SaveMidiFilePath
+      - m_Target: {fileID: 3743896578159488266, guid: 0d28cbdcf8dbadb459946a9815b48431, type: 3}
+        m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
+        m_MethodName: GoToMidiList
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1145,7 +1145,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 790387458}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f4a19bd65d3a143e09279f30de8e46be, type: 3}
+  m_Script: {fileID: 11500000, guid: 9651ed02186d1704fa1265690fcc7269, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   inputField: {fileID: 0}
@@ -1284,7 +1284,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f4a19bd65d3a143e09279f30de8e46be, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  inputField: {fileID: 1085648694}
+  pathInputField: {fileID: 0}
+  midiFilePathInput: {fileID: 0}
 --- !u!114 &1085648697
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1353,10 +1354,10 @@ MonoBehaviour:
   m_OnSelect:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 11500000, guid: f4a19bd65d3a143e09279f30de8e46be, type: 3}
         m_TargetAssemblyTypeName: UnityEngine.Object, UnityEngine
-        m_MethodName: 
-        m_Mode: 1
+        m_MethodName: set_name
+        m_Mode: 5
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -1364,7 +1365,7 @@ MonoBehaviour:
           m_FloatArgument: 0
           m_StringArgument: Settings.LoadMidiFile
           m_BoolArgument: 0
-        m_CallState: 0
+        m_CallState: 2
   m_OnDeselect:
     m_PersistentCalls:
       m_Calls: []
@@ -1794,7 +1795,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Set
+  m_text: Add
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 7decf241d675c6a43b01cfa13d719e42, type: 2}
   m_sharedMaterial: {fileID: 2428147530260336301, guid: 7decf241d675c6a43b01cfa13d719e42, type: 2}

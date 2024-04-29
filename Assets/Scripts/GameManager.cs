@@ -23,7 +23,7 @@ public class GameManager : MonoBehaviour
     public GameObject playbackObject;
     private MidiOutput playback;
     private bool resumePlayback = false;
-    private bool isGameCompleted = false; 
+    //private bool isGameCompleted = false; 
     private ProgressBar progressBar;
     [SerializeField] private int totalNotes;
     [SerializeField] private int destroyedNotes;
@@ -166,16 +166,16 @@ public class GameManager : MonoBehaviour
     public void GoToGameScene() {
         Time.timeScale = 1f;
         SceneManager.LoadScene("GameScene");
-        settingsMenu.SetActive(false);
-        pauseMenu.SetActive(false);
+        // settingsMenu.SetActive(false);
+        // pauseMenu.SetActive(false);
         isPaused = false;
     }
 
     public void GoToLatencyTest() {
         Time.timeScale = 1f;
         SceneManager.LoadScene("LatencyTest");
-        settingsMenu.SetActive(false);
-        pauseMenu.SetActive(false);
+        // settingsMenu.SetActive(false);
+        // pauseMenu.SetActive(false);
         isPaused = false;
     }
 

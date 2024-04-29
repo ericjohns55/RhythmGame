@@ -5,6 +5,7 @@ using System.IO;
 using TMPro;
 using System;
 using System.Security.Cryptography;
+using MapGeneration;
 /**
 * Displays all midi files in a list, with a scrolling action. 
 * Each midi file is its own button.
@@ -17,8 +18,10 @@ public class MidiList : MonoBehaviour
     public GameObject buttonPrefab;
     public Transform contentPanel;
     public ScrollRect scrollRect;
-    public TMP_Text scoreText;
+    public TMP_Text currentlySelectedText;
     private float contentHeight;
+
+    public TMP_Text scoreText;
     
     //spacing between midi buttons
     private float spacing = 5f;
@@ -31,7 +34,7 @@ public class MidiList : MonoBehaviour
     {
         string midiFolderPath = PlayerPrefs.GetString("MidiFilePath", "MIDIs");
         string[] midiFiles;
-        Debug.Log(midiFolderPath);
+        // Debug.Log(midiFolderPath);
         if (midiFolderPath != "MIDIs") {
             midiFiles = Directory.GetFiles(midiFolderPath, "*.mid");
         } else { // Fallback to default unity asset path
@@ -50,9 +53,14 @@ public class MidiList : MonoBehaviour
         //loads MIDI files from folder
         for (int i = 0; i < midiFiles.Length; i++)
         {
-            Debug.Log(midiFiles[i]);
+            // Debug.Log(midiFiles[i]);
             CreateMidiButton(midiFiles[i], i);
         }
+
+        PlayerPrefs.SetString(DifficultySelector.DifficultyKey, MapDifficulty.Easy.ToString());
+        PlayerPrefs.SetInt(DifficultySelector.GhostKey, 0);
+
+        currentlySelectedText.text = "no midi selected";
     }
 
     void CreateMidiButton(string midiFilePath, int index)
@@ -87,6 +95,8 @@ public class MidiList : MonoBehaviour
             Debug.Log("SelectedMidiFilePath: " + midiFilePath);
             Debug.Log("MD5: " + ComputeMD5Hash(midiFilePath));
             UpdateText();
+
+            currentlySelectedText.text = Path.GetFileNameWithoutExtension(midiFilePath) + " selected";
         }
     }
 

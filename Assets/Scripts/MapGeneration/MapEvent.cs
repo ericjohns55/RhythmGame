@@ -27,6 +27,9 @@ namespace MapGeneration {
         // contains the indices of the tiles we want to generate on the map
         List<int> tilesToGenerate;
 
+        // true if a map event should be a ghost note, defaulted to false otherwise
+        private bool ghostNote = false;
+
         // Constructor
         public MapEvent(long timestamp, short timeDivision, Tuple<TimeSignature, long> timeSignatureEvent) {
             this.timestamp = timestamp;
@@ -64,6 +67,14 @@ namespace MapGeneration {
         public TimeSignature GetTimeSignature() {
             return timeSignature;
         }
+                
+        public void SetGhostNote(bool ghostNote) {
+            this.ghostNote = ghostNote;
+        }
+
+        public bool GetGhostNote() {
+            return ghostNote;
+        }
 
         // Returns the number of notes being played in the midi at this time
         public int GetNoteCount() {
@@ -91,6 +102,11 @@ namespace MapGeneration {
 
         // returns the number of tiles we want to generate during playback
         public int GetNumberTilesToGenerate() {
+            // ghost notes will never be in pairs
+            if (ghostNote) {
+                return 1;
+            }
+
             // we never want the player to play more than two simultaneous notes
             // so if the score has two or less notes, make them play one, if more then let them play two at once
             // for piano pieces this will even out the bass clef, but if there are larger chords we will still get simultaneous input
