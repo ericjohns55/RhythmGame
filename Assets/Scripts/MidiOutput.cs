@@ -139,6 +139,11 @@ public class MidiOutput : MonoBehaviour
         } else {
             Debug.Log("Ghost notes will not be enabled for this MIDI");
         }
+        if (Time.time > timestamp + 0.50f && startUp == false) // startUp is checked for here 
+        {
+            
+            GameSetup();
+        }
     }
 
     public static IEnumerable<MidiFile> GetMidis()
@@ -158,48 +163,43 @@ public class MidiOutput : MonoBehaviour
     void Update() //FixedUpdate()
     {
 
-        /*
-        * The following logical chain starts, stops, and resets midi playback using
-        * the spacebar
-        */
-        if (Time.time > timestamp + 0.50f && startUp == false) // startUp is checked for here 
-        {
-            if (Input.GetKey(KeyCode.P)) {
-                timestamp = Time.time;
-                timecheck = timestamp;
-                //These assignments clear the note display TMPs
+    }
 
+    private void GameSetup()
+    {      
+            timestamp = Time.time;
+            timecheck = timestamp;
+            //These assignments clear the note display TMPs
+
+            progressBar.ResetBar();
+
+            if (playback.IsRunning) {
+                playback.Stop();
+
+                StopAllCoroutines();
+
+                // TODO: make it so we pause and unpause cleanly
+                // reset previous playback
+                currentNode = null;
                 progressBar.ResetBar();
-
-                if (playback.IsRunning) {
-                    playback.Stop();
-
-                    StopAllCoroutines();
-
-                    // TODO: make it so we pause and unpause cleanly
-                    // reset previous playback
-                    currentNode = null;
-                    progressBar.ResetBar();
-                } else {
-                    // the linked list was generated based off of a SortedDictionary, so the first note is guaranteed the first node
-                    if (generatedMap == null) {
-                        generatedMap = generator.GenerateMap(difficulty);
-                        progressBar.SetMaxValue(generatedMap.Count);
-                        gameManager.SetNoteCount(generator.GetNoteCount());
-                        gameManager.SetSongEndDelay(generator.GetSongEndDelay());
-                    }
-                    
-                    currentNode = generatedMap.First;   
-                    waitAmount = 0.0f;                 
-
-                    // testFlag = true;
-                    StartCoroutine(BeginMidiPlayback());
-
-                    executionTime = Time.time;
-                    StartCoroutine(SpawnNotes());
+            } else {
+                // the linked list was generated based off of a SortedDictionary, so the first note is guaranteed the first node
+                if (generatedMap == null) {
+                    generatedMap = generator.GenerateMap(difficulty);
+                    progressBar.SetMaxValue(generatedMap.Count);
+                    gameManager.SetNoteCount(generator.GetNoteCount());
+                    gameManager.SetSongEndDelay(generator.GetSongEndDelay());
                 }
+                
+                currentNode = generatedMap.First;   
+                waitAmount = 0.0f;                 
+
+                // testFlag = true;
+                StartCoroutine(BeginMidiPlayback());
+
+                executionTime = Time.time;
+                StartCoroutine(SpawnNotes());
             }
-        }
     }
 
     private IEnumerator BeginMidiPlayback() {
