@@ -44,6 +44,10 @@ public class ScoreManager : MonoBehaviour
         UpdateScoreText();
     }
 
+    void Update() {
+        UpdateScoreText();
+    }
+
     private void UpdateScoreText()
     {
         if (scoreText != null)
