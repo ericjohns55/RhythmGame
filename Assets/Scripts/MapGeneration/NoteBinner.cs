@@ -152,7 +152,10 @@ namespace MapGeneration {
 
                 // get number of tiles to generate per map event, this is calculated in MapEvent class
                 int numTilesToGenerate = mapEvent.GetNumberTilesToGenerate();
-                totalNoteCount += numTilesToGenerate;
+
+                if (!mapEvent.IsGhostNote()) {
+                    totalNoteCount += numTilesToGenerate;
+                }
 
                 // generate number of tiles needed
                 for (int i = 0; i < numTilesToGenerate; i++) {

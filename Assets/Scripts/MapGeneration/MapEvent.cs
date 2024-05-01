@@ -72,7 +72,7 @@ namespace MapGeneration {
             this.ghostNote = ghostNote;
         }
 
-        public bool GetGhostNote() {
+        public bool IsGhostNote() {
             return ghostNote;
         }
 
