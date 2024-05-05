@@ -72,7 +72,9 @@ namespace MapGeneration {
             timeChanges.Add(0, original);
 
             foreach (ValueChange<TimeSignature> timeEvent in tempoMap.GetTimeSignatureChanges()) {
-                timeChanges.Add(timeEvent.Time, timeEvent.Value); // populate our map
+                if (!timeChanges.ContainsKey(timeEvent.Time)) { // make sure the event does not already exist in case the song has no tempo changes
+                    timeChanges.Add(timeEvent.Time, timeEvent.Value); // populate our map
+                }
             }
 
             Debug.LogFormat("Parsed {0} time change events.", timeChanges.Count);
